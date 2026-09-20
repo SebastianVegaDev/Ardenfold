@@ -1,0 +1,22 @@
+{
+    "name": "ardenfold",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Privacy-first platform for securely organizing and sharing important personal information.",
+    "license": "UNLICENSED",
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "lint": "turbo run lint",
+        "typecheck": "turbo run typecheck",
+        "test": "turbo run test"
+    },
+    "engines": {
+        "node": ">=24.21.0 <25",
+        "pnpm": ">=12 <13"
+    },
+    "packageManager": "pnpm@12.5.1",
+    "devDependencies": {
+        "turbo": "2.11.0"
+    }
+}
