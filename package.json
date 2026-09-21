@@ -16,7 +16,11 @@
         "db:up": "docker compose up -d postgres",
         "db:down": "docker compose down",
         "db:status": "docker compose ps",
-        "db:logs": "docker compose logs --tail=100 -f postgres"
+        "db:logs": "docker compose logs --tail=100 -f postgres",
+        "db:generate": "pnpm --filter @ardenfold/database db:generate",
+        "db:migrate": "pnpm --filter @ardenfold/database db:migrate",
+        "db:check": "pnpm --filter @ardenfold/database db:check",
+        "db:validate": "pnpm --filter @ardenfold/database db:validate"
     },
     "engines": {
         "node": ">=24.21.0 <25",

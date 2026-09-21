@@ -1,23 +1,19 @@
-import {
-    Injectable,
-    type OnApplicationBootstrap,
-    type OnApplicationShutdown,
-} from "@nestjs/common";
+import { Injectable, type OnApplicationShutdown } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { Pool } from "pg";
+import {
+    createDatabaseConnection,
+    type ArdenfoldDatabase,
+    type DatabaseConnection,
+} from "@ardenfold/database";
 
 import type { EnvironmentVariables } from "../../config/environment";
 
 @Injectable()
-export class DatabaseService implements OnApplicationBootstrap, OnApplicationShutdown {
-    private readonly pool: Pool;
+export class DatabaseService implements OnApplicationShutdown {
+    private readonly connection: DatabaseConnection;
 
     constructor(configService: ConfigService<EnvironmentVariables, true>) {
-        const databaseSsl = configService.get("DATABASE_SSL", {
-            infer: true,
-        });
-
-        this.pool = new Pool({
+        this.connection = createDatabaseConnection({
             connectionString: configService.get("DATABASE_URL", {
                 infer: true,
             }),
@@ -30,24 +26,22 @@ export class DatabaseService implements OnApplicationBootstrap, OnApplicationShu
             connectionTimeoutMillis: configService.get("DATABASE_CONNECTION_TIMEOUT_MS", {
                 infer: true,
             }),
-            application_name: "ardenfold-api",
-            ssl: databaseSsl
-                ? {
-                      rejectUnauthorized: true,
-                  }
-                : false,
+            applicationName: "ardenfold-api",
+            ssl: configService.get("DATABASE_SSL", {
+                infer: true,
+            }),
         });
     }
 
-    async onApplicationBootstrap(): Promise<void> {
-        await this.ping();
+    get database(): ArdenfoldDatabase {
+        return this.connection.database;
     }
 
     async onApplicationShutdown(): Promise<void> {
-        await this.pool.end();
+        await this.connection.close();
     }
 
     async ping(): Promise<void> {
-        await this.pool.query("SELECT 1");
+        await this.connection.ping();
     }
 }

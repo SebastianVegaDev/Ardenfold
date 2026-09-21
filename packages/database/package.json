@@ -1,0 +1,45 @@
+{
+    "name": "@ardenfold/database",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./schema": {
+            "types": "./dist/schema/index.d.ts",
+            "default": "./dist/schema/index.js"
+        }
+    },
+    "files": [
+        "dist",
+        "drizzle"
+    ],
+    "scripts": {
+        "build": "tsc --project tsconfig.build.json",
+        "dev": "tsc --project tsconfig.build.json --watch --preserveWatchOutput",
+        "lint": "eslint src --max-warnings=0",
+        "typecheck": "tsc --noEmit",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "tsx src/cli/migrate.ts",
+        "db:check": "tsx src/cli/check.ts",
+        "db:validate": "drizzle-kit check"
+    },
+    "dependencies": {
+        "drizzle-orm": "^0.45.3",
+        "pg": "^8.23.0"
+    },
+    "devDependencies": {
+        "@types/node": "26.6.2",
+        "@types/pg": "^8.23.1",
+        "dotenv": "^18.0.1",
+        "dotenv-expand": "^12.0.3",
+        "drizzle-kit": "^0.31.11",
+        "eslint": "^10.11.0",
+        "tsx": "^4.23.15",
+        "typescript": "^7.0.2"
+    }
+}
