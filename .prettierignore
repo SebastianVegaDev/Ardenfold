@@ -8,3 +8,4 @@ coverage/
 .vitest/
 pnpm-lock.yaml
 *.tsbuildinfo
+packages/database/drizzle/

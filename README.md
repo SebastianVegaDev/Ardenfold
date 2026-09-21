@@ -123,6 +123,13 @@ All implementation follows this workflow:
 
 See [CONTRIBUTING.md](/CONTRIBUTING.md) for the complete conventions.
 
+## Database migrations
+
+Database schema and migration tooling live in `packages/database`.
+
+See [Database migrations](docs/development/migrations.md) for the complete
+workflow and rules.
+
 ## Security
 
 Never commit passwords, API keys, access tokens, private certificates or production environment files.
