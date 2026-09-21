@@ -1,0 +1,117 @@
+# Domain glossary
+
+The canonical terms below are used in code, contracts, and architecture
+discussions.
+
+User-facing labels are localized independently.
+
+An owning module is authoritative for a concept. Other modules may reference
+that concept through explicit identifiers and contracts.
+
+## Identity and access
+
+| Term | Definition | Owning module |
+| --- | --- | --- |
+| Organization | A workspace participating in Ardenfold, with its own members, settings, and protected operational records. | Identity & Access |
+| Tenant | The logical isolation boundary associated with an organization. It is not a separate business entity in the initial model. | Identity & Access |
+| Site | An operational subdivision of an organization, such as a laboratory or branch. A site is not a separate tenant. | Identity & Access |
+| User | A person represented in Ardenfold who may participate in multiple organizations. | Identity & Access |
+| Identity | An authentication identity linked to a user. For an external provider, identity is determined by its issuer and subject, not by email alone. | Identity & Access |
+| Membership | A user's participation in one organization, including its lifecycle and authorization assignments. | Identity & Access |
+| Invitation | A time-limited offer to join an organization. An invitation does not grant operational access before valid acceptance. | Identity & Access |
+| Role | A named collection of permissions assigned within an explicit scope. An organization role is not automatically global. | Identity & Access |
+| Permission | Authority to perform a specific action, subject to resource scope and business rules. | Identity & Access |
+| Session | An authenticated interaction context. A session does not independently grant access to every organization associated with a user. | Identity & Access |
+| Organization context | The organization against which an operation is evaluated, after server-side access validation. | Identity & Access |
+
+## Parties and commercial relationships
+
+| Term | Definition | Owning module |
+| --- | --- | --- |
+| Party | A business counterpart recorded by an organization, such as a company or individual. A party does not need an Ardenfold account. | Parties |
+| Customer | A role a party fulfills when requesting or purchasing services from the recording organization. | Parties |
+| Provider | A role a party fulfills when supplying services or goods to the recording organization. | Parties |
+| Contact | A person or contact channel associated with a party for business communication. A contact is not necessarily an authenticated user. | Parties |
+| Commercial relationship | The organization-scoped relationship that describes how a party interacts with that organization. | Parties |
+
+A party may be both a customer and a provider.
+
+Different organizations may hold independent records about the same real-world
+company. Those records are not automatically merged or shared.
+
+A future link between a party and a participating organization must be explicit.
+That link must not expose either organization's private records.
+
+## Assets
+
+| Term | Definition | Owning module |
+| --- | --- | --- |
+| Asset | A physical item whose identity and relevant technical history are tracked, such as an instrument or piece of equipment. | Asset Registry |
+| Asset identifier | A reference used to identify an asset, such as an internal identifier, manufacturer serial number, or customer code. | Asset Registry |
+| Ownership | A recorded relationship describing who owns an asset, including its applicable period when known. | Asset Registry |
+| Custody | A recorded relationship describing who has possession or operational responsibility for an asset during a period. | Asset Registry |
+| Location | The recorded physical placement of an asset. Location does not establish ownership or access rights. | Asset Registry |
+| Asset history | A permission-filtered view of relevant asset events and references to records owned by other modules. | Asset Registry |
+
+A manufacturer serial number is not assumed to be globally unique.
+
+An asset's real-world identity may persist across organizations, but Ardenfold
+must not infer shared visibility from matching identifiers.
+
+Cross-organization identity linking and history sharing require explicit,
+authorized workflows. The initial implementation does not promise automatic
+global deduplication.
+
+## Service delivery
+
+| Term | Definition | Owning module |
+| --- | --- | --- |
+| Service request | A customer's expressed need for technical work, including the requested scope and relevant assets when known. | Service Management |
+| Quote | A proposed commercial scope, price, and terms for requested work. | Service Management |
+| Quote revision | A distinguishable revision of a quote whose accepted commercial terms remain recoverable. | Service Management |
+| Work order | The operational authorization and coordination record for an agreed scope of work. | Service Management |
+| Work item | An individually tracked unit of work within a work order. | Service Management |
+| Receipt | The operational record of receiving an asset, including its observed condition and supplied accessories where relevant. | Service Management |
+| Technical execution | The performance and recording of technical work for a work item. | Technical Operations |
+| Technical result | Structured output from an execution, with the units, precision, and context required to interpret it. | Technical Operations |
+| Technical review | A recorded assessment of an execution and its results by an authorized reviewer. | Technical Operations |
+| Approval | An explicit decision permitting the reviewed result to advance, subject to the applicable policy. | Technical Operations |
+
+A quote is not a work order.
+
+A work order is not a certificate.
+
+A technical execution is not itself an approval.
+
+## Evidence and certificates
+
+| Term | Definition | Owning module |
+| --- | --- | --- |
+| Evidence | A contextual record supporting a technical action, result, review, or decision. | Technical Operations |
+| Attachment | A stored file linked to a domain record. Its business meaning and access rules come from that record. | The module owning the linked record |
+| Certificate | The logical issued document record representing an identified technical scope and its results. | Certificates & Trust |
+| Certificate version | A specific snapshot of certificate content. Once issued, its content cannot be overwritten. | Certificates & Trust |
+| Issuance | The authorized act that turns approved certificate content into an immutable issued version. | Certificates & Trust |
+| Replacement | An explicit relationship identifying a later issued version that supersedes an earlier one. | Certificates & Trust |
+| Revocation | A recorded withdrawal of an issued version, including the reason, actor, and time. | Certificates & Trust |
+| Verification | A controlled lookup of an issued version's current recorded status and disclosed identifying information. | Certificates & Trust |
+| Public verification reference | An opaque reference granting access only to the deliberately public verification view. | Certificates & Trust |
+
+An attachment is not automatically evidence merely because it was uploaded.
+
+A PDF is a representation of an issued certificate version. It is not the
+complete domain model of a certificate.
+
+A hash can help detect changes relative to a trusted reference. It does not,
+by itself, establish issuer identity, accreditation, or technical correctness.
+
+## Audit
+
+| Term | Definition | Owning module |
+| --- | --- | --- |
+| Audit record | A protected record of a relevant action, its actor, scope, target, time, and outcome. | Audit |
+| Business history | Domain-specific history explaining changes to business records. | The relevant business module |
+| Operational log | Diagnostic information used to operate and troubleshoot the software. | Observability infrastructure |
+
+Audit records, business history, and operational logs serve different purposes.
+They must not be treated as interchangeable records.
