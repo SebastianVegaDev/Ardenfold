@@ -7,11 +7,16 @@
         "build": "tsc --project tsconfig.build.json",
         "dev": "tsx watch src/main.ts",
         "start": "node dist/main.js",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint src --max-warnings=0",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "devDependencies": {
         "@types/node": "^26.6.2",
+        "eslint": "^10.11.0",
         "tsx": "^4.23.13",
-        "typescript": "^7.0.2"
+        "typescript": "^7.0.2",
+        "vitest": "^5.0.1"
     }
 }

@@ -1,5 +1,21 @@
 {
     "name": "@ardenfold/test-utils",
     "version": "0.0.0",
-    "private": true
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "lint": "eslint src --max-warnings=0",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "devDependencies": {
+        "@types/node": "^26.6.2",
+        "eslint": "^10.11.0",
+        "typescript": "^7.0.2",
+        "vitest": "^5.0.1"
+    }
 }

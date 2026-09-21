@@ -10,8 +10,8 @@ export class AppController {
     @Get("health")
     getHealth(): HealthResponse {
         return {
-        status: "ok",
-        service: "api",
+            status: "ok",
+            service: "api",
         };
     }
 }

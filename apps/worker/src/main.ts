@@ -1,33 +1,9 @@
-type ShutdownSignal = "SIGINT" | "SIGTERM";
+import { createWorker, type ShutdownSignal } from "./worker.js";
 
-let isShuttingDown = false;
-
-const keepAliveTimer = setInterval(() => {
-  // The worker will poll the queue here in a future issue.
-}, 60_000);
-
-function writeLog(
-    event: "started" | "shutdown",
-    signal?: ShutdownSignal,
-): void {
-    console.info(
-        JSON.stringify({
-            level: "info",
-            service: "worker",
-            event,
-            ...(signal === undefined ? {} : { signal }),
-        }),
-    );
-}
+const worker = createWorker();
 
 function shutdown(signal: ShutdownSignal): void {
-    if (isShuttingDown) {
-        return;
-    }
-
-    isShuttingDown = true;
-    clearInterval(keepAliveTimer);
-    writeLog("shutdown", signal);
+    worker.stop(signal);
 }
 
 process.once("SIGINT", () => {
@@ -38,4 +14,4 @@ process.once("SIGTERM", () => {
     shutdown("SIGTERM");
 });
 
-writeLog("started");
+worker.start();
