@@ -12,7 +12,11 @@
         "test": "turbo run test",
         "format": "prettier --write **/*.{js,mjs,cjs,ts,tsx,json,css,yml,yaml}",
         "format:check": "prettier --check **/*.{js,mjs,cjs,ts,tsx,json,css,yml,yaml}",
-        "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check"
+        "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check",
+        "db:up": "docker compose up -d postgres",
+        "db:down": "docker compose down",
+        "db:status": "docker compose ps",
+        "db:logs": "docker compose logs --tail=100 -f postgres"
     },
     "engines": {
         "node": ">=24.21.0 <25",

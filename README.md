@@ -80,6 +80,34 @@ The application will not hardcode user-facing text or treat one language as the 
 
 Translation catalogs will be loaded dynamically and validated to prevent incomplete releases.
 
+## Local development
+
+Create the local environment file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Start PostgreSQL:
+
+```powershell
+pnpm db:up
+```
+
+Start the applications:
+
+```powershell
+pnpm dev
+```
+
+Verify the API and PostgreSQL connection:
+
+```powershell
+Invoke-RestMethod http://localhost:3001/health
+```
+
+See [Local PostgreSQL environment](docs/development/database.md) for troubleshooting and operational commands.
+
 ## Development workflow
 
 All implementation follows this workflow:
