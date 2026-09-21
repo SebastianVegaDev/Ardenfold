@@ -4,17 +4,17 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ardenfold",
+    title: "Ardenfold",
 };
 
 type RootLayoutProps = Readonly<{
-  children: ReactNode;
+    children: ReactNode;
 }>;
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  return (
-    <html lang="und">
-      <body>{children}</body>
-    </html>
-  );
+    return (
+        <html lang="und">
+            <body>{children}</body>
+        </html>
+    );
 }
