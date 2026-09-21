@@ -1,0 +1,19 @@
+name: Setup Ardenfold workspace
+description: Install the pinned Node.js and pnpm versions with dependency caching
+
+runs:
+    using: composite
+    steps:
+        - name: Install pnpm
+          uses: pnpm/action-setup@v6
+
+        - name: Set up Node.js
+          uses: actions/setup-node@v7
+          with:
+              node-version-file: .node-version
+              cache: pnpm
+              cache-dependency-path: pnpm-lock.yaml
+
+        - name: Install dependencies
+          shell: bash
+          run: pnpm install --frozen-lockfile
