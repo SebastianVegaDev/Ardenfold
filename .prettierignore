@@ -9,3 +9,4 @@ coverage/
 pnpm-lock.yaml
 *.tsbuildinfo
 packages/database/drizzle/
+docs/api/openapi.json

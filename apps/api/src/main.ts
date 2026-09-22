@@ -1,22 +1,28 @@
+import "reflect-metadata";
+
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
-import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
+import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 
 import { AppModule } from "./app.module";
 import type { EnvironmentVariables } from "./config/environment";
+import { configureHttp, createHttpAdapter } from "./http/contracts";
 
 async function bootstrap(): Promise<void> {
-    const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+    const app = await NestFactory.create<NestFastifyApplication>(AppModule, createHttpAdapter());
+
+    configureHttp(app);
 
     app.enableShutdownHooks();
 
-    const configService = app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
+    const config = app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
 
-    const port = configService.get("API_PORT", {
-        infer: true,
-    });
-
-    await app.listen(port, "0.0.0.0");
+    await app.listen(
+        config.get("API_PORT", {
+            infer: true,
+        }),
+        "0.0.0.0",
+    );
 }
 
 bootstrap().catch((error: unknown) => {
