@@ -15,6 +15,39 @@
         "validationFailed": "Revisa la información resaltada e inténtalo de nuevo."
     },
     "metadata": {
-        "defaultDescription": "Ardenfold organiza de forma segura información operativa importante."
+        "productName": "Ardenfold",
+        "defaultTitle": "Ardenfold",
+        "titleTemplate": "%s · Ardenfold",
+        "defaultDescription": "Ardenfold organiza de forma segura información operativa importante.",
+        "openGraphAlt": "Ardenfold — una historia verificable para cada activo"
+    },
+    "shell": {
+        "brandAlt": "Ardenfold",
+        "skipToContent": "Ir al contenido",
+        "openNavigation": "Abrir navegación",
+        "closeNavigation": "Cerrar navegación",
+        "primaryNavigation": "Navegación principal",
+        "home": "Inicio",
+        "organization": "Selector de organización",
+        "organizationPlaceholder": "Seleccionar organización",
+        "account": "Menú de cuenta",
+        "accountPlaceholder": "Cuenta"
+    },
+    "workspace": {
+        "title": "Tu espacio de trabajo",
+        "description": "Elige una sección disponible en la navegación para continuar."
+    },
+    "states": {
+        "loading": "Cargando",
+        "notFound": {
+            "title": "Página no encontrada",
+            "description": "La dirección puede ser incorrecta o la página puede haberse movido.",
+            "action": "Volver al inicio"
+        },
+        "error": {
+            "title": "No pudimos cargar esta página",
+            "description": "Intenta la operación nuevamente. Si continúa, usa el identificador de solicitud al contactar soporte.",
+            "action": "Intentar de nuevo"
+        }
     }
 }

@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { BrandLogo } from "@/components/brand-logo";
 import type { Locale } from "@/i18n/locales";
 
 type HomePageProps = Readonly<{
@@ -17,19 +18,7 @@ export default async function HomePage({ params }: HomePageProps) {
     return (
         <main className="grid min-h-screen place-items-center bg-background p-6 text-foreground">
             <div className="max-w-lg text-center">
-                <picture>
-                    <source
-                        media="(prefers-color-scheme: dark)"
-                        srcSet="/brand/logo-primary-dark.svg"
-                    />
-                    <img
-                        alt={translate("logoAlt")}
-                        className="mx-auto h-auto w-60"
-                        height="180"
-                        src="/brand/logo-primary-light.svg"
-                        width="720"
-                    />
-                </picture>
+                <BrandLogo alt={translate("logoAlt")} className="mx-auto h-auto w-60" />
                 <h1 className="font-display text-4xl font-semibold tracking-tight">
                     {translate("title")}
                 </h1>

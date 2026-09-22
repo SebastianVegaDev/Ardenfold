@@ -1,0 +1,132 @@
+"use client";
+
+import { Button } from "@ardenfold/ui";
+import { Building2, House, Menu, UserRound, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState, type ReactNode } from "react";
+
+import { BrandLogo } from "./brand-logo";
+
+export type AppShellCopy = Readonly<{
+    brandAlt: string;
+    skipToContent: string;
+    openNavigation: string;
+    closeNavigation: string;
+    primaryNavigation: string;
+    home: string;
+    organization: string;
+    organizationPlaceholder: string;
+    account: string;
+    accountPlaceholder: string;
+}>;
+
+type AppShellProps = Readonly<{
+    children: ReactNode;
+    copy: AppShellCopy;
+    homeHref: string;
+}>;
+
+export function AppShell({ children, copy, homeHref }: AppShellProps) {
+    const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
+
+    const navigation = (
+        <nav aria-label={copy.primaryNavigation} className="flex flex-col gap-1 p-3">
+            <Link
+                className="flex h-11 items-center gap-3 rounded-control bg-secondary px-3 font-medium text-secondary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                href={homeHref}
+                onClick={() => setMobileNavigationOpen(false)}
+            >
+                <House aria-hidden="true" className="size-5 shrink-0" />
+                <span className="md:hidden lg:inline">{copy.home}</span>
+            </Link>
+        </nav>
+    );
+
+    return (
+        <div className="min-h-screen bg-background text-foreground">
+            <a
+                className="sr-only z-[60] rounded-control bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
+                href="#main-content"
+            >
+                {copy.skipToContent}
+            </a>
+
+            <header className="sticky top-0 z-40 flex h-16 items-center border-b border-border bg-surface/95 px-4 backdrop-blur md:pl-24 lg:pl-68">
+                <Button
+                    aria-expanded={mobileNavigationOpen}
+                    aria-label={mobileNavigationOpen ? copy.closeNavigation : copy.openNavigation}
+                    className="mr-3 md:hidden"
+                    onClick={() => setMobileNavigationOpen((open) => !open)}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                >
+                    {mobileNavigationOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+                </Button>
+
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                    <button
+                        aria-label={copy.organization}
+                        className="flex min-w-0 items-center gap-2 rounded-control px-2 py-1.5 text-left outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                        type="button"
+                    >
+                        <Building2 aria-hidden="true" className="size-5 shrink-0 text-primary" />
+                        <span className="truncate text-sm font-medium">
+                            {copy.organizationPlaceholder}
+                        </span>
+                    </button>
+
+                    <button
+                        aria-label={copy.account}
+                        className="flex items-center gap-2 rounded-control px-2 py-1.5 outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                        type="button"
+                    >
+                        <span className="grid size-8 place-items-center rounded-full bg-secondary text-secondary-foreground">
+                            <UserRound aria-hidden="true" className="size-4" />
+                        </span>
+                        <span className="hidden text-sm font-medium sm:inline">
+                            {copy.accountPlaceholder}
+                        </span>
+                    </button>
+                </div>
+            </header>
+
+            <aside className="fixed inset-y-0 left-0 z-50 hidden w-20 flex-col border-r border-border bg-surface md:flex lg:w-64">
+                <Link
+                    className="flex h-16 items-center border-b border-border px-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset lg:px-5"
+                    href={homeHref}
+                >
+                    <Image
+                        alt={copy.brandAlt}
+                        className="size-10 lg:hidden"
+                        height="64"
+                        priority
+                        src="/brand/isotype-color.svg"
+                        width="64"
+                    />
+                    <BrandLogo alt={copy.brandAlt} className="hidden h-auto w-40 lg:block" />
+                </Link>
+                {navigation}
+            </aside>
+
+            {mobileNavigationOpen ? (
+                <div className="fixed inset-0 z-30 md:hidden">
+                    <button
+                        aria-label={copy.closeNavigation}
+                        className="absolute inset-0 bg-night-ink/50"
+                        onClick={() => setMobileNavigationOpen(false)}
+                        type="button"
+                    />
+                    <aside className="absolute inset-y-16 left-0 w-72 border-r border-border bg-surface shadow-dialog">
+                        {navigation}
+                    </aside>
+                </div>
+            ) : null}
+
+            <main className="md:pl-20 lg:pl-64" id="main-content" tabIndex={-1}>
+                {children}
+            </main>
+        </div>
+    );
+}

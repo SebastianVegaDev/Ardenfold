@@ -45,8 +45,38 @@ export async function generateMetadata({ params }: LocaleLayoutProps): Promise<M
     const translate = await getTranslations({ locale, namespace: "metadata" });
 
     return {
-        title: "Ardenfold",
+        applicationName: translate("productName"),
+        title: {
+            default: translate("defaultTitle"),
+            template: translate("titleTemplate"),
+        },
         description: translate("defaultDescription"),
+        manifest: "/manifest.webmanifest",
+        icons: {
+            icon: "/favicon.ico",
+            apple: "/apple-touch-icon.png",
+        },
+        openGraph: {
+            type: "website",
+            locale,
+            siteName: translate("productName"),
+            title: translate("defaultTitle"),
+            description: translate("defaultDescription"),
+            images: [
+                {
+                    url: "/opengraph-image.png",
+                    width: 1200,
+                    height: 630,
+                    alt: translate("openGraphAlt"),
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: translate("defaultTitle"),
+            description: translate("defaultDescription"),
+            images: ["/opengraph-image.png"],
+        },
     };
 }
 
