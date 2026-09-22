@@ -1,75 +1,91 @@
 name: Quality
 
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
+    pull_request:
+        branches:
+            - main
+    push:
+        branches:
+            - main
 
 permissions:
-  contents: read
+    contents: read
 
 concurrency:
-  group: quality-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    group: quality-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
 
-      - name: Set up workspace
-        uses: ./.github/actions/setup-workspace
+            - name: Set up workspace
+              uses: ./.github/actions/setup-workspace
 
-      - name: Run lint
-        run: pnpm lint
+            - name: Run lint
+              run: pnpm lint
 
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+    typecheck:
+        name: Typecheck
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
 
-      - name: Set up workspace
-        uses: ./.github/actions/setup-workspace
+            - name: Set up workspace
+              uses: ./.github/actions/setup-workspace
 
-      - name: Run typecheck
-        run: pnpm typecheck
+            - name: Run typecheck
+              run: pnpm typecheck
 
-  tests:
-    name: Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+    tests:
+        name: Tests
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:18.6-bookworm
+                env:
+                    POSTGRES_DB: ardenfold_test
+                    POSTGRES_USER: ardenfold_test
+                    POSTGRES_PASSWORD: ardenfold_test_password
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U ardenfold_test -d ardenfold_test"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 10
+        env:
+            DATABASE_TEST_URL: postgresql://ardenfold_test:ardenfold_test_password@localhost:5432/ardenfold_test
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
 
-      - name: Set up workspace
-        uses: ./.github/actions/setup-workspace
+            - name: Set up workspace
+              uses: ./.github/actions/setup-workspace
 
-      - name: Run tests
-        run: pnpm test
+            - name: Run tests
+              run: pnpm test
 
-      - name: Build API and workspace dependencies
-        run: pnpm exec turbo run build --filter=@ardenfold/api...
+            - name: Build API and workspace dependencies
+              run: pnpm exec turbo run build --filter=@ardenfold/api...
 
-      - name: Verify OpenAPI contract
-        run: pnpm --filter @ardenfold/api openapi:check
+            - name: Verify OpenAPI contract
+              run: pnpm --filter @ardenfold/api openapi:check
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
 
-      - name: Set up workspace
-        uses: ./.github/actions/setup-workspace
+            - name: Set up workspace
+              uses: ./.github/actions/setup-workspace
 
-      - name: Run build
-        run: pnpm build
+            - name: Run build
+              run: pnpm build

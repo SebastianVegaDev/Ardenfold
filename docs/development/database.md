@@ -105,3 +105,24 @@ POSTGRES_PORT=5433
 - Never reuse the local password in production.
 - Production secrets will be supplied through the deployment platform.
 - `.env.example` contains variable names and safe placeholders only.
+
+## Identity and tenancy conventions
+
+- PostgreSQL generates UUID primary keys with `gen_random_uuid()`; application code does
+  not derive identifiers from names, emails or provider subjects.
+- `users` are global Ardenfold profiles. A user can have multiple external identities
+  and memberships in multiple organizations.
+- `(provider, issuer, subject)` is the unique external identity key. Email addresses are
+  mutable profile data and deliberately are not identity keys or unique account keys.
+- Organization defaults and optional user preferences store locale and time zone
+  separately. Application boundaries validate supported BCP 47 locale tags and IANA
+  time zone identifiers before persistence.
+- Memberships exist only after acceptance and have `active`, `suspended` or `removed`
+  lifecycle states. Pending invitations are separate records introduced with the
+  invitation workflow.
+- A removed membership is retained and may be deliberately reactivated; the unique
+  organization/user pair prevents parallel membership records and preserves continuity.
+- `created_at` and `updated_at` are UTC instants. Inserts receive database defaults;
+  update use cases must set `updated_at` explicitly in the same statement as the change.
+- Development factories emit synthetic `example.test` data and are never a production
+  seed mechanism.
