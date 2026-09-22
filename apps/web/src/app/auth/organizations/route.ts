@@ -11,7 +11,10 @@ export async function POST(request: NextRequest) {
     const session = await withAuth({ ensureSignedIn: true });
     const form = await request.formData();
     const formLocale = form.get("locale");
-    const locale = typeof formLocale === "string" && isLocale(formLocale) ? formLocale : getTechnicalFallbackLocale();
+    const locale =
+        typeof formLocale === "string" && isLocale(formLocale)
+            ? formLocale
+            : getTechnicalFallbackLocale();
     const parsed = createOrganizationRequestSchema.safeParse({
         name: form.get("name"),
         defaultLocale: form.get("defaultLocale"),
@@ -19,7 +22,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!parsed.success) {
-        return NextResponse.redirect(new URL(`/${locale}/app/onboarding?status=invalid`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`/${locale}/app/onboarding?status=invalid`, request.url),
+            303,
+        );
     }
 
     try {
@@ -34,6 +40,9 @@ export async function POST(request: NextRequest) {
         });
         return NextResponse.redirect(new URL(`/${locale}/app?status=created`, request.url), 303);
     } catch {
-        return NextResponse.redirect(new URL(`/${locale}/app/onboarding?status=error`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`/${locale}/app/onboarding?status=error`, request.url),
+            303,
+        );
     }
 }

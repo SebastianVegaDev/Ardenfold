@@ -17,7 +17,15 @@ import {
     type UpdateOrganizationRequest,
 } from "@ardenfold/contracts";
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from "@nestjs/common";
-import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+    ApiBearerAuth,
+    ApiCreatedResponse,
+    ApiHeader,
+    ApiNoContentResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from "@nestjs/swagger";
 
 import { ContractValidationPipe } from "../http/contracts";
 import type { AuthenticatedPrincipal } from "./auth.types";
@@ -40,9 +48,7 @@ export class OrganizationsController {
     @Get()
     @ApiOperation({ operationId: "listAccessibleOrganizations" })
     @ApiOkResponse({ schema: { $ref: "#/components/schemas/OrganizationListResponse" } })
-    list(
-        @CurrentPrincipal() principal: AuthenticatedPrincipal,
-    ): Promise<OrganizationListResponse> {
+    list(@CurrentPrincipal() principal: AuthenticatedPrincipal): Promise<OrganizationListResponse> {
         return this.authorization.listAccessibleOrganizations(principal.user.id);
     }
 
@@ -132,7 +138,12 @@ export class OrganizationsController {
         @Body(new ContractValidationPipe(updateMembershipRoleRequestSchema))
         input: UpdateMembershipRoleRequest,
     ) {
-        return this.management.updateMembershipRole(principal, organization.id, membershipId, input);
+        return this.management.updateMembershipRole(
+            principal,
+            organization.id,
+            membershipId,
+            input,
+        );
     }
 
     @Post("current/members/:membershipId/suspend")
@@ -179,7 +190,8 @@ export class OrganizationsController {
     invite(
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
         @CurrentOrganization() organization: ActiveOrganizationContext,
-        @Body(new ContractValidationPipe(createInvitationRequestSchema)) input: CreateInvitationRequest,
+        @Body(new ContractValidationPipe(createInvitationRequestSchema))
+        input: CreateInvitationRequest,
     ) {
         return this.management.createInvitation(principal, organization.id, input);
     }
@@ -206,10 +218,17 @@ export class InvitationsController {
 
     @Post("accept")
     @ApiOperation({ operationId: "acceptOrganizationInvitation" })
-    @ApiOkResponse({ schema: { type: "object", properties: { organizationId: { type: "string", format: "uuid" } }, required: ["organizationId"] } })
+    @ApiOkResponse({
+        schema: {
+            type: "object",
+            properties: { organizationId: { type: "string", format: "uuid" } },
+            required: ["organizationId"],
+        },
+    })
     accept(
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
-        @Body(new ContractValidationPipe(acceptInvitationRequestSchema)) input: AcceptInvitationRequest,
+        @Body(new ContractValidationPipe(acceptInvitationRequestSchema))
+        input: AcceptInvitationRequest,
     ) {
         return this.management.acceptInvitation(principal, input);
     }

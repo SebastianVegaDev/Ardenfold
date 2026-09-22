@@ -14,7 +14,9 @@ import {
 
 import { getServerEnvironment } from "@/config/environment";
 
-export async function getAuthenticatedUser(accessToken: string): Promise<AuthenticatedUserResponse> {
+export async function getAuthenticatedUser(
+    accessToken: string,
+): Promise<AuthenticatedUserResponse> {
     const environment = getServerEnvironment();
     const response = await fetch(new URL("/api/v1/auth/me", environment.ARDENFOLD_API_URL), {
         headers: {
@@ -44,7 +46,9 @@ export async function getAccessibleOrganizations(
     });
 
     if (!response.ok) {
-        throw new Error(`Ardenfold API could not resolve organization access (${response.status}).`);
+        throw new Error(
+            `Ardenfold API could not resolve organization access (${response.status}).`,
+        );
     }
 
     return organizationListResponseSchema.parse(await response.json());

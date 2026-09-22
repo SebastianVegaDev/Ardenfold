@@ -52,7 +52,10 @@ export function InvitationForm({ copy, locale }: InvitationFormProps) {
     }
 
     return (
-        <form className="grid gap-4 sm:grid-cols-[1fr_12rem_auto]" onSubmit={(event) => void submit(event)}>
+        <form
+            className="grid gap-4 sm:grid-cols-[1fr_12rem_auto]"
+            onSubmit={(event) => void submit(event)}
+        >
             <input name="intent" type="hidden" value="create-invitation" />
             <input name="locale" type="hidden" value={locale} />
             <div>
@@ -61,14 +64,21 @@ export function InvitationForm({ copy, locale }: InvitationFormProps) {
             </div>
             <div>
                 <Label htmlFor="invitation-role">{copy.role}</Label>
-                <select className="mt-2 h-10 w-full rounded-control border border-border bg-surface px-3" defaultValue="member" id="invitation-role" name="role">
+                <select
+                    className="mt-2 h-10 w-full rounded-control border border-border bg-surface px-3"
+                    defaultValue="member"
+                    id="invitation-role"
+                    name="role"
+                >
                     <option value="owner">{copy.owner}</option>
                     <option value="administrator">{copy.administrator}</option>
                     <option value="member">{copy.member}</option>
                     <option value="viewer">{copy.viewer}</option>
                 </select>
             </div>
-            <Button className="self-end" disabled={pending} type="submit">{copy.invite}</Button>
+            <Button className="self-end" disabled={pending} type="submit">
+                {copy.invite}
+            </Button>
             {acceptanceUrl ? (
                 <div className="sm:col-span-3" role="status">
                     <p className="text-sm font-medium">{copy.created}</p>
@@ -76,7 +86,11 @@ export function InvitationForm({ copy, locale }: InvitationFormProps) {
                     <Input className="mt-2 font-mono text-xs" readOnly value={acceptanceUrl} />
                 </div>
             ) : null}
-            {error ? <p className="text-sm text-destructive sm:col-span-3" role="alert">{copy.error}</p> : null}
+            {error ? (
+                <p className="text-sm text-destructive sm:col-span-3" role="alert">
+                    {copy.error}
+                </p>
+            ) : null}
         </form>
     );
 }

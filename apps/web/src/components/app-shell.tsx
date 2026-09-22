@@ -71,7 +71,10 @@ export function AppShell({
                     <span className="md:hidden lg:inline">{copy.settings}</span>
                 </Link>
             ) : (
-                <Link className="m-2 rounded-control bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground" href={onboardingHref}>
+                <Link
+                    className="m-2 rounded-control bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground"
+                    href={onboardingHref}
+                >
                     {copy.noOrganizations}
                 </Link>
             )}
@@ -132,11 +135,14 @@ export function AppShell({
                         <span className="grid size-8 place-items-center rounded-full bg-secondary text-secondary-foreground">
                             <UserRound aria-hidden="true" className="size-4" />
                         </span>
-                        <span className="hidden text-sm font-medium sm:inline">
-                            {accountName}
-                        </span>
+                        <span className="hidden text-sm font-medium sm:inline">{accountName}</span>
                         <form action={signOutHref} method="post">
-                            <Button aria-label={copy.signOut} size="icon" type="submit" variant="ghost">
+                            <Button
+                                aria-label={copy.signOut}
+                                size="icon"
+                                type="submit"
+                                variant="ghost"
+                            >
                                 <LogOut aria-hidden="true" />
                             </Button>
                         </form>

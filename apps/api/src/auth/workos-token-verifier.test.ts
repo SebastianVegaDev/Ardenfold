@@ -47,11 +47,11 @@ describe("WorkosTokenVerifier", () => {
     function verifier(clientId = "client_test", issuer = "https://api.workos.com/") {
         return new WorkosTokenVerifier(
             new ConfigService<EnvironmentVariables, true>({
-                    WORKOS_CLIENT_ID: clientId,
-                    WORKOS_ISSUER: issuer,
-                    WORKOS_JWKS_URL: jwksUrl,
-                    AUTH_JWT_CLOCK_TOLERANCE_SECONDS: 0,
-                } as EnvironmentVariables),
+                WORKOS_CLIENT_ID: clientId,
+                WORKOS_ISSUER: issuer,
+                WORKOS_JWKS_URL: jwksUrl,
+                AUTH_JWT_CLOCK_TOLERANCE_SECONDS: 0,
+            } as EnvironmentVariables),
         );
     }
 
@@ -99,6 +99,8 @@ describe("WorkosTokenVerifier", () => {
     });
 
     it("rejects tokens from another issuer", async () => {
-        await expect(verifier("client_test", "https://issuer.example.com/").verify(await sign())).rejects.toThrow();
+        await expect(
+            verifier("client_test", "https://issuer.example.com/").verify(await sign()),
+        ).rejects.toThrow();
     });
 });

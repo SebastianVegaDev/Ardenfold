@@ -81,13 +81,50 @@
         "description": "Manage the organization profile, operating sites and team access.",
         "success": "The organization was updated.",
         "error": "We could not complete that change.",
-        "profile": { "title": "Profile", "name": "Name", "locale": "Default language", "timeZone": "Default time zone", "save": "Save profile" },
-        "sites": { "title": "Sites", "empty": "No sites have been created.", "name": "Site name", "code": "Code", "timeZone": "Time zone", "create": "Create site" },
-        "members": { "title": "Team", "role": "Role", "changeRole": "Change", "suspend": "Suspend", "remove": "Remove" },
-        "invitations": { "title": "Invitations", "email": "Email", "invite": "Invite", "created": "Invitation created", "copyHint": "Copy this single-use link now. Ardenfold does not store the raw token.", "empty": "No invitations yet.", "cancel": "Cancel" },
-        "roles": { "owner": "Owner", "administrator": "Administrator", "member": "Member", "viewer": "Viewer" },
+        "profile": {
+            "title": "Profile",
+            "name": "Name",
+            "locale": "Default language",
+            "timeZone": "Default time zone",
+            "save": "Save profile"
+        },
+        "sites": {
+            "title": "Sites",
+            "empty": "No sites have been created.",
+            "name": "Site name",
+            "code": "Code",
+            "timeZone": "Time zone",
+            "create": "Create site"
+        },
+        "members": {
+            "title": "Team",
+            "role": "Role",
+            "changeRole": "Change",
+            "suspend": "Suspend",
+            "remove": "Remove"
+        },
+        "invitations": {
+            "title": "Invitations",
+            "email": "Email",
+            "invite": "Invite",
+            "created": "Invitation created",
+            "copyHint": "Copy this single-use link now. Ardenfold does not store the raw token.",
+            "empty": "No invitations yet.",
+            "cancel": "Cancel"
+        },
+        "roles": {
+            "owner": "Owner",
+            "administrator": "Administrator",
+            "member": "Member",
+            "viewer": "Viewer"
+        },
         "statuses": { "active": "Active", "suspended": "Suspended", "removed": "Removed" },
-        "invitationStatuses": { "pending": "Pending", "accepted": "Accepted", "cancelled": "Cancelled", "expired": "Expired" }
+        "invitationStatuses": {
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "cancelled": "Cancelled",
+            "expired": "Expired"
+        }
     },
     "audit": {
         "actions": {

@@ -152,3 +152,10 @@ vite.config.ts.timestamp-*
 
 # Turbo build cache
 .turbo/
+
+# Playwright diagnostics
+**/playwright-report/
+**/test-results/
+
+# Local-only brand source kit (curated assets belong in app public directories)
+/ardenfold-brand-kit/

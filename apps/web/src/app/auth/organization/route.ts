@@ -18,7 +18,10 @@ export async function POST(request: NextRequest) {
             : getTechnicalFallbackLocale();
 
     if (!parsedOrganizationId.success) {
-        return NextResponse.redirect(new URL(`/${locale}/app?organization=invalid`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`/${locale}/app?organization=invalid`, request.url),
+            303,
+        );
     }
 
     const organizations = await getAccessibleOrganizations(session.accessToken);
@@ -27,7 +30,10 @@ export async function POST(request: NextRequest) {
     );
 
     if (!isAccessible) {
-        return NextResponse.redirect(new URL(`/${locale}/app?organization=denied`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`/${locale}/app?organization=denied`, request.url),
+            303,
+        );
     }
 
     const cookieStore = await cookies();

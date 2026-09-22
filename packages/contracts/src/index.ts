@@ -119,10 +119,11 @@ export const createOrganizationRequestSchema = z.strictObject({
     defaultTimeZone: z.string().trim().min(1).max(255),
 });
 
-export const updateOrganizationRequestSchema = createOrganizationRequestSchema.partial().refine(
-    (value) => Object.keys(value).length > 0,
-    { message: "At least one field is required." },
-);
+export const updateOrganizationRequestSchema = createOrganizationRequestSchema
+    .partial()
+    .refine((value) => Object.keys(value).length > 0, {
+        message: "At least one field is required.",
+    });
 
 export const organizationSiteSchema = z.strictObject({
     id: identifierSchema,
@@ -283,7 +284,9 @@ export type OrganizationMemberListResponse = z.infer<typeof organizationMemberLi
 export type CreateInvitationRequest = z.infer<typeof createInvitationRequestSchema>;
 export type OrganizationInvitation = z.infer<typeof organizationInvitationSchema>;
 export type CreatedInvitationResponse = z.infer<typeof createdInvitationResponseSchema>;
-export type OrganizationInvitationListResponse = z.infer<typeof organizationInvitationListResponseSchema>;
+export type OrganizationInvitationListResponse = z.infer<
+    typeof organizationInvitationListResponseSchema
+>;
 export type AcceptInvitationRequest = z.infer<typeof acceptInvitationRequestSchema>;
 export type UpdateMembershipRoleRequest = z.infer<typeof updateMembershipRoleRequestSchema>;
 export type AuditAction = z.infer<typeof auditActionSchema>;

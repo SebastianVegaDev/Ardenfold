@@ -11,10 +11,16 @@ export async function POST(request: NextRequest) {
     const form = await request.formData();
     const token = form.get("token");
     const formLocale = form.get("locale");
-    const locale = typeof formLocale === "string" && isLocale(formLocale) ? formLocale : getTechnicalFallbackLocale();
+    const locale =
+        typeof formLocale === "string" && isLocale(formLocale)
+            ? formLocale
+            : getTechnicalFallbackLocale();
 
     if (typeof token !== "string") {
-        return NextResponse.redirect(new URL(`/${locale}/app/invitations/accept?status=invalid`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`/${locale}/app/invitations/accept?status=invalid`, request.url),
+            303,
+        );
     }
 
     try {
@@ -27,8 +33,14 @@ export async function POST(request: NextRequest) {
             path: "/",
             maxAge: 60 * 60 * 24 * 30,
         });
-        return NextResponse.redirect(new URL(`/${locale}/app?status=invitation-accepted`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`/${locale}/app?status=invitation-accepted`, request.url),
+            303,
+        );
     } catch {
-        return NextResponse.redirect(new URL(`/${locale}/app/invitations/accept?status=error`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`/${locale}/app/invitations/accept?status=error`, request.url),
+            303,
+        );
     }
 }

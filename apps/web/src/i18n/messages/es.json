@@ -81,13 +81,50 @@
         "description": "Administra el perfil, las sedes operativas y el acceso del equipo.",
         "success": "La organización fue actualizada.",
         "error": "No pudimos completar ese cambio.",
-        "profile": { "title": "Perfil", "name": "Nombre", "locale": "Idioma predeterminado", "timeZone": "Zona horaria predeterminada", "save": "Guardar perfil" },
-        "sites": { "title": "Sedes", "empty": "Aún no se han creado sedes.", "name": "Nombre de la sede", "code": "Código", "timeZone": "Zona horaria", "create": "Crear sede" },
-        "members": { "title": "Equipo", "role": "Rol", "changeRole": "Cambiar", "suspend": "Suspender", "remove": "Eliminar" },
-        "invitations": { "title": "Invitaciones", "email": "Correo", "invite": "Invitar", "created": "Invitación creada", "copyHint": "Copia ahora este enlace de un solo uso. Ardenfold no guarda el token original.", "empty": "Aún no hay invitaciones.", "cancel": "Cancelar" },
-        "roles": { "owner": "Propietario", "administrator": "Administrador", "member": "Miembro", "viewer": "Observador" },
+        "profile": {
+            "title": "Perfil",
+            "name": "Nombre",
+            "locale": "Idioma predeterminado",
+            "timeZone": "Zona horaria predeterminada",
+            "save": "Guardar perfil"
+        },
+        "sites": {
+            "title": "Sedes",
+            "empty": "Aún no se han creado sedes.",
+            "name": "Nombre de la sede",
+            "code": "Código",
+            "timeZone": "Zona horaria",
+            "create": "Crear sede"
+        },
+        "members": {
+            "title": "Equipo",
+            "role": "Rol",
+            "changeRole": "Cambiar",
+            "suspend": "Suspender",
+            "remove": "Eliminar"
+        },
+        "invitations": {
+            "title": "Invitaciones",
+            "email": "Correo",
+            "invite": "Invitar",
+            "created": "Invitación creada",
+            "copyHint": "Copia ahora este enlace de un solo uso. Ardenfold no guarda el token original.",
+            "empty": "Aún no hay invitaciones.",
+            "cancel": "Cancelar"
+        },
+        "roles": {
+            "owner": "Propietario",
+            "administrator": "Administrador",
+            "member": "Miembro",
+            "viewer": "Observador"
+        },
         "statuses": { "active": "Activo", "suspended": "Suspendido", "removed": "Eliminado" },
-        "invitationStatuses": { "pending": "Pendiente", "accepted": "Aceptada", "cancelled": "Cancelada", "expired": "Expirada" }
+        "invitationStatuses": {
+            "pending": "Pendiente",
+            "accepted": "Aceptada",
+            "cancelled": "Cancelada",
+            "expired": "Expirada"
+        }
     },
     "audit": {
         "actions": {

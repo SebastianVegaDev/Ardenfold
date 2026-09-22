@@ -13,7 +13,10 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
             <h1 className="font-display text-3xl font-semibold">{translate("title")}</h1>
             <p className="mt-2 max-w-2xl text-muted-foreground">{translate("description")}</p>
             {query.organization ? (
-                <p className="mt-6 rounded-control border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive" role="alert">
+                <p
+                    className="mt-6 rounded-control border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+                    role="alert"
+                >
                     {translate("organizationAccessDenied")}
                 </p>
             ) : null}

@@ -17,6 +17,9 @@ export class WorkosProfileService {
     constructor(config: ConfigService<EnvironmentVariables, true>) {
         this.workos = new WorkOS(config.get("WORKOS_API_KEY", { infer: true }), {
             clientId: config.get("WORKOS_CLIENT_ID", { infer: true }),
+            apiHostname: config.get("WORKOS_API_HOSTNAME", { infer: true }),
+            https: config.get("WORKOS_API_HTTPS", { infer: true }),
+            port: config.get("WORKOS_API_PORT", { infer: true }),
         });
     }
 
