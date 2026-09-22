@@ -47,6 +47,7 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 closeNavigation: translate("closeNavigation"),
                 primaryNavigation: translate("primaryNavigation"),
                 home: translate("home"),
+                settings: translate("settings"),
                 organization: translate("organization"),
                 organizationPlaceholder: translate("organizationPlaceholder"),
                 noOrganizations: translate("noOrganizations"),
@@ -57,7 +58,9 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
             activeOrganizationId={activeOrganization?.id}
             homeHref={`/${locale}/app`}
             locale={locale}
+            onboardingHref={`/${locale}/app/onboarding`}
             organizations={organizations.data}
+            settingsHref={`/${locale}/app/settings/organization`}
             signOutHref={`/auth/sign-out?locale=${locale}`}
         >
             {children}

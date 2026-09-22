@@ -9,16 +9,18 @@ import { WorkosProfileService } from "./workos-profile.service";
 import { WorkosTokenVerifier } from "./workos-token-verifier";
 import { OrganizationAuthorizationService } from "./organization-authorization.service";
 import { OrganizationAuthorizationGuard } from "./organization-authorization.guard";
-import { OrganizationsController } from "./organizations.controller";
+import { InvitationsController, OrganizationsController } from "./organizations.controller";
+import { OrganizationManagementService } from "./organization-management.service";
 
 @Module({
     imports: [DatabaseModule],
-    controllers: [AuthController, OrganizationsController],
+    controllers: [AuthController, OrganizationsController, InvitationsController],
     providers: [
         WorkosTokenVerifier,
         WorkosProfileService,
         IdentityService,
         OrganizationAuthorizationService,
+        OrganizationManagementService,
         {
             provide: APP_GUARD,
             useClass: AuthenticationGuard,

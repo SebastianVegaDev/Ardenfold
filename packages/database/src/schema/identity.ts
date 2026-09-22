@@ -16,9 +16,11 @@ import { organizationRoles, systemOrganizationRoleIds } from "./authorization";
 
 export const organizationStatusValues = ["active", "suspended", "archived"] as const;
 export const membershipStatusValues = ["active", "suspended", "removed"] as const;
+export const invitationStatusValues = ["pending", "accepted", "cancelled"] as const;
 
 export const organizationStatus = pgEnum("organization_status", organizationStatusValues);
 export const membershipStatus = pgEnum("membership_status", membershipStatusValues);
+export const invitationStatus = pgEnum("invitation_status", invitationStatusValues);
 
 function auditTimestamps() {
     return {
@@ -181,10 +183,82 @@ export const organizationMemberships = pgTable(
     ],
 );
 
+export const organizationInvitations = pgTable(
+    "organization_invitations",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        organizationId: uuid("organization_id")
+            .notNull()
+            .references(() => organizations.id, { onDelete: "restrict" }),
+        email: varchar("email", { length: 320 }).notNull(),
+        roleId: uuid("role_id")
+            .notNull()
+            .references(() => organizationRoles.id, { onDelete: "restrict" }),
+        tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+        status: invitationStatus("status").default("pending").notNull(),
+        invitedByUserId: uuid("invited_by_user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "restrict" }),
+        acceptedByUserId: uuid("accepted_by_user_id").references(() => users.id, {
+            onDelete: "restrict",
+        }),
+        expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+        acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+        cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+        ...auditTimestamps(),
+    },
+    (table) => [
+        uniqueIndex("organization_invitations_token_hash_uidx").on(table.tokenHash),
+        uniqueIndex("organization_invitations_pending_email_uidx")
+            .on(table.organizationId, table.email)
+            .where(sql`${table.status} = 'pending'`),
+        index("organization_invitations_organization_status_idx").on(
+            table.organizationId,
+            table.status,
+        ),
+        check("organization_invitations_email_normalized", sql`${table.email} = lower(btrim(${table.email}))`),
+        check("organization_invitations_token_hash_format", sql`${table.tokenHash} ~ '^[0-9a-f]{64}$'`),
+        check(
+            "organization_invitations_lifecycle_check",
+            sql`
+                (${table.status} = 'pending' AND ${table.acceptedByUserId} IS NULL AND ${table.acceptedAt} IS NULL AND ${table.cancelledAt} IS NULL)
+                OR (${table.status} = 'accepted' AND ${table.acceptedByUserId} IS NOT NULL AND ${table.acceptedAt} IS NOT NULL AND ${table.cancelledAt} IS NULL)
+                OR (${table.status} = 'cancelled' AND ${table.acceptedByUserId} IS NULL AND ${table.acceptedAt} IS NULL AND ${table.cancelledAt} IS NOT NULL)
+            `,
+        ),
+        check("organization_invitations_expiry_after_creation", sql`${table.expiresAt} > ${table.createdAt}`),
+    ],
+);
+
 export const organizationsRelations = relations(organizations, ({ many }) => ({
     sites: many(organizationSites),
     memberships: many(organizationMemberships),
+    invitations: many(organizationInvitations),
 }));
+
+export const organizationInvitationsRelations = relations(
+    organizationInvitations,
+    ({ one }) => ({
+        organization: one(organizations, {
+            fields: [organizationInvitations.organizationId],
+            references: [organizations.id],
+        }),
+        role: one(organizationRoles, {
+            fields: [organizationInvitations.roleId],
+            references: [organizationRoles.id],
+        }),
+        invitedBy: one(users, {
+            fields: [organizationInvitations.invitedByUserId],
+            references: [users.id],
+            relationName: "invitationInviter",
+        }),
+        acceptedBy: one(users, {
+            fields: [organizationInvitations.acceptedByUserId],
+            references: [users.id],
+            relationName: "invitationAcceptor",
+        }),
+    }),
+);
 
 export const usersRelations = relations(users, ({ many }) => ({
     externalIdentities: many(externalIdentities),
@@ -232,3 +306,6 @@ export type OrganizationMembership = typeof organizationMemberships.$inferSelect
 export type NewOrganizationMembership = typeof organizationMemberships.$inferInsert;
 export type OrganizationStatus = (typeof organizationStatusValues)[number];
 export type MembershipStatus = (typeof membershipStatusValues)[number];
+export type OrganizationInvitation = typeof organizationInvitations.$inferSelect;
+export type NewOrganizationInvitation = typeof organizationInvitations.$inferInsert;
+export type InvitationStatus = (typeof invitationStatusValues)[number];

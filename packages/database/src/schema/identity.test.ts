@@ -18,6 +18,7 @@ import {
 import {
     externalIdentities,
     organizationMemberships,
+    organizationInvitations,
     organizationRolePermissions,
     organizationRoles,
     organizations,
@@ -102,6 +103,7 @@ describe("identity, tenancy and row-level security", () => {
               AND table_name IN (
                 'external_identities',
                 'organization_memberships',
+                'organization_invitations',
                 'organization_role_permissions',
                 'organization_roles',
                 'organization_sites',
@@ -114,6 +116,7 @@ describe("identity, tenancy and row-level security", () => {
 
         expect(result.rows.map((row) => row.table_name)).toEqual([
             "external_identities",
+            "organization_invitations",
             "organization_memberships",
             "organization_role_permissions",
             "organization_roles",
@@ -183,6 +186,80 @@ describe("identity, tenancy and row-level security", () => {
         );
 
         expect(visible).toEqual([]);
+    });
+
+    it("creates an organization and its initial owner atomically through bootstrap context", async () => {
+        const [user] = await connection.database.insert(users).values(buildUser()).returning();
+        const organizationId = "00000000-0000-4000-8000-000000000099";
+
+        await runtimeConnection.withOrganizationBootstrapTransaction(
+            { organizationId, userId: user!.id },
+            async (transaction) => {
+                await transaction.insert(organizations).values({
+                    id: organizationId,
+                    name: "Bootstrap organization",
+                });
+                await transaction.insert(organizationMemberships).values({
+                    organizationId,
+                    userId: user!.id,
+                    roleId: systemOrganizationRoleIds.owner,
+                });
+            },
+        );
+
+        const membership = await connection.database
+            .select()
+            .from(organizationMemberships)
+            .where(eq(organizationMemberships.organizationId, organizationId));
+        expect(membership).toHaveLength(1);
+        expect(membership[0]?.roleId).toBe(systemOrganizationRoleIds.owner);
+    });
+
+    it("allows an exact invitation capability to create only its intended membership", async () => {
+        const [organization] = await connection.database
+            .insert(organizations)
+            .values(buildOrganization())
+            .returning();
+        const [inviter, invitee] = await connection.database
+            .insert(users)
+            .values([buildUser(), buildUser()])
+            .returning();
+        const tokenHash = "a".repeat(64);
+
+        await connection.database.insert(organizationInvitations).values({
+            organizationId: organization!.id,
+            email: invitee!.primaryEmail,
+            roleId: systemOrganizationRoleIds.member,
+            tokenHash,
+            invitedByUserId: inviter!.id,
+            expiresAt: new Date(Date.now() + 60_000),
+        });
+
+        await runtimeConnection.withInvitationTransaction(tokenHash, async (transaction) => {
+            const [invitation] = await transaction
+                .select()
+                .from(organizationInvitations)
+                .where(eq(organizationInvitations.tokenHash, tokenHash));
+
+            expect(invitation?.organizationId).toBe(organization!.id);
+            await transaction.execute(sql`
+                SELECT
+                    set_config('ardenfold.organization_id', ${organization!.id}, true),
+                    set_config('ardenfold.user_id', ${invitee!.id}, true),
+                    set_config('ardenfold.invitation_role_id', ${systemOrganizationRoleIds.member}, true)
+            `);
+            await transaction.insert(organizationMemberships).values({
+                organizationId: organization!.id,
+                userId: invitee!.id,
+                roleId: systemOrganizationRoleIds.member,
+            });
+        });
+
+        const memberships = await connection.database
+            .select()
+            .from(organizationMemberships)
+            .where(eq(organizationMemberships.userId, invitee!.id));
+        expect(memberships).toHaveLength(1);
     });
 
     it("generates stable IDs and allows a user to join multiple organizations", async () => {

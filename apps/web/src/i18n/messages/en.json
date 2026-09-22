@@ -14,6 +14,11 @@
         "organizationAccessDenied": "You no longer have access to that organization.",
         "organizationContextRequired": "Choose an organization to continue.",
         "permissionDenied": "Your role does not allow this action.",
+        "invitationExpired": "This invitation has expired.",
+        "invitationInvalid": "This invitation is no longer valid.",
+        "invitationEmailMismatch": "This invitation belongs to a different email address.",
+        "lastOwnerRequired": "Every organization must keep at least one active owner.",
+        "roleAssignmentDenied": "Only an owner can change owner access.",
         "requestRejected": "This request could not be completed.",
         "unauthenticated": "Sign in to continue.",
         "validationFailed": "Review the highlighted information and try again."
@@ -32,6 +37,7 @@
         "closeNavigation": "Close navigation",
         "primaryNavigation": "Primary navigation",
         "home": "Home",
+        "settings": "Organization settings",
         "organization": "Organization selector",
         "organizationPlaceholder": "Select organization",
         "noOrganizations": "No organizations yet",
@@ -51,6 +57,37 @@
         "title": "Your workspace",
         "description": "Choose an available section from the navigation to continue.",
         "organizationAccessDenied": "That organization is no longer available to your account. Choose another organization."
+    },
+    "onboarding": {
+        "title": "Create your organization",
+        "description": "Set up the secure workspace where your team, sites and records will live.",
+        "name": "Organization name",
+        "locale": "Default language",
+        "timeZone": "Default time zone",
+        "create": "Create organization",
+        "error": "We could not create the organization. Review the information and try again."
+    },
+    "invitations": {
+        "accept": {
+            "title": "Join an organization",
+            "description": "Accept an invitation addressed to your signed-in email.",
+            "token": "Invitation token",
+            "action": "Accept invitation",
+            "error": "This invitation is invalid, expired, cancelled or belongs to another account."
+        }
+    },
+    "organizationSettings": {
+        "title": "Organization settings",
+        "description": "Manage the organization profile, operating sites and team access.",
+        "success": "The organization was updated.",
+        "error": "We could not complete that change.",
+        "profile": { "title": "Profile", "name": "Name", "locale": "Default language", "timeZone": "Default time zone", "save": "Save profile" },
+        "sites": { "title": "Sites", "empty": "No sites have been created.", "name": "Site name", "code": "Code", "timeZone": "Time zone", "create": "Create site" },
+        "members": { "title": "Team", "role": "Role", "changeRole": "Change", "suspend": "Suspend", "remove": "Remove" },
+        "invitations": { "title": "Invitations", "email": "Email", "invite": "Invite", "created": "Invitation created", "copyHint": "Copy this single-use link now. Ardenfold does not store the raw token.", "empty": "No invitations yet.", "cancel": "Cancel" },
+        "roles": { "owner": "Owner", "administrator": "Administrator", "member": "Member", "viewer": "Viewer" },
+        "statuses": { "active": "Active", "suspended": "Suspended", "removed": "Removed" },
+        "invitationStatuses": { "pending": "Pending", "accepted": "Accepted", "cancelled": "Cancelled", "expired": "Expired" }
     },
     "states": {
         "loading": "Loading",

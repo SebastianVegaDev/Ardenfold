@@ -50,6 +50,20 @@ export class DatabaseService implements OnApplicationShutdown {
         return this.connection.withUserTransaction(userId, operation);
     }
 
+    withOrganizationBootstrapTransaction<Result>(
+        context: TenantContext,
+        operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+    ): Promise<Result> {
+        return this.connection.withOrganizationBootstrapTransaction(context, operation);
+    }
+
+    withInvitationTransaction<Result>(
+        tokenHash: string,
+        operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+    ): Promise<Result> {
+        return this.connection.withInvitationTransaction(tokenHash, operation);
+    }
+
     withTenantTransaction<Result>(
         context: TenantContext,
         operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
