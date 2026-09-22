@@ -1,22 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/en](http://localhost:3000/en) or
+[http://localhost:3000/es](http://localhost:3000/es). The root route resolves a locale and
+redirects to a locale-aware route.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Set `NEXT_PUBLIC_ARDENFOLD_FALLBACK_LOCALE` to `en` or `es` in a deployment environment. It is a
+technical fallback, not a permanent product language. See
+[localization.md](../../docs/development/localization.md) for resolution and content rules.
 
 ## Learn More
 
