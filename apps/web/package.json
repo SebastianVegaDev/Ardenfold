@@ -14,6 +14,7 @@
     "dependencies": {
         "@ardenfold/contracts": "workspace:*",
         "@ardenfold/ui": "workspace:*",
+        "lucide-react": "^1.47.0",
         "next": "16.3.5",
         "next-intl": "^4.14.6",
         "react": "19.2.8",

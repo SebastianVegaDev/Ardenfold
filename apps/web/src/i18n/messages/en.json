@@ -15,6 +15,39 @@
         "validationFailed": "Review the highlighted information and try again."
     },
     "metadata": {
-        "defaultDescription": "Ardenfold securely organizes important operational information."
+        "productName": "Ardenfold",
+        "defaultTitle": "Ardenfold",
+        "titleTemplate": "%s · Ardenfold",
+        "defaultDescription": "Ardenfold securely organizes important operational information.",
+        "openGraphAlt": "Ardenfold — a verifiable history for every asset"
+    },
+    "shell": {
+        "brandAlt": "Ardenfold",
+        "skipToContent": "Skip to content",
+        "openNavigation": "Open navigation",
+        "closeNavigation": "Close navigation",
+        "primaryNavigation": "Primary navigation",
+        "home": "Home",
+        "organization": "Organization selector",
+        "organizationPlaceholder": "Select organization",
+        "account": "Account menu",
+        "accountPlaceholder": "Account"
+    },
+    "workspace": {
+        "title": "Your workspace",
+        "description": "Choose an available section from the navigation to continue."
+    },
+    "states": {
+        "loading": "Loading",
+        "notFound": {
+            "title": "Page not found",
+            "description": "The address may be incorrect or the page may have moved.",
+            "action": "Return home"
+        },
+        "error": {
+            "title": "We could not load this page",
+            "description": "Try the operation again. If it continues, use the request identifier when contacting support.",
+            "action": "Try again"
+        }
     }
 }
