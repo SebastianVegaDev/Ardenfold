@@ -15,10 +15,25 @@ export default async function HomePage({ params }: HomePageProps) {
     const translate = await getTranslations("home");
 
     return (
-        <main className="grid min-h-screen place-items-center bg-neutral-950 p-6 text-neutral-50">
+        <main className="grid min-h-screen place-items-center bg-background p-6 text-foreground">
             <div className="max-w-lg text-center">
-                <h1 className="text-4xl font-semibold tracking-tight">{translate("title")}</h1>
-                <p className="mt-3 text-neutral-300">{translate("description")}</p>
+                <picture>
+                    <source
+                        media="(prefers-color-scheme: dark)"
+                        srcSet="/brand/logo-primary-dark.svg"
+                    />
+                    <img
+                        alt={translate("logoAlt")}
+                        className="mx-auto h-auto w-60"
+                        height="180"
+                        src="/brand/logo-primary-light.svg"
+                        width="720"
+                    />
+                </picture>
+                <h1 className="font-display text-4xl font-semibold tracking-tight">
+                    {translate("title")}
+                </h1>
+                <p className="mt-3 text-muted-foreground">{translate("description")}</p>
             </div>
         </main>
     );

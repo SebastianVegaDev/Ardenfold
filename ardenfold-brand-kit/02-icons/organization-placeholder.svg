@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Avatar predeterminado para organización">
+  <rect width="512" height="512" rx="112" fill="#E8F3F1"/>
+  <path d="M112 372V206l144-74 144 74v166" fill="none" stroke="#0F766E" stroke-width="24" stroke-linejoin="round"/>
+  <path d="M172 372V250h168v122M220 250v122M292 250v122" fill="none" stroke="#12383A" stroke-width="20" stroke-linejoin="round"/>
+  <circle cx="374" cy="172" r="18" fill="#D99A3D"/>
+</svg>
