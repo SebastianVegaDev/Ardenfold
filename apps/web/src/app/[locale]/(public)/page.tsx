@@ -1,4 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Button } from "@ardenfold/ui";
+import Link from "next/link";
 
 import { BrandLogo } from "@/components/brand-logo";
 import type { Locale } from "@/i18n/locales";
@@ -23,6 +25,9 @@ export default async function HomePage({ params }: HomePageProps) {
                     {translate("title")}
                 </h1>
                 <p className="mt-3 text-muted-foreground">{translate("description")}</p>
+                <Button asChild className="mt-8" size="lg">
+                    <Link href={`/${locale}/sign-in`}>{translate("signIn")}</Link>
+                </Button>
             </div>
         </main>
     );

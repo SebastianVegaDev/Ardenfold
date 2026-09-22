@@ -1,6 +1,17 @@
 {
     "$schema": "https://turbo.build/schema.json",
     "ui": "tui",
+    "globalEnv": [
+        "ARDENFOLD_API_URL",
+        "AUTH_JWT_CLOCK_TOLERANCE_SECONDS",
+        "NEXT_PUBLIC_ARDENFOLD_FALLBACK_LOCALE",
+        "NEXT_PUBLIC_WORKOS_REDIRECT_URI",
+        "WORKOS_API_KEY",
+        "WORKOS_CLIENT_ID",
+        "WORKOS_COOKIE_PASSWORD",
+        "WORKOS_ISSUER",
+        "WORKOS_JWKS_URL"
+    ],
     "tasks": {
         "build": {
             "dependsOn": ["^build"],

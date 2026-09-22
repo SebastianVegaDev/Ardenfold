@@ -70,6 +70,17 @@ export const readinessResponseSchema = livenessResponseSchema.extend({
     database: z.literal("up"),
 });
 
+export const authenticatedUserResponseSchema = z.strictObject({
+    user: z.strictObject({
+        id: identifierSchema,
+        email: z.email(),
+        displayName: z.string().min(1).nullable(),
+    }),
+    session: z.strictObject({
+        id: z.string().min(1),
+    }),
+});
+
 export const contractSchemas = {
     Identifier: identifierSchema,
     Instant: instantSchema,
@@ -80,6 +91,7 @@ export const contractSchemas = {
     PageInfo: pageInfoSchema,
     LivenessResponse: livenessResponseSchema,
     ReadinessResponse: readinessResponseSchema,
+    AuthenticatedUserResponse: authenticatedUserResponseSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;
@@ -91,3 +103,5 @@ export type PaginationQuery = z.infer<typeof paginationQuerySchema>;
 export type LivenessResponse = z.infer<typeof livenessResponseSchema>;
 
 export type ReadinessResponse = z.infer<typeof readinessResponseSchema>;
+
+export type AuthenticatedUserResponse = z.infer<typeof authenticatedUserResponseSchema>;

@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
 import { AppController } from "./app.controller";
+import { AuthModule } from "./auth/auth.module";
 import { validateEnvironment } from "./config/environment";
 import { DatabaseModule } from "./infrastructure/database/database.module";
 import { ObservabilityModule } from "./observability/observability.module";
@@ -17,6 +18,7 @@ import { ObservabilityModule } from "./observability/observability.module";
         }),
         ObservabilityModule,
         DatabaseModule,
+        AuthModule,
     ],
     controllers: [AppController],
 })

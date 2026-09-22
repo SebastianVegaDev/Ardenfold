@@ -9,8 +9,10 @@ import { Controller, Get, Inject } from "@nestjs/common";
 import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import { DatabaseService } from "./infrastructure/database/database.service";
+import { Public } from "./auth/public.decorator";
 
 @ApiTags("operations")
+@Public()
 @Controller()
 export class AppController {
     constructor(

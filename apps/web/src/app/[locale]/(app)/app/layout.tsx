@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
+import { withAuth } from "@workos-inc/authkit-nextjs";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
+import { getAuthenticatedUser } from "@/auth/api-client";
 import type { Locale } from "@/i18n/locales";
 
 type AuthenticatedLayoutProps = Readonly<{
@@ -12,8 +14,12 @@ type AuthenticatedLayoutProps = Readonly<{
 }>;
 
 export default async function AuthenticatedLayout({ children, params }: AuthenticatedLayoutProps) {
-    const { locale } = await params;
-    const translate = await getTranslations("shell");
+    const [{ locale }, session, translate] = await Promise.all([
+        params,
+        withAuth({ ensureSignedIn: true }),
+        getTranslations("shell"),
+    ]);
+    const identity = await getAuthenticatedUser(session.accessToken);
 
     return (
         <AppShell
@@ -27,9 +33,11 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 organization: translate("organization"),
                 organizationPlaceholder: translate("organizationPlaceholder"),
                 account: translate("account"),
-                accountPlaceholder: translate("accountPlaceholder"),
+                signOut: translate("signOut"),
             }}
+            accountName={identity.user.displayName ?? identity.user.email}
             homeHref={`/${locale}/app`}
+            signOutHref={`/auth/sign-out?locale=${locale}`}
         >
             {children}
         </AppShell>

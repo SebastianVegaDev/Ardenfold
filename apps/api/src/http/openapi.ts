@@ -12,7 +12,11 @@ import {
 import { z } from "zod";
 
 export function createOpenApiDocument(app: INestApplication): OpenAPIObject {
-    const config = new DocumentBuilder().setTitle("Ardenfold API").setVersion("1.0.0").build();
+    const config = new DocumentBuilder()
+        .setTitle("Ardenfold API")
+        .setVersion("1.0.0")
+        .addBearerAuth({ type: "http", scheme: "bearer", bearerFormat: "JWT" })
+        .build();
 
     const document = SwaggerModule.createDocument(app, config);
 

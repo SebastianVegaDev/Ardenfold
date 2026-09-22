@@ -24,6 +24,10 @@ const postgresConnectionUrl = z
         },
     );
 
+const httpsUrl = z.url().refine((value) => new URL(value).protocol === "https:", {
+    message: "Must be an HTTPS URL.",
+});
+
 export const environmentSchema = z.object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
@@ -38,6 +42,16 @@ export const environmentSchema = z.object({
     DATABASE_IDLE_TIMEOUT_MS: z.coerce.number().int().min(1_000).default(30_000),
 
     DATABASE_CONNECTION_TIMEOUT_MS: z.coerce.number().int().min(1_000).default(5_000),
+
+    WORKOS_CLIENT_ID: z.string().trim().min(1),
+
+    WORKOS_API_KEY: z.string().trim().min(1),
+
+    WORKOS_ISSUER: httpsUrl,
+
+    WORKOS_JWKS_URL: httpsUrl,
+
+    AUTH_JWT_CLOCK_TOLERANCE_SECONDS: z.coerce.number().int().min(0).max(60).default(5),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentSchema>;

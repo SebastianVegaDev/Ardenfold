@@ -17,6 +17,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { z } from "zod";
 
 import { AppModule } from "./app.module";
+import { Public } from "./auth/public.decorator";
 import { DatabaseService } from "./infrastructure/database/database.service";
 
 import { configureHttp, createHttpAdapter, ContractValidationPipe } from "./http/contracts";
@@ -28,6 +29,7 @@ const probeSchema = z.strictObject({
 });
 
 @Controller("contract-probe")
+@Public()
 class ContractProbeController {
     @Get()
     list(
@@ -149,6 +151,16 @@ describe("HTTP contracts", () => {
         expect(unprefixed.statusCode).toBe(404);
     });
 
+    it("protects business endpoints by default", async () => {
+        const response = await app.inject({
+            method: "GET",
+            url: "/api/v1/auth/me",
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(apiErrorSchema.parse(JSON.parse(response.body)).error.code).toBe("UNAUTHENTICATED");
+    });
+
     it("identifies invalid fields without returning rejected values", async () => {
         const response = await app.inject({
             method: "POST",
@@ -250,6 +262,8 @@ describe("HTTP contracts", () => {
         expect(document.paths["/api/v1/health/live"]).toBeUndefined();
         expect(document.paths["/api/v1/contract-probe"]).toBeDefined();
         expect(document.components?.schemas?.["ApiError"]).toBeDefined();
+        expect(document.components?.securitySchemes?.["bearer"]).toBeDefined();
+        expect(document.paths["/api/v1/auth/me"]?.get?.security).toEqual([{ bearer: [] }]);
 
         expect(serializeOpenApi(document)).toBe(serializeOpenApi(createOpenApiDocument(app)));
     });
