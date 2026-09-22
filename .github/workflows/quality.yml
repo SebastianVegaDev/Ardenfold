@@ -55,6 +55,12 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Build API and workspace dependencies
+        run: pnpm exec turbo run build --filter=@ardenfold/api...
+
+      - name: Verify OpenAPI contract
+        run: pnpm --filter @ardenfold/api openapi:check
+
   build:
     name: Build
     runs-on: ubuntu-latest

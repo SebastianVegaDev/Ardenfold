@@ -1,25 +1,34 @@
-import { Controller, Get } from "@nestjs/common";
+import { healthResponseSchema, type HealthResponse } from "@ardenfold/contracts";
+
+import { Controller, Get, Inject } from "@nestjs/common";
+import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import { DatabaseService } from "./infrastructure/database/database.service";
 
-type HealthResponse = Readonly<{
-    status: "ok";
-    service: "api";
-    database: "up";
-}>;
-
+@ApiTags("operations")
 @Controller()
 export class AppController {
-    constructor(private readonly databaseService: DatabaseService) {}
+    constructor(
+        @Inject(DatabaseService)
+        private readonly databaseService: DatabaseService,
+    ) {}
 
     @Get("health")
+    @ApiOperation({
+        operationId: "getHealth",
+    })
+    @ApiOkResponse({
+        schema: {
+            $ref: "#/components/schemas/HealthResponse",
+        },
+    })
     async getHealth(): Promise<HealthResponse> {
         await this.databaseService.ping();
 
-        return {
+        return healthResponseSchema.parse({
             status: "ok",
             service: "api",
             database: "up",
-        };
+        });
     }
 }
