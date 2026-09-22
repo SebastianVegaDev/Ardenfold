@@ -60,10 +60,8 @@ export class OrganizationAuthorizationService {
         organizationId: string,
         requiredPermissions: readonly PermissionCode[],
     ): Promise<ActiveOrganizationContext> {
-        return this.database.withTenantTransaction(
-            { organizationId, userId },
-            (transaction) =>
-                this.resolveInTransaction(transaction, userId, organizationId, requiredPermissions),
+        return this.database.withTenantTransaction({ organizationId, userId }, (transaction) =>
+            this.resolveInTransaction(transaction, userId, organizationId, requiredPermissions),
         );
     }
 
@@ -156,7 +154,9 @@ export class OrganizationAuthorizationService {
             const parsed = permissionCodeSchema.safeParse(row.permission);
             return parsed.success ? [parsed.data] : [];
         });
-        const missing = requiredPermissions.filter((permission) => !permissions.includes(permission));
+        const missing = requiredPermissions.filter(
+            (permission) => !permissions.includes(permission),
+        );
 
         if (missing.length > 0) {
             throw new ContractException("PERMISSION_DENIED", 403);

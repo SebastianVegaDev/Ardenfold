@@ -10,6 +10,7 @@
         "lint": "turbo run lint",
         "typecheck": "turbo run typecheck",
         "test": "turbo run test",
+        "test:security": "pnpm exec turbo run build --filter=@ardenfold/api... && pnpm --filter @ardenfold/e2e test:security",
         "format": "prettier --write **/*.{js,mjs,cjs,ts,tsx,json,css,yml,yaml}",
         "format:check": "prettier --check **/*.{js,mjs,cjs,ts,tsx,json,css,yml,yaml}",
         "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check",

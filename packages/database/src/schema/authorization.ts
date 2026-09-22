@@ -29,9 +29,7 @@ export const permissions = pgTable(
     {
         code: varchar("code", { length: 80 }).primaryKey(),
     },
-    (table) => [
-        check("permissions_code_not_blank", sql`char_length(btrim(${table.code})) > 0`),
-    ],
+    (table) => [check("permissions_code_not_blank", sql`char_length(btrim(${table.code})) > 0`)],
 );
 
 export const organizationRoles = pgTable(

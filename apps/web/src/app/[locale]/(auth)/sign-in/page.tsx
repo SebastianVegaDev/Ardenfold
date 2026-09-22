@@ -30,7 +30,10 @@ export default async function SignInPage({ params, searchParams }: SignInPagePro
             </h1>
             <p className="mt-3 text-muted-foreground">{translate("description")}</p>
             {query.error ? (
-                <p className="mt-6 rounded-control border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive" role="alert">
+                <p
+                    className="mt-6 rounded-control border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+                    role="alert"
+                >
                     {translate("callbackError")}
                 </p>
             ) : null}

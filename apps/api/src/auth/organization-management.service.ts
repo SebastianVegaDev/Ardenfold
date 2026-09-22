@@ -407,7 +407,13 @@ export class OrganizationManagementService {
         organizationId: string,
         membershipId: string,
     ): Promise<void> {
-        await this.manageMembership(principal, organizationId, membershipId, undefined, "suspended");
+        await this.manageMembership(
+            principal,
+            organizationId,
+            membershipId,
+            undefined,
+            "suspended",
+        );
     }
 
     async removeMembership(
@@ -511,7 +517,8 @@ export class OrganizationManagementService {
                 }
 
                 const targetIsOwner = target.roleId === systemOrganizationRoleIds.owner;
-                const removesOwnership = targetIsOwner && (role !== "owner" || status !== undefined);
+                const removesOwnership =
+                    targetIsOwner && (role !== "owner" || status !== undefined);
 
                 if ((targetIsOwner || role === "owner") && context.role !== "owner") {
                     throw new ContractException("ROLE_ASSIGNMENT_DENIED", 403);

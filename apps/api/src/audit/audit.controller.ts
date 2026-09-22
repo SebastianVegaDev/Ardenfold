@@ -8,7 +8,10 @@ import { ApiBearerAuth, ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from "
 
 import { CurrentOrganization } from "../auth/current-organization.decorator";
 import { CurrentPrincipal } from "../auth/current-principal.decorator";
-import { organizationHeader, type ActiveOrganizationContext } from "../auth/organization-context.types";
+import {
+    organizationHeader,
+    type ActiveOrganizationContext,
+} from "../auth/organization-context.types";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { RequirePermissions } from "../auth/require-permissions.decorator";
 import { ContractValidationPipe } from "../http/contracts";

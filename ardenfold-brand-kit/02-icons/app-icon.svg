@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Icono de aplicación Ardenfold">
-  <defs>
-    <linearGradient id="bg" x1="80" y1="80" x2="944" y2="944" gradientUnits="userSpaceOnUse"><stop stop-color="#12383A"/><stop offset="1" stop-color="#07171A"/></linearGradient>
-    <mask id="cut"><rect width="64" height="64" fill="white"/><path d="M22 38H41.5L44.5 44H19Z" fill="black"/></mask>
-  </defs>
-  <rect x="32" y="32" width="960" height="960" rx="224" fill="url(#bg)"/>
-  <g transform="translate(192 192) scale(10)" mask="url(#cut)"><path d="M8 54 26.5 10H36L17.5 54Z" fill="#35C7B5"/><path d="M36 10 56 54H43.5L30 23.5Z" fill="#D7F5EF"/></g>
-  <circle cx="644" cy="632" r="25" fill="#E5AD57"/>
-</svg>

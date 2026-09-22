@@ -35,7 +35,9 @@ export class OrganizationAuthorizationGuard implements CanActivate {
         }
 
         if (!request.principal) {
-            throw new Error("Authenticated principal is missing before organization authorization.");
+            throw new Error(
+                "Authenticated principal is missing before organization authorization.",
+            );
         }
 
         request.organizationContext = await this.authorization.authorize(

@@ -216,8 +216,14 @@ export const organizationInvitations = pgTable(
             table.organizationId,
             table.status,
         ),
-        check("organization_invitations_email_normalized", sql`${table.email} = lower(btrim(${table.email}))`),
-        check("organization_invitations_token_hash_format", sql`${table.tokenHash} ~ '^[0-9a-f]{64}$'`),
+        check(
+            "organization_invitations_email_normalized",
+            sql`${table.email} = lower(btrim(${table.email}))`,
+        ),
+        check(
+            "organization_invitations_token_hash_format",
+            sql`${table.tokenHash} ~ '^[0-9a-f]{64}$'`,
+        ),
         check(
             "organization_invitations_lifecycle_check",
             sql`
@@ -226,7 +232,10 @@ export const organizationInvitations = pgTable(
                 OR (${table.status} = 'cancelled' AND ${table.acceptedByUserId} IS NULL AND ${table.acceptedAt} IS NULL AND ${table.cancelledAt} IS NOT NULL)
             `,
         ),
-        check("organization_invitations_expiry_after_creation", sql`${table.expiresAt} > ${table.createdAt}`),
+        check(
+            "organization_invitations_expiry_after_creation",
+            sql`${table.expiresAt} > ${table.createdAt}`,
+        ),
     ],
 );
 
@@ -236,29 +245,26 @@ export const organizationsRelations = relations(organizations, ({ many }) => ({
     invitations: many(organizationInvitations),
 }));
 
-export const organizationInvitationsRelations = relations(
-    organizationInvitations,
-    ({ one }) => ({
-        organization: one(organizations, {
-            fields: [organizationInvitations.organizationId],
-            references: [organizations.id],
-        }),
-        role: one(organizationRoles, {
-            fields: [organizationInvitations.roleId],
-            references: [organizationRoles.id],
-        }),
-        invitedBy: one(users, {
-            fields: [organizationInvitations.invitedByUserId],
-            references: [users.id],
-            relationName: "invitationInviter",
-        }),
-        acceptedBy: one(users, {
-            fields: [organizationInvitations.acceptedByUserId],
-            references: [users.id],
-            relationName: "invitationAcceptor",
-        }),
+export const organizationInvitationsRelations = relations(organizationInvitations, ({ one }) => ({
+    organization: one(organizations, {
+        fields: [organizationInvitations.organizationId],
+        references: [organizations.id],
     }),
-);
+    role: one(organizationRoles, {
+        fields: [organizationInvitations.roleId],
+        references: [organizationRoles.id],
+    }),
+    invitedBy: one(users, {
+        fields: [organizationInvitations.invitedByUserId],
+        references: [users.id],
+        relationName: "invitationInviter",
+    }),
+    acceptedBy: one(users, {
+        fields: [organizationInvitations.acceptedByUserId],
+        references: [users.id],
+        relationName: "invitationAcceptor",
+    }),
+}));
 
 export const usersRelations = relations(users, ({ many }) => ({
     externalIdentities: many(externalIdentities),
