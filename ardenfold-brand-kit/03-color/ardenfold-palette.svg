@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Paleta de colores Ardenfold</title><desc id="desc">Colores de marca, neutrales y estados con códigos HEX</desc>
+  <rect width="1600" height="900" fill="#F4F8F7"/>
+  <text x="92" y="104" fill="#09191C" font-family="Arial, sans-serif" font-size="52" font-weight="700">Ardenfold — sistema de color</text>
+  <text x="92" y="150" fill="#52676B" font-family="Arial, sans-serif" font-size="22">Infraestructura de confianza · preciso, industrial, humano</text>
+  <g font-family="Arial, sans-serif">
+    <g transform="translate(92 210)"><rect width="330" height="230" rx="28" fill="#0F766E"/><text x="28" y="166" fill="#FFFFFF" font-size="28" font-weight="700">Arden Teal</text><text x="28" y="202" fill="#D7F5EF" font-size="22">#0F766E · principal</text></g>
+    <g transform="translate(446 210)"><rect width="330" height="230" rx="28" fill="#12383A"/><text x="28" y="166" fill="#FFFFFF" font-size="28" font-weight="700">Deep Trace</text><text x="28" y="202" fill="#D7F5EF" font-size="22">#12383A · profundidad</text></g>
+    <g transform="translate(800 210)"><rect width="330" height="230" rx="28" fill="#35C7B5"/><text x="28" y="166" fill="#07171A" font-size="28" font-weight="700">Signal Mint</text><text x="28" y="202" fill="#12383A" font-size="22">#35C7B5 · interacción</text></g>
+    <g transform="translate(1154 210)"><rect width="330" height="230" rx="28" fill="#D99A3D"/><text x="28" y="166" fill="#07171A" font-size="28" font-weight="700">Mineral Amber</text><text x="28" y="202" fill="#3E2C10" font-size="22">#D99A3D · evidencia</text></g>
+    <g transform="translate(92 484)"><rect width="260" height="152" rx="22" fill="#07171A"/><text x="22" y="102" fill="#FFFFFF" font-size="23" font-weight="700">Night Ink</text><text x="22" y="130" fill="#BCD0D1" font-size="18">#07171A</text></g>
+    <g transform="translate(374 484)"><rect width="260" height="152" rx="22" fill="#52676B"/><text x="22" y="102" fill="#FFFFFF" font-size="23" font-weight="700">Slate</text><text x="22" y="130" fill="#FFFFFF" font-size="18">#52676B</text></g>
+    <g transform="translate(656 484)"><rect width="260" height="152" rx="22" fill="#D7E2E1"/><text x="22" y="102" fill="#07171A" font-size="23" font-weight="700">Mist</text><text x="22" y="130" fill="#52676B" font-size="18">#D7E2E1</text></g>
+    <g transform="translate(938 484)"><rect width="260" height="152" rx="22" fill="#F4F8F7" stroke="#D7E2E1" stroke-width="2"/><text x="22" y="102" fill="#07171A" font-size="23" font-weight="700">Canvas</text><text x="22" y="130" fill="#52676B" font-size="18">#F4F8F7</text></g>
+    <g transform="translate(1220 484)"><rect width="260" height="152" rx="22" fill="#FFFFFF" stroke="#D7E2E1" stroke-width="2"/><text x="22" y="102" fill="#07171A" font-size="23" font-weight="700">White</text><text x="22" y="130" fill="#52676B" font-size="18">#FFFFFF</text></g>
+    <text x="92" y="706" fill="#09191C" font-size="25" font-weight="700">Estados del producto</text>
+    <g transform="translate(92 744)"><circle cx="18" cy="18" r="18" fill="#147A57"/><text x="48" y="26" fill="#09191C" font-size="22">Success · #147A57</text></g>
+    <g transform="translate(424 744)"><circle cx="18" cy="18" r="18" fill="#A96512"/><text x="48" y="26" fill="#09191C" font-size="22">Warning · #A96512</text></g>
+    <g transform="translate(768 744)"><circle cx="18" cy="18" r="18" fill="#C73B3B"/><text x="48" y="26" fill="#09191C" font-size="22">Error · #C73B3B</text></g>
+    <g transform="translate(1080 744)"><circle cx="18" cy="18" r="18" fill="#2859C5"/><text x="48" y="26" fill="#09191C" font-size="22">Info · #2859C5</text></g>
+    <text x="92" y="842" fill="#52676B" font-size="18">El ámbar identifica un punto de evidencia; no reemplaza warning. Los estados nunca dependen únicamente del color.</text>
+  </g>
+</svg>

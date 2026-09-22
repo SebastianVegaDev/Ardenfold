@@ -1,6 +1,7 @@
 {
     "home": {
         "title": "Ardenfold",
+        "logoAlt": "Ardenfold",
         "description": "Un espacio seguro para la información importante."
     },
     "errors": {

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Patrón gráfico de trazabilidad Ardenfold">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse"><stop stop-color="#07171A"/><stop offset="1" stop-color="#12383A"/></linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#D7F5EF" stroke-opacity=".055"/></pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-80 700H316L492 524H785L972 337H1260L1450 147H1680" stroke="#35C7B5" stroke-opacity=".35" stroke-width="3"/>
+    <path d="M-30 770H420L588 602H928L1100 430H1390L1630 190" stroke="#D7F5EF" stroke-opacity=".16" stroke-width="2"/>
+    <path d="M258 -60V228L436 406V770L566 900" stroke="#35C7B5" stroke-opacity=".18" stroke-width="2"/>
+    <path d="M1214 -70V240L1056 398V718L1238 900" stroke="#D99A3D" stroke-opacity=".28" stroke-width="2"/>
+  </g>
+  <g fill="#35C7B5"><circle cx="316" cy="700" r="8"/><circle cx="785" cy="524" r="8"/><circle cx="1260" cy="337" r="8"/></g>
+  <g fill="#D99A3D"><circle cx="492" cy="524" r="7"/><circle cx="1056" cy="398" r="7"/><circle cx="1214" cy="240" r="7"/></g>
+  <g fill="none" stroke="#D7F5EF" stroke-opacity=".25"><circle cx="785" cy="524" r="42"/><circle cx="785" cy="524" r="62" stroke-dasharray="4 12"/><circle cx="1214" cy="240" r="38"/></g>
+</svg>

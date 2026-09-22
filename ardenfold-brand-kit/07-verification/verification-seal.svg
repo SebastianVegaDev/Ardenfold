@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Sello de verificación Ardenfold">
+  <circle cx="256" cy="256" r="220" fill="#F4F8F7" stroke="#0F766E" stroke-width="20"/>
+  <circle cx="256" cy="256" r="176" fill="#12383A"/>
+  <path d="m166 258 62 62 126-144" fill="none" stroke="#35C7B5" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="370" cy="144" r="26" fill="#D99A3D"/>
+</svg>

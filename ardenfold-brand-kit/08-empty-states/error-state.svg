@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="480" viewBox="0 0 720 480" role="img" aria-label="Estado de error Ardenfold">
+  <rect width="720" height="480" rx="36" fill="#F4F8F7"/>
+  <g transform="translate(254 60)"><path d="m106 8 102 184a22 22 0 0 1-19 33H23a22 22 0 0 1-19-33L106 8Z" fill="#FCE9E7" stroke="#C73B3B" stroke-width="6"/><path d="M106 72v72" stroke="#C73B3B" stroke-width="14" stroke-linecap="round"/><circle cx="106" cy="177" r="8" fill="#C73B3B"/></g>
+  <text x="360" y="359" text-anchor="middle" fill="#09191C" font-family="Arial, sans-serif" font-size="28" font-weight="700">No pudimos completar la acción</text>
+  <text x="360" y="401" text-anchor="middle" fill="#52676B" font-family="Arial, sans-serif" font-size="20">Conservamos tus datos. Intenta nuevamente.</text>
+</svg>
