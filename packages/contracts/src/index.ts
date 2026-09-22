@@ -185,6 +185,53 @@ export const updateMembershipRoleRequestSchema = z.strictObject({
     role: organizationRoleSchema,
 });
 
+export const auditActionSchema = z.enum([
+    "organization.created",
+    "organization.updated",
+    "site.created",
+    "invitation.created",
+    "invitation.cancelled",
+    "invitation.accepted",
+    "membership.role_changed",
+    "membership.suspended",
+    "membership.removed",
+]);
+
+export const auditMetadataSchema = z.record(
+    z.string().min(1).max(80),
+    z.union([z.string().max(500), z.number().finite(), z.boolean(), z.null()]),
+);
+
+export const auditEventSchema = z.strictObject({
+    id: identifierSchema,
+    organizationId: identifierSchema,
+    actor: z.strictObject({
+        type: z.enum(["user", "system", "administrator"]),
+        userId: identifierSchema.nullable(),
+    }),
+    action: auditActionSchema,
+    resourceType: z.string().min(1).max(80),
+    resourceId: z.string().min(1),
+    traceId: identifierSchema,
+    metadata: auditMetadataSchema,
+    occurredAt: instantSchema,
+});
+
+export const auditEventQuerySchema = z.strictObject({
+    limit: z
+        .string()
+        .regex(/^[1-9]\d*$/)
+        .transform(Number)
+        .pipe(z.number().int().max(100))
+        .default(50),
+    cursor: z.string().min(1).max(500).optional(),
+});
+
+export const auditEventListResponseSchema = z.strictObject({
+    data: z.array(auditEventSchema),
+    nextCursor: z.string().nullable(),
+});
+
 export const contractSchemas = {
     Identifier: identifierSchema,
     Instant: instantSchema,
@@ -206,6 +253,8 @@ export const contractSchemas = {
     OrganizationInvitation: organizationInvitationSchema,
     CreatedInvitationResponse: createdInvitationResponseSchema,
     OrganizationInvitationListResponse: organizationInvitationListResponseSchema,
+    AuditEvent: auditEventSchema,
+    AuditEventListResponse: auditEventListResponseSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;
@@ -237,3 +286,8 @@ export type CreatedInvitationResponse = z.infer<typeof createdInvitationResponse
 export type OrganizationInvitationListResponse = z.infer<typeof organizationInvitationListResponseSchema>;
 export type AcceptInvitationRequest = z.infer<typeof acceptInvitationRequestSchema>;
 export type UpdateMembershipRoleRequest = z.infer<typeof updateMembershipRoleRequestSchema>;
+export type AuditAction = z.infer<typeof auditActionSchema>;
+export type AuditMetadata = z.infer<typeof auditMetadataSchema>;
+export type AuditEvent = z.infer<typeof auditEventSchema>;
+export type AuditEventQuery = z.infer<typeof auditEventQuerySchema>;
+export type AuditEventListResponse = z.infer<typeof auditEventListResponseSchema>;

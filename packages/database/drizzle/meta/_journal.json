@@ -36,6 +36,13 @@
       "when": 1790115594444,
       "tag": "0004_organization_onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790116935260,
+      "tag": "0005_immutable_audit_log",
+      "breakpoints": true
     }
   ]
 }
