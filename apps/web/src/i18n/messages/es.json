@@ -1,0 +1,19 @@
+{
+    "home": {
+        "title": "Ardenfold",
+        "description": "Un espacio seguro para la información importante."
+    },
+    "errors": {
+        "badRequest": "No pudimos procesar esta solicitud.",
+        "conflict": "Este cambio entra en conflicto con la información actual.",
+        "forbidden": "No tienes permiso para hacer eso.",
+        "internalError": "Algo salió mal. Inténtalo de nuevo en unos momentos.",
+        "notFound": "No encontramos lo que solicitaste.",
+        "requestRejected": "No se pudo completar esta solicitud.",
+        "unauthenticated": "Inicia sesión para continuar.",
+        "validationFailed": "Revisa la información resaltada e inténtalo de nuevo."
+    },
+    "metadata": {
+        "defaultDescription": "Ardenfold organiza de forma segura información operativa importante."
+    }
+}
