@@ -1,5 +1,34 @@
 {
     "name": "@ardenfold/observability",
     "version": "0.0.0",
-    "private": true
+    "private": true,
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "dev": "tsc -p tsconfig.build.json --watch",
+        "lint": "eslint src --max-warnings=0",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "pino": "^10.3.1"
+    },
+    "devDependencies": {
+        "@types/node": "^26.6.2",
+        "eslint": "^10.11.0",
+        "typescript": "^6.0.3",
+        "vitest": "^5.0.1"
+    }
 }

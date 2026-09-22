@@ -51,27 +51,27 @@ pnpm --filter @ardenfold/api dev
 Verify the API and database connection:
 
 ```powershell
-Invoke-RestMethod http://localhost:3001/health | ConvertTo-Json
+Invoke-RestMethod http://localhost:3001/health/ready | ConvertTo-Json
 ```
 
 Expected response:
 
 ```json
 {
-  "status": "ok",
-  "service": "api",
-  "database": "up"
+    "status": "ok",
+    "service": "api",
+    "database": "up"
 }
 ```
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm db:up` | Start PostgreSQL |
-| `pnpm db:down` | Stop PostgreSQL |
+| Command          | Purpose                |
+| ---------------- | ---------------------- |
+| `pnpm db:up`     | Start PostgreSQL       |
+| `pnpm db:down`   | Stop PostgreSQL        |
 | `pnpm db:status` | Inspect service health |
-| `pnpm db:logs` | Follow PostgreSQL logs |
+| `pnpm db:logs`   | Follow PostgreSQL logs |
 
 ## Persistence
 

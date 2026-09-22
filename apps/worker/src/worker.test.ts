@@ -12,11 +12,11 @@ describe("worker lifecycle", () => {
     });
 
     it("starts and shuts down gracefully", () => {
-        const messages: string[] = [];
+        const messages: Readonly<Record<string, unknown>>[] = [];
 
         const worker = createWorker({
-            info: (message: string): void => {
-                messages.push(message);
+            info: (fields: Readonly<Record<string, unknown>>): void => {
+                messages.push(fields);
             },
         });
 
@@ -25,14 +25,14 @@ describe("worker lifecycle", () => {
         worker.start();
 
         expect(worker.isRunning()).toBe(true);
-        expect(messages).toEqual(['{"level":"info","service":"worker","event":"started"}']);
+        expect(messages).toEqual([{ event: "worker.started" }]);
 
         worker.stop("SIGTERM");
 
         expect(worker.isRunning()).toBe(false);
         expect(messages).toEqual([
-            '{"level":"info","service":"worker","event":"started"}',
-            '{"level":"info","service":"worker","event":"shutdown","signal":"SIGTERM"}',
+            { event: "worker.started" },
+            { event: "worker.shutdown", signal: "SIGTERM" },
         ]);
     });
 });

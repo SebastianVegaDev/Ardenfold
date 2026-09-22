@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { validateEnvironment } from "./config/environment";
 import { DatabaseModule } from "./infrastructure/database/database.module";
+import { ObservabilityModule } from "./observability/observability.module";
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { DatabaseModule } from "./infrastructure/database/database.module";
             envFilePath: [".env", "../../.env"],
             validate: validateEnvironment,
         }),
+        ObservabilityModule,
         DatabaseModule,
     ],
     controllers: [AppController],

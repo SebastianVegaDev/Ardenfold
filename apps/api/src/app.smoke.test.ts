@@ -6,12 +6,14 @@ import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 
 import {
     apiErrorSchema,
-    healthResponseSchema,
+    livenessResponseSchema,
     paginationQuerySchema,
+    readinessResponseSchema,
     type PaginationQuery,
 } from "@ardenfold/contracts";
+import { getCorrelationId } from "@ardenfold/observability";
 
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { AppModule } from "./app.module";
@@ -47,6 +49,11 @@ class ContractProbeController {
     failure(): never {
         throw new Error("secret-database-password");
     }
+
+    @Get("correlation")
+    correlation(): { correlationId: string | undefined } {
+        return { correlationId: getCorrelationId() };
+    }
 }
 
 describe("HTTP contracts", () => {
@@ -75,19 +82,37 @@ describe("HTTP contracts", () => {
         await app.getHttpAdapter().getInstance().ready();
     });
 
+    beforeEach(() => {
+        ping.mockClear();
+    });
+
     afterAll(async () => {
         await app?.close();
     });
 
-    it("keeps health outside the business prefix", async () => {
+    it("separates liveness from database-dependent readiness", async () => {
         const response = await app.inject({
             method: "GET",
-            url: "/health",
+            url: "/health/live",
         });
 
         expect(response.statusCode).toBe(200);
 
-        expect(healthResponseSchema.parse(JSON.parse(response.body))).toEqual({
+        expect(livenessResponseSchema.parse(JSON.parse(response.body))).toEqual({
+            status: "ok",
+            service: "api",
+        });
+
+        expect(ping).not.toHaveBeenCalled();
+
+        const ready = await app.inject({
+            method: "GET",
+            url: "/health/ready",
+        });
+
+        expect(ready.statusCode).toBe(200);
+
+        expect(readinessResponseSchema.parse(JSON.parse(ready.body))).toEqual({
             status: "ok",
             service: "api",
             database: "up",
@@ -97,7 +122,7 @@ describe("HTTP contracts", () => {
 
         const prefixed = await app.inject({
             method: "GET",
-            url: "/api/v1/health",
+            url: "/api/v1/health/live",
         });
 
         expect(prefixed.statusCode).toBe(404);
@@ -202,11 +227,27 @@ describe("HTTP contracts", () => {
         expect(response.body).not.toContain("secret-database-password");
     });
 
+    it("preserves a valid client correlation identifier", async () => {
+        const correlationId = "a8bd24ba-8f34-4a0e-9dd1-32db354ceac6";
+
+        const response = await app.inject({
+            method: "GET",
+            url: "/api/v1/contract-probe/correlation",
+            headers: {
+                "x-request-id": correlationId,
+            },
+        });
+
+        expect(response.headers["x-request-id"]).toBe(correlationId);
+        expect(JSON.parse(response.body)).toEqual({ correlationId });
+    });
+
     it("generates deterministic OpenAPI with the actual route prefixes", () => {
         const document = createOpenApiDocument(app);
 
-        expect(document.paths["/health"]?.get?.operationId).toBe("getHealth");
-        expect(document.paths["/api/v1/health"]).toBeUndefined();
+        expect(document.paths["/health/live"]?.get?.operationId).toBe("getLiveness");
+        expect(document.paths["/health/ready"]?.get?.operationId).toBe("getReadiness");
+        expect(document.paths["/api/v1/health/live"]).toBeUndefined();
         expect(document.paths["/api/v1/contract-probe"]).toBeDefined();
         expect(document.components?.schemas?.["ApiError"]).toBeDefined();
 

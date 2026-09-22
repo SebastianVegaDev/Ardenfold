@@ -1,4 +1,9 @@
-import { healthResponseSchema, type HealthResponse } from "@ardenfold/contracts";
+import {
+    livenessResponseSchema,
+    readinessResponseSchema,
+    type LivenessResponse,
+    type ReadinessResponse,
+} from "@ardenfold/contracts";
 
 import { Controller, Get, Inject } from "@nestjs/common";
 import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -13,19 +18,35 @@ export class AppController {
         private readonly databaseService: DatabaseService,
     ) {}
 
-    @Get("health")
+    @Get("health/live")
     @ApiOperation({
-        operationId: "getHealth",
+        operationId: "getLiveness",
     })
     @ApiOkResponse({
         schema: {
-            $ref: "#/components/schemas/HealthResponse",
+            $ref: "#/components/schemas/LivenessResponse",
         },
     })
-    async getHealth(): Promise<HealthResponse> {
+    getLiveness(): LivenessResponse {
+        return livenessResponseSchema.parse({
+            status: "ok",
+            service: "api",
+        });
+    }
+
+    @Get("health/ready")
+    @ApiOperation({
+        operationId: "getReadiness",
+    })
+    @ApiOkResponse({
+        schema: {
+            $ref: "#/components/schemas/ReadinessResponse",
+        },
+    })
+    async getReadiness(): Promise<ReadinessResponse> {
         await this.databaseService.ping();
 
-        return healthResponseSchema.parse({
+        return readinessResponseSchema.parse({
             status: "ok",
             service: "api",
             database: "up",

@@ -103,7 +103,7 @@ pnpm dev
 Verify the API and PostgreSQL connection:
 
 ```powershell
-Invoke-RestMethod http://localhost:3001/health
+Invoke-RestMethod http://localhost:3001/health/ready
 ```
 
 See [Local PostgreSQL environment](docs/development/database.md) for troubleshooting and operational commands.

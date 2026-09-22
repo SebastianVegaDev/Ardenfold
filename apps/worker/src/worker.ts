@@ -1,7 +1,13 @@
+import {
+    createStructuredLogger,
+    resolveCorrelationId,
+    runWithCorrelationContext,
+} from "@ardenfold/observability";
+
 export type ShutdownSignal = "SIGINT" | "SIGTERM";
 
 export type WorkerLogger = Readonly<{
-    info: (message: string) => void;
+    info: (fields: Readonly<Record<string, unknown>>) => void;
 }>;
 
 export type Worker = Readonly<{
@@ -10,16 +16,7 @@ export type Worker = Readonly<{
     stop: (signal: ShutdownSignal) => void;
 }>;
 
-function serializeLog(event: "started" | "shutdown", signal?: ShutdownSignal): string {
-    return JSON.stringify({
-        level: "info",
-        service: "worker",
-        event,
-        ...(signal === undefined ? {} : { signal }),
-    });
-}
-
-export function createWorker(logger: WorkerLogger = console): Worker {
+export function createWorker(logger: WorkerLogger = createStructuredLogger("worker")): Worker {
     let keepAliveTimer: ReturnType<typeof setInterval> | undefined;
 
     return {
@@ -34,7 +31,7 @@ export function createWorker(logger: WorkerLogger = console): Worker {
                 // Queue polling will be implemented in a future issue.
             }, 60_000);
 
-            logger.info(serializeLog("started"));
+            logger.info({ event: "worker.started" });
         },
 
         stop: (signal: ShutdownSignal): void => {
@@ -45,7 +42,12 @@ export function createWorker(logger: WorkerLogger = console): Worker {
             clearInterval(keepAliveTimer);
             keepAliveTimer = undefined;
 
-            logger.info(serializeLog("shutdown", signal));
+            logger.info({ event: "worker.shutdown", signal });
         },
     };
+}
+
+/** Queue adapters establish this context before executing a job. */
+export function runWorkerJob<T>(correlationId: string | undefined, job: () => T): T {
+    return runWithCorrelationContext({ correlationId: resolveCorrelationId(correlationId) }, job);
 }
