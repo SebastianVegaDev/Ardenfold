@@ -22,6 +22,13 @@
       "when": 1790111857321,
       "tag": "0002_enforce_tenant_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790114471730,
+      "tag": "0003_organization_rbac",
+      "breakpoints": true
     }
   ]
 }

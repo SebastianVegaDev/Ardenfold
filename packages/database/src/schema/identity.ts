@@ -12,6 +12,8 @@ import {
     varchar,
 } from "drizzle-orm/pg-core";
 
+import { organizationRoles, systemOrganizationRoleIds } from "./authorization";
+
 export const organizationStatusValues = ["active", "suspended", "archived"] as const;
 export const membershipStatusValues = ["active", "suspended", "removed"] as const;
 
@@ -148,6 +150,10 @@ export const organizationMemberships = pgTable(
         userId: uuid("user_id")
             .notNull()
             .references(() => users.id, { onDelete: "restrict" }),
+        roleId: uuid("role_id")
+            .default(systemOrganizationRoleIds.viewer)
+            .notNull()
+            .references(() => organizationRoles.id, { onDelete: "restrict" }),
         status: membershipStatus("status").default("active").notNull(),
         activatedAt: timestamp("activated_at", { withTimezone: true }).defaultNow().notNull(),
         suspendedAt: timestamp("suspended_at", { withTimezone: true }),
@@ -207,6 +213,10 @@ export const organizationMembershipsRelations = relations(organizationMembership
     user: one(users, {
         fields: [organizationMemberships.userId],
         references: [users.id],
+    }),
+    role: one(organizationRoles, {
+        fields: [organizationMemberships.roleId],
+        references: [organizationRoles.id],
     }),
 }));
 

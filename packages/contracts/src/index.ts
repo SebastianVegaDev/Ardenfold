@@ -81,6 +81,35 @@ export const authenticatedUserResponseSchema = z.strictObject({
     }),
 });
 
+export const organizationRoleSchema = z.enum(["owner", "administrator", "member", "viewer"]);
+
+export const permissionCodeSchema = z.enum([
+    "organization.read",
+    "organization.update",
+    "sites.read",
+    "sites.manage",
+    "members.read",
+    "members.invite",
+    "members.manage",
+    "audit.read",
+]);
+
+export const organizationSummarySchema = z.strictObject({
+    id: identifierSchema,
+    name: z.string().min(1),
+    defaultLocale: z.string().min(1),
+    defaultTimeZone: z.string().min(1),
+    role: organizationRoleSchema,
+});
+
+export const organizationListResponseSchema = z.strictObject({
+    data: z.array(organizationSummarySchema),
+});
+
+export const activeOrganizationResponseSchema = organizationSummarySchema.extend({
+    permissions: z.array(permissionCodeSchema),
+});
+
 export const contractSchemas = {
     Identifier: identifierSchema,
     Instant: instantSchema,
@@ -92,6 +121,9 @@ export const contractSchemas = {
     LivenessResponse: livenessResponseSchema,
     ReadinessResponse: readinessResponseSchema,
     AuthenticatedUserResponse: authenticatedUserResponseSchema,
+    OrganizationSummary: organizationSummarySchema,
+    OrganizationListResponse: organizationListResponseSchema,
+    ActiveOrganizationResponse: activeOrganizationResponseSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;
@@ -105,3 +137,8 @@ export type LivenessResponse = z.infer<typeof livenessResponseSchema>;
 export type ReadinessResponse = z.infer<typeof readinessResponseSchema>;
 
 export type AuthenticatedUserResponse = z.infer<typeof authenticatedUserResponseSchema>;
+export type OrganizationRole = z.infer<typeof organizationRoleSchema>;
+export type PermissionCode = z.infer<typeof permissionCodeSchema>;
+export type OrganizationSummary = z.infer<typeof organizationSummarySchema>;
+export type OrganizationListResponse = z.infer<typeof organizationListResponseSchema>;
+export type ActiveOrganizationResponse = z.infer<typeof activeOrganizationResponseSchema>;

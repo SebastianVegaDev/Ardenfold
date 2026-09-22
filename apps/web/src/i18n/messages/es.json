@@ -11,6 +11,9 @@
         "forbidden": "No tienes permiso para hacer eso.",
         "internalError": "Algo salió mal. Inténtalo de nuevo en unos momentos.",
         "notFound": "No encontramos lo que solicitaste.",
+        "organizationAccessDenied": "Ya no tienes acceso a esa organización.",
+        "organizationContextRequired": "Elige una organización para continuar.",
+        "permissionDenied": "Tu rol no permite esta acción.",
         "requestRejected": "No se pudo completar esta solicitud.",
         "unauthenticated": "Inicia sesión para continuar.",
         "validationFailed": "Revisa la información resaltada e inténtalo de nuevo."
@@ -31,6 +34,7 @@
         "home": "Inicio",
         "organization": "Selector de organización",
         "organizationPlaceholder": "Seleccionar organización",
+        "noOrganizations": "Aún no tienes organizaciones",
         "account": "Menú de cuenta",
         "signOut": "Cerrar sesión"
     },
@@ -45,7 +49,8 @@
     },
     "workspace": {
         "title": "Tu espacio de trabajo",
-        "description": "Elige una sección disponible en la navegación para continuar."
+        "description": "Elige una sección disponible en la navegación para continuar.",
+        "organizationAccessDenied": "Esa organización ya no está disponible para tu cuenta. Elige otra organización."
     },
     "states": {
         "loading": "Cargando",

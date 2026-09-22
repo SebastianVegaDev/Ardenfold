@@ -18,8 +18,12 @@ import {
 import {
     externalIdentities,
     organizationMemberships,
+    organizationRolePermissions,
+    organizationRoles,
     organizations,
     organizationSites,
+    permissions,
+    systemOrganizationRoleIds,
     users,
 } from "./index";
 
@@ -98,8 +102,11 @@ describe("identity, tenancy and row-level security", () => {
               AND table_name IN (
                 'external_identities',
                 'organization_memberships',
+                'organization_role_permissions',
+                'organization_roles',
                 'organization_sites',
                 'organizations',
+                'permissions',
                 'users'
               )
             ORDER BY table_name
@@ -108,10 +115,74 @@ describe("identity, tenancy and row-level security", () => {
         expect(result.rows.map((row) => row.table_name)).toEqual([
             "external_identities",
             "organization_memberships",
+            "organization_role_permissions",
+            "organization_roles",
             "organization_sites",
             "organizations",
+            "permissions",
             "users",
         ]);
+    });
+
+    it("persists the stable role and permission catalog", async () => {
+        const roles = await connection.database
+            .select({ key: organizationRoles.key })
+            .from(organizationRoles)
+            .orderBy(organizationRoles.key);
+        const catalog = await connection.database
+            .select({ code: permissions.code })
+            .from(permissions)
+            .orderBy(permissions.code);
+        const viewerPermissions = await connection.database
+            .select({ code: organizationRolePermissions.permissionCode })
+            .from(organizationRolePermissions)
+            .where(eq(organizationRolePermissions.roleId, systemOrganizationRoleIds.viewer))
+            .orderBy(organizationRolePermissions.permissionCode);
+
+        expect(roles.map((role) => role.key)).toEqual([
+            "administrator",
+            "member",
+            "owner",
+            "viewer",
+        ]);
+        expect(catalog).toHaveLength(8);
+        expect(viewerPermissions.map((permission) => permission.code)).toEqual([
+            "organization.read",
+            "sites.read",
+        ]);
+    });
+
+    it("lists only active organizations for the authenticated local user", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+
+        const visible = await runtimeConnection.withUserTransaction(
+            fixture.firstUserId,
+            async (transaction) => {
+                return transaction
+                    .select({ organization_id: organizations.id })
+                    .from(organizationMemberships)
+                    .innerJoin(
+                        organizations,
+                        eq(organizations.id, organizationMemberships.organizationId),
+                    );
+            },
+        );
+
+        expect(visible).toEqual([{ organization_id: fixture.firstOrganizationId }]);
+    });
+
+    it("requires active membership even when an organization header supplies a real tenant ID", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+
+        const visible = await runtimeConnection.withTenantTransaction(
+            {
+                organizationId: fixture.secondOrganizationId,
+                userId: fixture.firstUserId,
+            },
+            (transaction) => transaction.select().from(organizations),
+        );
+
+        expect(visible).toEqual([]);
     });
 
     it("generates stable IDs and allows a user to join multiple organizations", async () => {
