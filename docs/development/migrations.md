@@ -28,6 +28,19 @@ pnpm db:check
    re-run.
 7. Commit the schema, SQL migration and generated metadata together.
 
+Schema integration tests apply all committed migrations to an empty PostgreSQL database,
+run the migration runner a second time, and exercise database constraints. Set
+`DATABASE_TEST_URL` to a disposable database whose name ends in `_test` to run them
+locally:
+
+```bash
+DATABASE_TEST_URL=postgresql://user:password@localhost:5432/ardenfold_test \
+  pnpm --filter @ardenfold/database test
+```
+
+The test suite refuses to reset databases without the `_test` suffix. CI provisions a
+dedicated PostgreSQL service and always executes these tests.
+
 ## Rules
 
 - Use one logical database change per migration.

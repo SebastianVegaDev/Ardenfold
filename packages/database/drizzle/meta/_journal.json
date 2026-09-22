@@ -8,6 +8,13 @@
       "when": 1789996722106,
       "tag": "0000_database_prerequisites",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790110735667,
+      "tag": "0001_identity_tenancy_model",
+      "breakpoints": true
     }
   ]
 }

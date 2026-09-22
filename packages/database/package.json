@@ -12,6 +12,10 @@
         "./schema": {
             "types": "./dist/schema/index.d.ts",
             "default": "./dist/schema/index.js"
+        },
+        "./testing": {
+            "types": "./dist/testing/index.d.ts",
+            "default": "./dist/testing/index.js"
         }
     },
     "files": [
@@ -23,6 +27,8 @@
         "dev": "tsc --project tsconfig.build.json --watch --preserveWatchOutput",
         "lint": "eslint src --max-warnings=0",
         "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "tsx src/cli/migrate.ts",
         "db:check": "tsx src/cli/check.ts",
@@ -40,6 +46,7 @@
         "drizzle-kit": "^0.31.11",
         "eslint": "^10.11.0",
         "tsx": "^4.23.15",
-        "typescript": "^7.0.2"
+        "typescript": "^7.0.2",
+        "vitest": "^5.0.1"
     }
 }
