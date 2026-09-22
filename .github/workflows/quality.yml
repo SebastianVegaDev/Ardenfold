@@ -1,75 +1,75 @@
 name: Quality
 
 on:
-    pull_request:
-        branches:
-            - main
-    push:
-        branches:
-            - main
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 permissions:
-    contents: read
+  contents: read
 
 concurrency:
-    group: quality-${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    lint:
-        name: Lint
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v6
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-            - name: Set up workspace
-              uses: ./.github/actions/setup-workspace
+      - name: Set up workspace
+        uses: ./.github/actions/setup-workspace
 
-            - name: Run lint
-              run: pnpm lint
+      - name: Run lint
+        run: pnpm lint
 
-    typecheck:
-        name: Typecheck
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v6
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-            - name: Set up workspace
-              uses: ./.github/actions/setup-workspace
+      - name: Set up workspace
+        uses: ./.github/actions/setup-workspace
 
-            - name: Run typecheck
-              run: pnpm typecheck
+      - name: Run typecheck
+        run: pnpm typecheck
 
-    tests:
-        name: Tests
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v6
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-            - name: Set up workspace
-              uses: ./.github/actions/setup-workspace
+      - name: Set up workspace
+        uses: ./.github/actions/setup-workspace
 
-            - name: Run tests
-              run: pnpm test
+      - name: Run tests
+        run: pnpm test
 
-            - name: Build API and workspace dependencies
-              run: pnpm exec turbo run build --filter=@ardenfold/api...
+      - name: Build API and workspace dependencies
+        run: pnpm exec turbo run build --filter=@ardenfold/api...
 
-            - name: Verify OpenAPI contract
-              run: pnpm --filter @ardenfold/api openapi:check
+      - name: Verify OpenAPI contract
+        run: pnpm --filter @ardenfold/api openapi:check
 
-    build:
-        name: Build
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v6
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-            - name: Set up workspace
-              uses: ./.github/actions/setup-workspace
+      - name: Set up workspace
+        uses: ./.github/actions/setup-workspace
 
-            - name: Run build
-              run: pnpm build
+      - name: Run build
+        run: pnpm build
