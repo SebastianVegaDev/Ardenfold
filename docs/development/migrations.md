@@ -17,6 +17,10 @@ pnpm db:migrate
 pnpm db:check
 ```
 
+`db:generate`, `db:validate` and `db:migrate` require
+`DATABASE_MIGRATION_URL`. `db:check` and the API use the restricted `DATABASE_URL`.
+The two credentials must remain separate in every environment.
+
 ## Workflow
 
 1. Modify the TypeScript schema.
@@ -38,8 +42,9 @@ DATABASE_TEST_URL=postgresql://user:password@localhost:5432/ardenfold_test \
   pnpm --filter @ardenfold/database test
 ```
 
-The test suite refuses to reset databases without the `_test` suffix. CI provisions a
-dedicated PostgreSQL service and always executes these tests.
+The test suite refuses to reset databases without the `_test` suffix. Without an
+explicit `DATABASE_TEST_URL`, Testcontainers provisions an isolated PostgreSQL 18
+container. CI executes the same containerized migration and isolation tests.
 
 ## Rules
 
@@ -52,6 +57,10 @@ dedicated PostgreSQL service and always executes these tests.
 - Never use schema push commands in shared or production environments.
 - Migrations are executed explicitly and never during API startup.
 - Business tables must be introduced by their corresponding domain issue.
+- Every new table must receive an explicit runtime grant. There are intentionally no
+  default table privileges: an omitted grant must fail closed.
+- Every tenant-owned table must enable and force RLS in the migration that introduces
+  it, with isolation tests in the same change.
 - Custom SQL migrations are allowed for PostgreSQL extensions, indexes,
   constraints and other infrastructure that cannot be expressed cleanly
   in the TypeScript schema.

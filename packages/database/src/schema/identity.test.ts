@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 
+import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { eq, sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
@@ -22,20 +23,21 @@ import {
     users,
 } from "./index";
 
-const databaseTestUrl = process.env.DATABASE_TEST_URL;
-
-if (process.env.CI === "true" && databaseTestUrl === undefined) {
-    throw new Error("DATABASE_TEST_URL is required for database tests in CI.");
-}
-
-const describeWithDatabase = databaseTestUrl === undefined ? describe.skip : describe;
-
-describeWithDatabase("identity and tenancy schema", () => {
+describe("identity, tenancy and row-level security", () => {
     let connection: DatabaseConnection;
+    let runtimeConnection: DatabaseConnection;
+    let postgresContainer: StartedPostgreSqlContainer | undefined;
 
     beforeAll(async () => {
+        let databaseTestUrl = process.env.DATABASE_TEST_URL;
+
         if (databaseTestUrl === undefined) {
-            return;
+            postgresContainer = await new PostgreSqlContainer("postgres:18.6-bookworm")
+                .withDatabase("ardenfold_test")
+                .withUsername("ardenfold_migrator")
+                .withPassword("ardenfold_migrator_password")
+                .start();
+            databaseTestUrl = postgresContainer.getConnectionUri();
         }
 
         await resetTestDatabase(databaseTestUrl);
@@ -53,6 +55,17 @@ describeWithDatabase("identity and tenancy schema", () => {
 
         await migrate(connection.database, { migrationsFolder });
         await migrate(connection.database, { migrationsFolder });
+
+        await provisionRuntimeLogin(connection);
+
+        runtimeConnection = createDatabaseConnection({
+            connectionString: createRuntimeConnectionUrl(databaseTestUrl),
+            max: 1,
+            idleTimeoutMillis: 5_000,
+            connectionTimeoutMillis: 5_000,
+            ssl: false,
+            applicationName: "ardenfold-database-rls-tests",
+        });
     });
 
     beforeEach(async () => {
@@ -70,7 +83,9 @@ describeWithDatabase("identity and tenancy schema", () => {
     });
 
     afterAll(async () => {
+        await runtimeConnection?.close();
         await connection?.close();
+        await postgresContainer?.stop();
     });
 
     it("applies migrations repeatedly to an empty database", async () => {
@@ -242,6 +257,237 @@ describeWithDatabase("identity and tenancy schema", () => {
             "organization_sites_organization_id_idx",
         ]);
     });
+
+    it("keeps the runtime role non-owner and unable to bypass row-level security", async () => {
+        const roleResult = await connection.database.execute<{
+            rolcreaterole: boolean;
+            rolcreatedb: boolean;
+            rolname: string;
+            rolowner: boolean;
+            rolreplication: boolean;
+            rolbypassrls: boolean;
+            rolsuper: boolean;
+        }>(sql`
+            SELECT
+                role.rolname,
+                role.rolsuper,
+                role.rolcreatedb,
+                role.rolcreaterole,
+                role.rolreplication,
+                role.rolbypassrls,
+                EXISTS (
+                    SELECT 1
+                    FROM pg_class relation
+                    WHERE relation.relname IN (
+                        'organization_memberships',
+                        'organization_sites',
+                        'organizations'
+                    )
+                      AND relation.relowner = role.oid
+                ) AS rolowner
+            FROM pg_roles role
+            WHERE role.rolname = 'ardenfold_test_runtime'
+        `);
+
+        expect(roleResult.rows).toEqual([
+            {
+                rolname: "ardenfold_test_runtime",
+                rolsuper: false,
+                rolcreatedb: false,
+                rolcreaterole: false,
+                rolreplication: false,
+                rolbypassrls: false,
+                rolowner: false,
+            },
+        ]);
+
+        const policyResult = await connection.database.execute<{
+            relforcerowsecurity: boolean;
+            relname: string;
+            relrowsecurity: boolean;
+        }>(sql`
+            SELECT relname, relrowsecurity, relforcerowsecurity
+            FROM pg_class
+            WHERE relname IN (
+                'organization_memberships',
+                'organization_sites',
+                'organizations'
+            )
+            ORDER BY relname
+        `);
+
+        expect(policyResult.rows).toEqual([
+            {
+                relname: "organization_memberships",
+                relrowsecurity: true,
+                relforcerowsecurity: true,
+            },
+            {
+                relname: "organization_sites",
+                relrowsecurity: true,
+                relforcerowsecurity: true,
+            },
+            {
+                relname: "organizations",
+                relrowsecurity: true,
+                relforcerowsecurity: true,
+            },
+        ]);
+    });
+
+    it("fails closed when tenant context is missing", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+
+        const organizationsWithoutContext = await runtimeConnection.database
+            .select()
+            .from(organizations);
+        const sitesWithoutContext = await runtimeConnection.database
+            .select()
+            .from(organizationSites);
+
+        expect(organizationsWithoutContext).toEqual([]);
+        expect(sitesWithoutContext).toEqual([]);
+
+        await expectDatabaseError(
+            runtimeConnection.database.insert(organizationSites).values({
+                organizationId: fixture.firstOrganizationId,
+                name: "Missing context",
+            }),
+            "42501",
+            undefined,
+        );
+    });
+
+    it("isolates tenant reads, inserts, updates and deletes", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+
+        await runtimeConnection.withTenantTransaction(
+            {
+                organizationId: fixture.firstOrganizationId,
+                userId: fixture.firstUserId,
+            },
+            async (transaction) => {
+                const visibleOrganizations = await transaction.select().from(organizations);
+                const visibleSites = await transaction.select().from(organizationSites);
+
+                expect(visibleOrganizations.map((organization) => organization.id)).toEqual([
+                    fixture.firstOrganizationId,
+                ]);
+                expect(visibleSites.map((site) => site.organizationId)).toEqual([
+                    fixture.firstOrganizationId,
+                ]);
+
+                const [createdSite] = await transaction
+                    .insert(organizationSites)
+                    .values({
+                        organizationId: fixture.firstOrganizationId,
+                        name: "Authorized site",
+                    })
+                    .returning();
+
+                expect(createdSite!.organizationId).toBe(fixture.firstOrganizationId);
+
+                const updated = await transaction
+                    .update(organizationSites)
+                    .set({ name: "Cross-tenant update" })
+                    .where(eq(organizationSites.organizationId, fixture.secondOrganizationId))
+                    .returning();
+                const deleted = await transaction
+                    .delete(organizationSites)
+                    .where(eq(organizationSites.organizationId, fixture.secondOrganizationId))
+                    .returning();
+
+                expect(updated).toEqual([]);
+                expect(deleted).toEqual([]);
+            },
+        );
+
+        await expectDatabaseError(
+            runtimeConnection.withTenantTransaction(
+                {
+                    organizationId: fixture.firstOrganizationId,
+                    userId: fixture.firstUserId,
+                },
+                async (transaction) =>
+                    transaction.insert(organizationSites).values({
+                        organizationId: fixture.secondOrganizationId,
+                        name: "Cross-tenant insert",
+                    }),
+            ),
+            "42501",
+            undefined,
+        );
+
+        const [secondTenantSite] = await connection.database
+            .select()
+            .from(organizationSites)
+            .where(eq(organizationSites.organizationId, fixture.secondOrganizationId));
+
+        expect(secondTenantSite!.name).toBe("Second tenant site");
+    });
+
+    it("keeps organization and user context local to one pooled transaction", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+
+        await runtimeConnection.withTenantTransaction(
+            {
+                organizationId: fixture.firstOrganizationId,
+                userId: fixture.firstUserId,
+            },
+            async (transaction) => {
+                const result = await transaction.execute<{
+                    organization_id: string;
+                    user_id: string;
+                }>(sql`
+                    SELECT
+                        current_setting('ardenfold.organization_id', true) AS organization_id,
+                        current_setting('ardenfold.user_id', true) AS user_id
+                `);
+
+                expect(result.rows).toEqual([
+                    {
+                        organization_id: fixture.firstOrganizationId,
+                        user_id: fixture.firstUserId,
+                    },
+                ]);
+            },
+        );
+
+        await expect(
+            runtimeConnection.withTenantTransaction(
+                {
+                    organizationId: fixture.firstOrganizationId,
+                    userId: fixture.firstUserId,
+                },
+                () => Promise.reject(new Error("force transaction rollback")),
+            ),
+        ).rejects.toThrow("force transaction rollback");
+
+        const leakedContext = await runtimeConnection.database.execute<{
+            organization_id: string | null;
+            user_id: string | null;
+        }>(sql`
+            SELECT
+                NULLIF(current_setting('ardenfold.organization_id', true), '') AS organization_id,
+                NULLIF(current_setting('ardenfold.user_id', true), '') AS user_id
+        `);
+        const visibleSites = await runtimeConnection.database.select().from(organizationSites);
+
+        expect(leakedContext.rows).toEqual([{ organization_id: null, user_id: null }]);
+        expect(visibleSites).toEqual([]);
+    });
+
+    it("rejects malformed tenant context before opening a transaction", async () => {
+        await expect(
+            runtimeConnection.withTenantTransaction(
+                {
+                    organizationId: "not-a-uuid",
+                    userId: "also-not-a-uuid",
+                },
+                () => Promise.resolve(undefined),
+            ),
+        ).rejects.toThrow(/organizationId/u);
+    });
 });
 
 async function resetTestDatabase(connectionString: string): Promise<void> {
@@ -270,7 +516,7 @@ async function resetTestDatabase(connectionString: string): Promise<void> {
 async function expectDatabaseError(
     operation: Promise<unknown>,
     code: string,
-    constraint: string,
+    constraint: string | undefined,
 ): Promise<void> {
     let received: unknown;
 
@@ -281,8 +527,82 @@ async function expectDatabaseError(
     }
 
     expect(received).toBeInstanceOf(Error);
-    expect((received as Error & { cause?: unknown }).cause).toMatchObject({
-        code,
-        constraint,
-    });
+    expect((received as Error & { cause?: unknown }).cause).toMatchObject(
+        constraint === undefined ? { code } : { code, constraint },
+    );
+}
+
+async function provisionRuntimeLogin(connection: DatabaseConnection): Promise<void> {
+    await connection.database.execute(sql`
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ardenfold_test_runtime') THEN
+                CREATE ROLE ardenfold_test_runtime
+                    LOGIN
+                    PASSWORD 'ardenfold_test_runtime_password'
+                    NOSUPERUSER
+                    NOCREATEDB
+                    NOCREATEROLE
+                    NOREPLICATION
+                    NOBYPASSRLS;
+            END IF;
+        END
+        $$
+    `);
+    await connection.database.execute(sql`
+        ALTER ROLE ardenfold_test_runtime
+            WITH LOGIN
+            PASSWORD 'ardenfold_test_runtime_password'
+            NOSUPERUSER
+            NOCREATEDB
+            NOCREATEROLE
+            NOREPLICATION
+            NOBYPASSRLS
+    `);
+    await connection.database.execute(sql`
+        GRANT ardenfold_runtime TO ardenfold_test_runtime
+    `);
+}
+
+function createRuntimeConnectionUrl(connectionString: string): string {
+    const url = new URL(connectionString);
+
+    url.username = "ardenfold_test_runtime";
+    url.password = "ardenfold_test_runtime_password";
+
+    return url.toString();
+}
+
+async function seedTenantIsolationFixture(connection: DatabaseConnection): Promise<{
+    firstOrganizationId: string;
+    firstUserId: string;
+    secondOrganizationId: string;
+}> {
+    const [firstOrganization, secondOrganization] = await connection.database
+        .insert(organizations)
+        .values([buildOrganization(), buildOrganization()])
+        .returning();
+    const [firstUser, secondUser] = await connection.database
+        .insert(users)
+        .values([buildUser(), buildUser()])
+        .returning();
+
+    await connection.database
+        .insert(organizationMemberships)
+        .values([
+            buildOrganizationMembership(firstOrganization!.id, firstUser!.id),
+            buildOrganizationMembership(secondOrganization!.id, secondUser!.id),
+        ]);
+    await connection.database
+        .insert(organizationSites)
+        .values([
+            buildOrganizationSite(firstOrganization!.id, { name: "First tenant site" }),
+            buildOrganizationSite(secondOrganization!.id, { name: "Second tenant site" }),
+        ]);
+
+    return {
+        firstOrganizationId: firstOrganization!.id,
+        firstUserId: firstUser!.id,
+        secondOrganizationId: secondOrganization!.id,
+    };
 }

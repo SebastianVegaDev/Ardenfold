@@ -3,7 +3,9 @@ import { ConfigService } from "@nestjs/config";
 import {
     createDatabaseConnection,
     type ArdenfoldDatabase,
+    type ArdenfoldTransaction,
     type DatabaseConnection,
+    type TenantContext,
 } from "@ardenfold/database";
 
 import type { EnvironmentVariables } from "../../config/environment";
@@ -33,8 +35,19 @@ export class DatabaseService implements OnApplicationShutdown {
         });
     }
 
-    get database(): ArdenfoldDatabase {
+    /**
+     * Global identity persistence only. Tenant-owned operations must use
+     * withTenantTransaction so PostgreSQL receives transaction-local context.
+     */
+    get globalDatabase(): ArdenfoldDatabase {
         return this.connection.database;
+    }
+
+    withTenantTransaction<Result>(
+        context: TenantContext,
+        operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+    ): Promise<Result> {
+        return this.connection.withTenantTransaction(context, operation);
     }
 
     async onApplicationShutdown(): Promise<void> {
