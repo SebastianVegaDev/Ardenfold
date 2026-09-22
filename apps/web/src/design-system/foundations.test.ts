@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -73,17 +74,19 @@ describe("design system foundations", () => {
         }
     });
 
-    it("publishes unchanged approved logo masters", () => {
-        const assets = ["logo-primary-light.svg", "logo-primary-dark.svg", "isotype-color.svg"];
+    it("publishes the approved logo masters", () => {
+        const approvedAssets = {
+            "logo-primary-light.svg":
+                "03e24f4cdd1fb63023f6527d2044f865b373f32d931745461eac5ce4ffcb134b",
+            "logo-primary-dark.svg":
+                "a625589c4e3809e91b5613ed9a6bce145aeb84b98db28b12794474e26a817319",
+            "isotype-color.svg": "8275e1f35426ff47d9448a62d9129a89f6d3295d1780e2ac834be99276b53f17",
+        } as const;
 
-        for (const asset of assets) {
+        for (const [asset, approvedHash] of Object.entries(approvedAssets)) {
             const published = readFileSync(resolve(webRoot, `public/brand/${asset}`), "utf8");
-            const master = readFileSync(
-                resolve(webRoot, `../../ardenfold-brand-kit/01-logo/${asset}`),
-                "utf8",
-            );
 
-            expect(published).toBe(master);
+            expect(createHash("sha256").update(published).digest("hex")).toBe(approvedHash);
         }
     });
 });
