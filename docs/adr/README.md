@@ -80,4 +80,6 @@ The approved architectural baseline is currently documented in:
 
 - [`docs/architecture/overview.md`](../architecture/overview.md)
 
-Individual ADRs will be created when implementation begins to depend on those decisions.
+Accepted records:
+
+- [ADR-0001: Use WorkOS AuthKit for managed authentication](./0001-use-workos-authkit-for-managed-authentication.md)
