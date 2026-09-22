@@ -22,9 +22,12 @@ function readDatabaseSsl(): boolean {
     return value === "true";
 }
 
-export function createCliDatabaseConnection(applicationName: string): DatabaseConnection {
+export function createCliDatabaseConnection(
+    applicationName: string,
+    connectionUrlVariable = "DATABASE_URL",
+): DatabaseConnection {
     return createDatabaseConnection({
-        connectionString: requireEnvironmentVariable("DATABASE_URL"),
+        connectionString: requireEnvironmentVariable(connectionUrlVariable),
         max: 1,
         idleTimeoutMillis: 5_000,
         connectionTimeoutMillis: 5_000,

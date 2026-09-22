@@ -15,6 +15,13 @@
       "when": 1790110735667,
       "tag": "0001_identity_tenancy_model",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790111857321,
+      "tag": "0002_enforce_tenant_rls",
+      "breakpoints": true
     }
   ]
 }

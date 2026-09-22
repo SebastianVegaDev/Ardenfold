@@ -5,7 +5,10 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { createCliDatabaseConnection } from "./create-cli-connection";
 
 async function run(): Promise<void> {
-    const connection = createCliDatabaseConnection("ardenfold-database-migrator");
+    const connection = createCliDatabaseConnection(
+        "ardenfold-database-migrator",
+        "DATABASE_MIGRATION_URL",
+    );
 
     try {
         await migrate(connection.database, {

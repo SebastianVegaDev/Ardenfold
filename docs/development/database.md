@@ -18,13 +18,20 @@ Create the local environment file:
 Copy-Item .env.example .env
 ```
 
-Replace the placeholder PostgreSQL password in `.env` with a development-only password.
+Replace both placeholder PostgreSQL passwords in `.env` with distinct development-only
+passwords. The migration identity owns schema objects; the runtime identity used by the
+API is deliberately non-owning and cannot bypass row-level security.
 
 Start PostgreSQL:
 
 ```powershell
 pnpm db:up
 ```
+
+If the local named volume was created before migration and runtime identities were split,
+the initialization script will not run again automatically. Export any data that matters
+and recreate that development volume deliberately before continuing. Never remove a
+shared or production volume to apply this setup change.
 
 Inspect its status:
 
@@ -39,7 +46,7 @@ The `postgres` service must report `healthy`.
 Run a query inside the container:
 
 ```powershell
-docker compose exec postgres sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT current_database(), current_user;"'
+docker compose exec postgres sh -lc 'PGPASSWORD="$POSTGRES_RUNTIME_PASSWORD" psql -U "$POSTGRES_RUNTIME_USER" -d "$POSTGRES_DB" -c "SELECT current_database(), current_user;"'
 ```
 
 ## Start the API
@@ -72,6 +79,16 @@ Expected response:
 | `pnpm db:down`   | Stop PostgreSQL        |
 | `pnpm db:status` | Inspect service health |
 | `pnpm db:logs`   | Follow PostgreSQL logs |
+
+Apply migrations with the privileged migration URL, never through the API connection:
+
+```powershell
+pnpm db:migrate
+```
+
+The API process receives `DATABASE_URL`. Migration jobs receive
+`DATABASE_MIGRATION_URL`. Do not expose the migration URL to the web, API or worker
+runtime.
 
 ## Persistence
 
@@ -126,3 +143,6 @@ POSTGRES_PORT=5433
   update use cases must set `updated_at` explicitly in the same statement as the change.
 - Development factories emit synthetic `example.test` data and are never a production
   seed mechanism.
+
+See [Tenant isolation](./tenant-isolation.md) for the RLS contract, background-job rules
+and privileged maintenance boundary.

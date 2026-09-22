@@ -2,10 +2,10 @@ import "./src/cli/load-environment";
 
 import { defineConfig } from "drizzle-kit";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_MIGRATION_URL;
 
 if (databaseUrl === undefined || databaseUrl.trim().length === 0) {
-    throw new Error("DATABASE_URL is required to execute Drizzle Kit commands.");
+    throw new Error("DATABASE_MIGRATION_URL is required to execute Drizzle Kit commands.");
 }
 
 export default defineConfig({
