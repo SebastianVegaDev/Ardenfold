@@ -27,6 +27,14 @@ export type DatabaseConnection = Readonly<{
         userId: string,
         operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
     ) => Promise<Result>;
+    withOrganizationBootstrapTransaction: <Result>(
+        context: TenantContext,
+        operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+    ) => Promise<Result>;
+    withInvitationTransaction: <Result>(
+        tokenHash: string,
+        operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+    ) => Promise<Result>;
     withTenantTransaction: <Result>(
         context: TenantContext,
         operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
@@ -36,6 +44,7 @@ export type DatabaseConnection = Readonly<{
 }>;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+const SHA256_PATTERN = /^[0-9a-f]{64}$/u;
 
 function validateIdentifier(value: string, name: string): void {
     if (!UUID_PATTERN.test(value)) {
@@ -80,6 +89,43 @@ export function createDatabaseConnection(options: DatabaseConnectionOptions): Da
                     SELECT
                         set_config('ardenfold.context_kind', 'user', true),
                         set_config('ardenfold.user_id', ${userId}, true)
+                `);
+
+                return operation(transaction);
+            });
+        },
+
+        async withOrganizationBootstrapTransaction<Result>(
+            context: TenantContext,
+            operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+        ): Promise<Result> {
+            validateTenantContext(context);
+
+            return database.transaction(async (transaction) => {
+                await transaction.execute(sql`
+                    SELECT
+                        set_config('ardenfold.context_kind', 'bootstrap', true),
+                        set_config('ardenfold.organization_id', ${context.organizationId}, true),
+                        set_config('ardenfold.user_id', ${context.userId}, true)
+                `);
+
+                return operation(transaction);
+            });
+        },
+
+        async withInvitationTransaction<Result>(
+            tokenHash: string,
+            operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+        ): Promise<Result> {
+            if (!SHA256_PATTERN.test(tokenHash)) {
+                throw new Error("Invitation token hash must be a SHA-256 hex digest.");
+            }
+
+            return database.transaction(async (transaction) => {
+                await transaction.execute(sql`
+                    SELECT
+                        set_config('ardenfold.context_kind', 'invitation', true),
+                        set_config('ardenfold.invitation_token_hash', ${tokenHash}, true)
                 `);
 
                 return operation(transaction);

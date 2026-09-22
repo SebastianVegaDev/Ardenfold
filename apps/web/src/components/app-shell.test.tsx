@@ -10,6 +10,7 @@ const copy: AppShellCopy = {
     closeNavigation: "Close navigation",
     primaryNavigation: "Primary navigation",
     home: "Home",
+    settings: "Settings",
     organization: "Organization",
     organizationPlaceholder: "Select organization",
     noOrganizations: "No organizations",
@@ -36,7 +37,9 @@ describe("AppShell", () => {
                 copy={copy}
                 homeHref="/en/app"
                 locale="en"
+                onboardingHref="/en/app/onboarding"
                 organizations={organizations}
+                settingsHref="/en/app/settings/organization"
                 signOutHref="/auth/sign-out"
             >
                 <h1>Workspace</h1>
@@ -61,7 +64,9 @@ describe("AppShell", () => {
                 copy={copy}
                 homeHref="/en/app"
                 locale="en"
+                onboardingHref="/en/app/onboarding"
                 organizations={organizations}
+                settingsHref="/en/app/settings/organization"
                 signOutHref="/auth/sign-out"
             >
                 <p>Content</p>

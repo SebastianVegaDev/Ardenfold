@@ -14,6 +14,11 @@
         "organizationAccessDenied": "Ya no tienes acceso a esa organización.",
         "organizationContextRequired": "Elige una organización para continuar.",
         "permissionDenied": "Tu rol no permite esta acción.",
+        "invitationExpired": "Esta invitación expiró.",
+        "invitationInvalid": "Esta invitación ya no es válida.",
+        "invitationEmailMismatch": "Esta invitación pertenece a otro correo electrónico.",
+        "lastOwnerRequired": "Cada organización debe conservar al menos un propietario activo.",
+        "roleAssignmentDenied": "Solo un propietario puede cambiar el acceso de propietarios.",
         "requestRejected": "No se pudo completar esta solicitud.",
         "unauthenticated": "Inicia sesión para continuar.",
         "validationFailed": "Revisa la información resaltada e inténtalo de nuevo."
@@ -32,6 +37,7 @@
         "closeNavigation": "Cerrar navegación",
         "primaryNavigation": "Navegación principal",
         "home": "Inicio",
+        "settings": "Configuración de la organización",
         "organization": "Selector de organización",
         "organizationPlaceholder": "Seleccionar organización",
         "noOrganizations": "Aún no tienes organizaciones",
@@ -51,6 +57,37 @@
         "title": "Tu espacio de trabajo",
         "description": "Elige una sección disponible en la navegación para continuar.",
         "organizationAccessDenied": "Esa organización ya no está disponible para tu cuenta. Elige otra organización."
+    },
+    "onboarding": {
+        "title": "Crea tu organización",
+        "description": "Configura el espacio seguro donde estarán tu equipo, sedes y registros.",
+        "name": "Nombre de la organización",
+        "locale": "Idioma predeterminado",
+        "timeZone": "Zona horaria predeterminada",
+        "create": "Crear organización",
+        "error": "No pudimos crear la organización. Revisa la información e inténtalo de nuevo."
+    },
+    "invitations": {
+        "accept": {
+            "title": "Únete a una organización",
+            "description": "Acepta una invitación dirigida al correo de tu sesión.",
+            "token": "Token de invitación",
+            "action": "Aceptar invitación",
+            "error": "Esta invitación es inválida, expiró, fue cancelada o pertenece a otra cuenta."
+        }
+    },
+    "organizationSettings": {
+        "title": "Configuración de la organización",
+        "description": "Administra el perfil, las sedes operativas y el acceso del equipo.",
+        "success": "La organización fue actualizada.",
+        "error": "No pudimos completar ese cambio.",
+        "profile": { "title": "Perfil", "name": "Nombre", "locale": "Idioma predeterminado", "timeZone": "Zona horaria predeterminada", "save": "Guardar perfil" },
+        "sites": { "title": "Sedes", "empty": "Aún no se han creado sedes.", "name": "Nombre de la sede", "code": "Código", "timeZone": "Zona horaria", "create": "Crear sede" },
+        "members": { "title": "Equipo", "role": "Rol", "changeRole": "Cambiar", "suspend": "Suspender", "remove": "Eliminar" },
+        "invitations": { "title": "Invitaciones", "email": "Correo", "invite": "Invitar", "created": "Invitación creada", "copyHint": "Copia ahora este enlace de un solo uso. Ardenfold no guarda el token original.", "empty": "Aún no hay invitaciones.", "cancel": "Cancelar" },
+        "roles": { "owner": "Propietario", "administrator": "Administrador", "member": "Miembro", "viewer": "Observador" },
+        "statuses": { "active": "Activo", "suspended": "Suspendido", "removed": "Eliminado" },
+        "invitationStatuses": { "pending": "Pendiente", "accepted": "Aceptada", "cancelled": "Cancelada", "expired": "Expirada" }
     },
     "states": {
         "loading": "Cargando",

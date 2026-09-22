@@ -29,6 +29,13 @@
       "when": 1790114471730,
       "tag": "0003_organization_rbac",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790115594444,
+      "tag": "0004_organization_onboarding",
+      "breakpoints": true
     }
   ]
 }

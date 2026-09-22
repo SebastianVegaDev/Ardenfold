@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@ardenfold/ui";
-import { Building2, House, LogOut, Menu, UserRound, X } from "lucide-react";
+import { Building2, House, LogOut, Menu, Settings, UserRound, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
@@ -16,6 +16,7 @@ export type AppShellCopy = Readonly<{
     closeNavigation: string;
     primaryNavigation: string;
     home: string;
+    settings: string;
     organization: string;
     organizationPlaceholder: string;
     noOrganizations: string;
@@ -32,6 +33,8 @@ type AppShellProps = Readonly<{
     locale: string;
     organizations: readonly OrganizationSummary[];
     activeOrganizationId: string | undefined;
+    onboardingHref: string;
+    settingsHref: string;
 }>;
 
 export function AppShell({
@@ -41,7 +44,9 @@ export function AppShell({
     copy,
     homeHref,
     locale,
+    onboardingHref,
     organizations,
+    settingsHref,
     signOutHref,
 }: AppShellProps) {
     const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
@@ -56,6 +61,20 @@ export function AppShell({
                 <House aria-hidden="true" className="size-5 shrink-0" />
                 <span className="md:hidden lg:inline">{copy.home}</span>
             </Link>
+            {organizations.length > 0 ? (
+                <Link
+                    className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    href={settingsHref}
+                    onClick={() => setMobileNavigationOpen(false)}
+                >
+                    <Settings aria-hidden="true" className="size-5 shrink-0" />
+                    <span className="md:hidden lg:inline">{copy.settings}</span>
+                </Link>
+            ) : (
+                <Link className="m-2 rounded-control bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground" href={onboardingHref}>
+                    {copy.noOrganizations}
+                </Link>
+            )}
         </nav>
     );
 
