@@ -2,7 +2,8 @@
     "home": {
         "title": "Ardenfold",
         "logoAlt": "Ardenfold",
-        "description": "Un espacio seguro para la información importante."
+        "description": "Un espacio seguro para la información importante.",
+        "signIn": "Iniciar sesión"
     },
     "errors": {
         "badRequest": "No pudimos procesar esta solicitud.",
@@ -31,7 +32,16 @@
         "organization": "Selector de organización",
         "organizationPlaceholder": "Seleccionar organización",
         "account": "Menú de cuenta",
-        "accountPlaceholder": "Cuenta"
+        "signOut": "Cerrar sesión"
+    },
+    "auth": {
+        "signIn": {
+            "title": "Inicia sesión en Ardenfold",
+            "description": "Continúa a tu espacio seguro con la cuenta de tu organización.",
+            "action": "Continuar para iniciar sesión",
+            "callbackError": "No pudimos completar el inicio de sesión. Inténtalo de nuevo.",
+            "securityNote": "WorkOS gestiona la autenticación de forma segura."
+        }
     },
     "workspace": {
         "title": "Tu espacio de trabajo",

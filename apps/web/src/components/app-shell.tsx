@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@ardenfold/ui";
-import { Building2, House, Menu, UserRound, X } from "lucide-react";
+import { Building2, House, LogOut, Menu, UserRound, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
@@ -18,16 +18,18 @@ export type AppShellCopy = Readonly<{
     organization: string;
     organizationPlaceholder: string;
     account: string;
-    accountPlaceholder: string;
+    signOut: string;
 }>;
 
 type AppShellProps = Readonly<{
     children: ReactNode;
     copy: AppShellCopy;
     homeHref: string;
+    accountName: string;
+    signOutHref: string;
 }>;
 
-export function AppShell({ children, copy, homeHref }: AppShellProps) {
+export function AppShell({ accountName, children, copy, homeHref, signOutHref }: AppShellProps) {
     const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
 
     const navigation = (
@@ -77,18 +79,19 @@ export function AppShell({ children, copy, homeHref }: AppShellProps) {
                         </span>
                     </button>
 
-                    <button
-                        aria-label={copy.account}
-                        className="flex items-center gap-2 rounded-control px-2 py-1.5 outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
-                        type="button"
-                    >
+                    <div aria-label={copy.account} className="flex items-center gap-2">
                         <span className="grid size-8 place-items-center rounded-full bg-secondary text-secondary-foreground">
                             <UserRound aria-hidden="true" className="size-4" />
                         </span>
                         <span className="hidden text-sm font-medium sm:inline">
-                            {copy.accountPlaceholder}
+                            {accountName}
                         </span>
-                    </button>
+                        <form action={signOutHref} method="post">
+                            <Button aria-label={copy.signOut} size="icon" type="submit" variant="ghost">
+                                <LogOut aria-hidden="true" />
+                            </Button>
+                        </form>
+                    </div>
                 </div>
             </header>
 

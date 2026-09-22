@@ -11,6 +11,16 @@ on:
 permissions:
     contents: read
 
+env:
+    WORKOS_CLIENT_ID: client_ci
+    WORKOS_API_KEY: test-only-api-key
+    WORKOS_COOKIE_PASSWORD: test-only-cookie-password-32-bytes-minimum
+    NEXT_PUBLIC_WORKOS_REDIRECT_URI: http://localhost:3000/auth/callback
+    WORKOS_ISSUER: https://api.workos.com/
+    WORKOS_JWKS_URL: https://api.workos.com/sso/jwks/client_ci
+    AUTH_JWT_CLOCK_TOLERANCE_SECONDS: "5"
+    ARDENFOLD_API_URL: http://localhost:3001
+
 concurrency:
     group: quality-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true

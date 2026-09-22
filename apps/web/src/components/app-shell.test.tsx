@@ -13,13 +13,13 @@ const copy: AppShellCopy = {
     organization: "Organization",
     organizationPlaceholder: "Select organization",
     account: "Account",
-    accountPlaceholder: "User",
+    signOut: "Sign out",
 };
 
 describe("AppShell", () => {
     it("provides landmark labels, a skip link and consumer-owned copy", () => {
         render(
-            <AppShell copy={copy} homeHref="/en/app">
+            <AppShell accountName="Ada" copy={copy} homeHref="/en/app" signOutHref="/auth/sign-out">
                 <h1>Workspace</h1>
             </AppShell>,
         );
@@ -28,11 +28,13 @@ describe("AppShell", () => {
         expect(screen.getAllByRole("navigation", { name: "Primary navigation" })).toHaveLength(1);
         expect(screen.getByRole("main")).toHaveTextContent("Workspace");
         expect(screen.getByRole("button", { name: "Organization" })).toBeInTheDocument();
+        expect(screen.getByText("Ada")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
     });
 
     it("opens and closes mobile navigation without changing focus order", () => {
         render(
-            <AppShell copy={copy} homeHref="/en/app">
+            <AppShell accountName="Ada" copy={copy} homeHref="/en/app" signOutHref="/auth/sign-out">
                 <p>Content</p>
             </AppShell>,
         );

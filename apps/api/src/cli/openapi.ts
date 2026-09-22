@@ -19,6 +19,11 @@ async function main(): Promise<void> {
         DATABASE_POOL_MAX: "1",
         DATABASE_IDLE_TIMEOUT_MS: "1000",
         DATABASE_CONNECTION_TIMEOUT_MS: "1000",
+        WORKOS_CLIENT_ID: "client_openapi",
+        WORKOS_API_KEY: "test-only-api-key",
+        WORKOS_ISSUER: "https://api.workos.com/",
+        WORKOS_JWKS_URL: "https://api.workos.com/sso/jwks/client_openapi",
+        AUTH_JWT_CLOCK_TOLERANCE_SECONDS: "5",
     });
 
     const { AppModule } = await import("../app.module.js");
