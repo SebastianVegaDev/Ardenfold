@@ -1,11 +1,15 @@
-import { randomUUID } from "node:crypto";
-
 import { apiErrorSchema, type ApiError, type ValidationIssue } from "@ardenfold/contracts";
+import type { IncomingMessage } from "node:http";
+import {
+    correlationHeader,
+    createStructuredLogger,
+    resolveCorrelationId,
+    runWithCorrelationContext,
+} from "@ardenfold/observability";
 
 import {
     Catch,
     HttpException,
-    Logger,
     RequestMethod,
     type ArgumentsHost,
     type ArgumentMetadata,
@@ -15,9 +19,13 @@ import {
 
 import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
 
-import type { FastifyReply, FastifyRequest } from "fastify";
+import { LogController, type FastifyReply, type FastifyRequest } from "fastify";
 
 import { z } from "zod";
+
+import { CorrelationInterceptor } from "../observability/correlation.interceptor";
+
+const logger = createStructuredLogger("api");
 
 export class ContractException extends HttpException {
     constructor(
@@ -106,8 +114,6 @@ const codes: Record<number, string> = {
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(ApiExceptionFilter.name);
-
     catch(exception: unknown, host: ArgumentsHost): void {
         const context = host.switchToHttp();
 
@@ -163,7 +169,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
         };
 
         if (isServerError) {
-            this.logger.error({
+            logger.error({
                 event: "request.failed",
                 traceId: request.id,
                 status,
@@ -176,8 +182,14 @@ export class ApiExceptionFilter implements ExceptionFilter {
 
 export function createHttpAdapter(): FastifyAdapter {
     return new FastifyAdapter({
+        loggerInstance: logger,
+        logController: new LogController({
+            disableRequestLogging: true,
+        }),
+        // Fastify otherwise accepts this header verbatim before genReqId runs.
         requestIdHeader: false,
-        genReqId: () => randomUUID(),
+        genReqId: (request: IncomingMessage) =>
+            resolveCorrelationId(request.headers[correlationHeader]),
     });
 }
 
@@ -185,18 +197,37 @@ export function configureHttp(app: NestFastifyApplication): void {
     app.setGlobalPrefix("api/v1", {
         exclude: [
             {
-                path: "health",
+                path: "health/live",
+                method: RequestMethod.GET,
+            },
+            {
+                path: "health/ready",
                 method: RequestMethod.GET,
             },
         ],
     });
 
     app.useGlobalFilters(new ApiExceptionFilter());
+    app.useGlobalInterceptors(app.get(CorrelationInterceptor));
 
     const server = app.getHttpAdapter().getInstance();
 
     server.addHook("onRequest", (request, reply, done) => {
-        void reply.header("x-request-id", request.id);
+        runWithCorrelationContext({ correlationId: request.id }, () => {
+            void reply.header(correlationHeader, request.id);
+            done();
+        });
+    });
+
+    server.addHook("onResponse", (request, reply, done) => {
+        logger.info({
+            event: "request.completed",
+            correlationId: request.id,
+            method: request.method,
+            route: request.routeOptions.url,
+            status: reply.statusCode,
+            durationMs: reply.elapsedTime,
+        });
         done();
     });
 }

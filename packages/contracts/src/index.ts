@@ -61,9 +61,12 @@ export function pageSchema<T extends z.ZodType>(item: T) {
     });
 }
 
-export const healthResponseSchema = z.strictObject({
+export const livenessResponseSchema = z.strictObject({
     status: z.literal("ok"),
     service: z.literal("api"),
+});
+
+export const readinessResponseSchema = livenessResponseSchema.extend({
     database: z.literal("up"),
 });
 
@@ -75,7 +78,8 @@ export const contractSchemas = {
     ValidationIssue: validationIssueSchema,
     ApiError: apiErrorSchema,
     PageInfo: pageInfoSchema,
-    HealthResponse: healthResponseSchema,
+    LivenessResponse: livenessResponseSchema,
+    ReadinessResponse: readinessResponseSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;
@@ -84,4 +88,6 @@ export type ValidationIssue = z.infer<typeof validationIssueSchema>;
 
 export type PaginationQuery = z.infer<typeof paginationQuerySchema>;
 
-export type HealthResponse = z.infer<typeof healthResponseSchema>;
+export type LivenessResponse = z.infer<typeof livenessResponseSchema>;
+
+export type ReadinessResponse = z.infer<typeof readinessResponseSchema>;

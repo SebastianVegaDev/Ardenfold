@@ -2,8 +2,8 @@
 
 Ardenfold business endpoints use `/api/v1`.
 
-Operational health endpoints remain outside business versioning. The current
-health endpoint is `GET /health`.
+Operational probes remain outside business versioning: `GET /health/live`
+confirms process liveness, while `GET /health/ready` also verifies PostgreSQL.
 
 ## Resources and methods
 
