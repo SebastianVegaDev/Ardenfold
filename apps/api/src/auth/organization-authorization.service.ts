@@ -1,0 +1,164 @@
+import {
+    permissionCodeSchema,
+    organizationListResponseSchema,
+    organizationRoleSchema,
+    type OrganizationListResponse,
+    type PermissionCode,
+} from "@ardenfold/contracts";
+import {
+    organizationMemberships,
+    organizationRolePermissions,
+    organizationRoles,
+    organizations,
+} from "@ardenfold/database/schema";
+import type { ArdenfoldTransaction } from "@ardenfold/database";
+import { Injectable } from "@nestjs/common";
+import { and, eq, sql } from "drizzle-orm";
+
+import { ContractException } from "../http/contracts";
+import { DatabaseService } from "../infrastructure/database/database.service";
+import type { ActiveOrganizationContext } from "./organization-context.types";
+
+@Injectable()
+export class OrganizationAuthorizationService {
+    constructor(private readonly database: DatabaseService) {}
+
+    async listAccessibleOrganizations(userId: string): Promise<OrganizationListResponse> {
+        const rows = await this.database.withUserTransaction(userId, async (transaction) => {
+            return transaction
+                .select({
+                    id: organizations.id,
+                    name: organizations.name,
+                    defaultLocale: organizations.defaultLocale,
+                    defaultTimeZone: organizations.defaultTimeZone,
+                    role: organizationRoles.key,
+                })
+                .from(organizationMemberships)
+                .innerJoin(
+                    organizations,
+                    eq(organizations.id, organizationMemberships.organizationId),
+                )
+                .innerJoin(
+                    organizationRoles,
+                    eq(organizationRoles.id, organizationMemberships.roleId),
+                )
+                .where(
+                    and(
+                        eq(organizationMemberships.userId, userId),
+                        eq(organizationMemberships.status, "active"),
+                        eq(organizations.status, "active"),
+                    ),
+                )
+                .orderBy(sql`lower(${organizations.name})`, organizations.id);
+        });
+
+        return organizationListResponseSchema.parse({ data: rows });
+    }
+
+    async authorize(
+        userId: string,
+        organizationId: string,
+        requiredPermissions: readonly PermissionCode[],
+    ): Promise<ActiveOrganizationContext> {
+        return this.database.withTenantTransaction(
+            { organizationId, userId },
+            (transaction) =>
+                this.resolveInTransaction(transaction, userId, organizationId, requiredPermissions),
+        );
+    }
+
+    async withAuthorizedTransaction<Result>(
+        userId: string,
+        organizationId: string,
+        requiredPermissions: readonly PermissionCode[],
+        operation: (
+            transaction: ArdenfoldTransaction,
+            context: ActiveOrganizationContext,
+        ) => Promise<Result>,
+    ): Promise<Result> {
+        return this.database.withTenantTransaction(
+            { organizationId, userId },
+            async (transaction) => {
+                const context = await this.resolveInTransaction(
+                    transaction,
+                    userId,
+                    organizationId,
+                    requiredPermissions,
+                );
+
+                await transaction.execute(sql`
+                    SELECT
+                        set_config(
+                            'ardenfold.permission.members.read',
+                            ${String(context.permissions.includes("members.read"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.members.manage',
+                            ${String(context.permissions.includes("members.manage"))},
+                            true
+                        )
+                `);
+
+                return operation(transaction, context);
+            },
+        );
+    }
+
+    private async resolveInTransaction(
+        transaction: ArdenfoldTransaction,
+        userId: string,
+        organizationId: string,
+        requiredPermissions: readonly PermissionCode[],
+    ): Promise<ActiveOrganizationContext> {
+        const rows = await transaction
+            .select({
+                id: organizations.id,
+                name: organizations.name,
+                defaultLocale: organizations.defaultLocale,
+                defaultTimeZone: organizations.defaultTimeZone,
+                role: organizationRoles.key,
+                permission: organizationRolePermissions.permissionCode,
+            })
+            .from(organizationMemberships)
+            .innerJoin(organizations, eq(organizations.id, organizationMemberships.organizationId))
+            .innerJoin(organizationRoles, eq(organizationRoles.id, organizationMemberships.roleId))
+            .leftJoin(
+                organizationRolePermissions,
+                eq(organizationRolePermissions.roleId, organizationRoles.id),
+            )
+            .where(
+                and(
+                    eq(organizationMemberships.organizationId, organizationId),
+                    eq(organizationMemberships.userId, userId),
+                    eq(organizationMemberships.status, "active"),
+                    eq(organizations.status, "active"),
+                ),
+            );
+
+        const first = rows[0];
+
+        if (!first) {
+            throw new ContractException("ORGANIZATION_ACCESS_DENIED", 403);
+        }
+
+        const permissions = rows.flatMap((row) => {
+            const parsed = permissionCodeSchema.safeParse(row.permission);
+            return parsed.success ? [parsed.data] : [];
+        });
+        const missing = requiredPermissions.filter((permission) => !permissions.includes(permission));
+
+        if (missing.length > 0) {
+            throw new ContractException("PERMISSION_DENIED", 403);
+        }
+
+        return {
+            id: first.id,
+            name: first.name,
+            defaultLocale: first.defaultLocale,
+            defaultTimeZone: first.defaultTimeZone,
+            role: organizationRoleSchema.parse(first.role),
+            permissions,
+        };
+    }
+}

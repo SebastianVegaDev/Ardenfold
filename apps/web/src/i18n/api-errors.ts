@@ -6,6 +6,9 @@ const errorMessageKeys: Readonly<Record<string, string>> = {
     FORBIDDEN: "errors.forbidden",
     INTERNAL_ERROR: "errors.internalError",
     NOT_FOUND: "errors.notFound",
+    ORGANIZATION_ACCESS_DENIED: "errors.organizationAccessDenied",
+    ORGANIZATION_CONTEXT_REQUIRED: "errors.organizationContextRequired",
+    PERMISSION_DENIED: "errors.permissionDenied",
     UNAUTHENTICATED: "errors.unauthenticated",
     VALIDATION_FAILED: "errors.validationFailed",
 };

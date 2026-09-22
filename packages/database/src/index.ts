@@ -23,6 +23,10 @@ export type DatabaseConnectionOptions = Readonly<{
 
 export type DatabaseConnection = Readonly<{
     database: ArdenfoldDatabase;
+    withUserTransaction: <Result>(
+        userId: string,
+        operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+    ) => Promise<Result>;
     withTenantTransaction: <Result>(
         context: TenantContext,
         operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
@@ -33,14 +37,15 @@ export type DatabaseConnection = Readonly<{
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 
-function validateTenantContext(context: TenantContext): void {
-    if (!UUID_PATTERN.test(context.organizationId)) {
-        throw new Error("Tenant context organizationId must be a valid UUID.");
+function validateIdentifier(value: string, name: string): void {
+    if (!UUID_PATTERN.test(value)) {
+        throw new Error(`${name} must be a valid UUID.`);
     }
+}
 
-    if (!UUID_PATTERN.test(context.userId)) {
-        throw new Error("Tenant context userId must be a valid UUID.");
-    }
+function validateTenantContext(context: TenantContext): void {
+    validateIdentifier(context.organizationId, "Tenant context organizationId");
+    validateIdentifier(context.userId, "Tenant context userId");
 }
 
 export function createDatabaseConnection(options: DatabaseConnectionOptions): DatabaseConnection {
@@ -64,6 +69,23 @@ export function createDatabaseConnection(options: DatabaseConnectionOptions): Da
     return {
         database,
 
+        async withUserTransaction<Result>(
+            userId: string,
+            operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+        ): Promise<Result> {
+            validateIdentifier(userId, "User context userId");
+
+            return database.transaction(async (transaction) => {
+                await transaction.execute(sql`
+                    SELECT
+                        set_config('ardenfold.context_kind', 'user', true),
+                        set_config('ardenfold.user_id', ${userId}, true)
+                `);
+
+                return operation(transaction);
+            });
+        },
+
         async withTenantTransaction<Result>(
             context: TenantContext,
             operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
@@ -73,6 +95,7 @@ export function createDatabaseConnection(options: DatabaseConnectionOptions): Da
             return database.transaction(async (transaction) => {
                 await transaction.execute(sql`
                     SELECT
+                        set_config('ardenfold.context_kind', 'tenant', true),
                         set_config('ardenfold.organization_id', ${context.organizationId}, true),
                         set_config('ardenfold.user_id', ${context.userId}, true)
                 `);

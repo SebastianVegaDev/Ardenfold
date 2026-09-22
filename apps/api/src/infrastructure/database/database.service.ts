@@ -43,6 +43,13 @@ export class DatabaseService implements OnApplicationShutdown {
         return this.connection.database;
     }
 
+    withUserTransaction<Result>(
+        userId: string,
+        operation: (transaction: ArdenfoldTransaction) => Promise<Result>,
+    ): Promise<Result> {
+        return this.connection.withUserTransaction(userId, operation);
+    }
+
     withTenantTransaction<Result>(
         context: TenantContext,
         operation: (transaction: ArdenfoldTransaction) => Promise<Result>,

@@ -5,6 +5,7 @@ import type {
     NewOrganizationSite,
     NewUser,
 } from "../schema";
+import { systemOrganizationRoleIds } from "../schema";
 
 let sequence = 0;
 
@@ -78,6 +79,7 @@ export function buildOrganizationMembership(
         organizationId,
         userId,
         status: "active",
+        roleId: systemOrganizationRoleIds.viewer,
         ...overrides,
     };
 }

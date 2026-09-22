@@ -12,14 +12,33 @@ const copy: AppShellCopy = {
     home: "Home",
     organization: "Organization",
     organizationPlaceholder: "Select organization",
+    noOrganizations: "No organizations",
     account: "Account",
     signOut: "Sign out",
 };
 
 describe("AppShell", () => {
+    const organizations = [
+        {
+            id: "00000000-0000-4000-8000-000000000010",
+            name: "North",
+            defaultLocale: "en",
+            defaultTimeZone: "UTC",
+            role: "owner" as const,
+        },
+    ];
+
     it("provides landmark labels, a skip link and consumer-owned copy", () => {
         render(
-            <AppShell accountName="Ada" copy={copy} homeHref="/en/app" signOutHref="/auth/sign-out">
+            <AppShell
+                accountName="Ada"
+                activeOrganizationId={organizations[0]!.id}
+                copy={copy}
+                homeHref="/en/app"
+                locale="en"
+                organizations={organizations}
+                signOutHref="/auth/sign-out"
+            >
                 <h1>Workspace</h1>
             </AppShell>,
         );
@@ -27,14 +46,24 @@ describe("AppShell", () => {
         expect(screen.getByRole("link", { name: "Skip" })).toHaveAttribute("href", "#main-content");
         expect(screen.getAllByRole("navigation", { name: "Primary navigation" })).toHaveLength(1);
         expect(screen.getByRole("main")).toHaveTextContent("Workspace");
-        expect(screen.getByRole("button", { name: "Organization" })).toBeInTheDocument();
+        expect(screen.getByRole("combobox", { name: "Organization" })).toHaveValue(
+            organizations[0]!.id,
+        );
         expect(screen.getByText("Ada")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
     });
 
     it("opens and closes mobile navigation without changing focus order", () => {
         render(
-            <AppShell accountName="Ada" copy={copy} homeHref="/en/app" signOutHref="/auth/sign-out">
+            <AppShell
+                accountName="Ada"
+                activeOrganizationId={organizations[0]!.id}
+                copy={copy}
+                homeHref="/en/app"
+                locale="en"
+                organizations={organizations}
+                signOutHref="/auth/sign-out"
+            >
                 <p>Content</p>
             </AppShell>,
         );

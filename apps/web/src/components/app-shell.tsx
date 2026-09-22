@@ -5,6 +5,7 @@ import { Building2, House, LogOut, Menu, UserRound, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
+import type { OrganizationSummary } from "@ardenfold/contracts";
 
 import { BrandLogo } from "./brand-logo";
 
@@ -17,6 +18,7 @@ export type AppShellCopy = Readonly<{
     home: string;
     organization: string;
     organizationPlaceholder: string;
+    noOrganizations: string;
     account: string;
     signOut: string;
 }>;
@@ -27,9 +29,21 @@ type AppShellProps = Readonly<{
     homeHref: string;
     accountName: string;
     signOutHref: string;
+    locale: string;
+    organizations: readonly OrganizationSummary[];
+    activeOrganizationId: string | undefined;
 }>;
 
-export function AppShell({ accountName, children, copy, homeHref, signOutHref }: AppShellProps) {
+export function AppShell({
+    accountName,
+    activeOrganizationId,
+    children,
+    copy,
+    homeHref,
+    locale,
+    organizations,
+    signOutHref,
+}: AppShellProps) {
     const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
 
     const navigation = (
@@ -68,16 +82,32 @@ export function AppShell({ accountName, children, copy, homeHref, signOutHref }:
                 </Button>
 
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
-                    <button
-                        aria-label={copy.organization}
-                        className="flex min-w-0 items-center gap-2 rounded-control px-2 py-1.5 text-left outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
-                        type="button"
-                    >
+                    <div className="flex min-w-0 items-center gap-2 rounded-control px-2 py-1.5">
                         <Building2 aria-hidden="true" className="size-5 shrink-0 text-primary" />
-                        <span className="truncate text-sm font-medium">
-                            {copy.organizationPlaceholder}
-                        </span>
-                    </button>
+                        {organizations.length === 0 ? (
+                            <span className="truncate text-sm text-muted-foreground">
+                                {copy.noOrganizations}
+                            </span>
+                        ) : (
+                            <form action="/auth/organization" method="post">
+                                <input name="locale" type="hidden" value={locale} />
+                                <select
+                                    aria-label={copy.organization}
+                                    className="max-w-56 bg-transparent text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    defaultValue={activeOrganizationId}
+                                    name="organizationId"
+                                    onChange={(event) => event.currentTarget.form?.requestSubmit()}
+                                    title={copy.organizationPlaceholder}
+                                >
+                                    {organizations.map((organization) => (
+                                        <option key={organization.id} value={organization.id}>
+                                            {organization.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </form>
+                        )}
+                    </div>
 
                     <div aria-label={copy.account} className="flex items-center gap-2">
                         <span className="grid size-8 place-items-center rounded-full bg-secondary text-secondary-foreground">
