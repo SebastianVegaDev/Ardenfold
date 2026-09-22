@@ -16,6 +16,7 @@ import {
     resetDatabaseFactorySequence,
 } from "../testing";
 import {
+    auditEvents,
     externalIdentities,
     organizationMemberships,
     organizationInvitations,
@@ -101,6 +102,7 @@ describe("identity, tenancy and row-level security", () => {
             FROM information_schema.tables
             WHERE table_schema = 'public'
               AND table_name IN (
+                'audit_events',
                 'external_identities',
                 'organization_memberships',
                 'organization_invitations',
@@ -115,6 +117,7 @@ describe("identity, tenancy and row-level security", () => {
         `);
 
         expect(result.rows.map((row) => row.table_name)).toEqual([
+            "audit_events",
             "external_identities",
             "organization_invitations",
             "organization_memberships",
@@ -260,6 +263,90 @@ describe("identity, tenancy and row-level security", () => {
             .from(organizationMemberships)
             .where(eq(organizationMemberships.userId, invitee!.id));
         expect(memberships).toHaveLength(1);
+    });
+
+    it("keeps audit events tenant-isolated and immutable for the runtime role", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+        const traceId = "00000000-0000-4000-8000-000000000777";
+        let auditEventId = "";
+
+        await runtimeConnection.withTenantTransaction(
+            { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+            async (transaction) => {
+                await transaction.execute(sql`
+                    SELECT set_config('ardenfold.permission.audit.read', 'true', true)
+                `);
+                await transaction.insert(auditEvents).values({
+                    organizationId: fixture.firstOrganizationId,
+                    actorType: "user",
+                    actorUserId: fixture.firstUserId,
+                    action: "organization.updated",
+                    resourceType: "organization",
+                    resourceId: fixture.firstOrganizationId,
+                    traceId,
+                    metadata: { fields: "name" },
+                });
+                const visible = await transaction.select().from(auditEvents);
+                auditEventId = visible[0]!.id;
+                expect(visible).toHaveLength(1);
+            },
+        );
+
+        await runtimeConnection.withTenantTransaction(
+            { organizationId: fixture.secondOrganizationId, userId: fixture.firstUserId },
+            async (transaction) => {
+                await transaction.execute(sql`
+                    SELECT set_config('ardenfold.permission.audit.read', 'true', true)
+                `);
+                expect(await transaction.select().from(auditEvents)).toEqual([]);
+            },
+        );
+
+        await expectDatabaseError(
+            runtimeConnection.withTenantTransaction(
+                { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+                (transaction) =>
+                    transaction
+                        .update(auditEvents)
+                        .set({ resourceId: "tampered" })
+                        .where(eq(auditEvents.id, auditEventId)),
+            ),
+            "42501",
+            undefined,
+        );
+        await expectDatabaseError(
+            runtimeConnection.withTenantTransaction(
+                { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+                (transaction) =>
+                    transaction.delete(auditEvents).where(eq(auditEvents.id, auditEventId)),
+            ),
+            "42501",
+            undefined,
+        );
+    });
+
+    it("rolls audit events back with their protected transaction", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+
+        await expect(
+            runtimeConnection.withTenantTransaction(
+                { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+                async (transaction) => {
+                    await transaction.insert(auditEvents).values({
+                        organizationId: fixture.firstOrganizationId,
+                        actorType: "user",
+                        actorUserId: fixture.firstUserId,
+                        action: "organization.updated",
+                        resourceType: "organization",
+                        resourceId: fixture.firstOrganizationId,
+                        traceId: "00000000-0000-4000-8000-000000000778",
+                    });
+                    throw new Error("rollback audited operation");
+                },
+            ),
+        ).rejects.toThrow("rollback audited operation");
+
+        expect(await connection.database.select().from(auditEvents)).toEqual([]);
     });
 
     it("generates stable IDs and allows a user to join multiple organizations", async () => {

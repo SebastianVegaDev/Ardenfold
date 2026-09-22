@@ -35,6 +35,7 @@ import { and, count, eq, ne, sql } from "drizzle-orm";
 
 import { ContractException } from "../http/contracts";
 import { DatabaseService } from "../infrastructure/database/database.service";
+import { recordAuditEvent } from "../audit/audit.service";
 import type { AuthenticatedPrincipal } from "./auth.types";
 import { OrganizationAuthorizationService } from "./organization-authorization.service";
 
@@ -80,6 +81,14 @@ export class OrganizationManagementService {
                     status: "active",
                 });
 
+                await recordAuditEvent(transaction, {
+                    organizationId,
+                    actorUserId: principal.user.id,
+                    action: "organization.created",
+                    resourceType: "organization",
+                    resourceId: organizationId,
+                });
+
                 return organizationSummarySchema.parse({
                     id: organizationId,
                     name: input.name,
@@ -115,6 +124,15 @@ export class OrganizationManagementService {
                     throw new ContractException("ORGANIZATION_ACCESS_DENIED", 403);
                 }
 
+                await recordAuditEvent(transaction, {
+                    organizationId,
+                    actorUserId: principal.user.id,
+                    action: "organization.updated",
+                    resourceType: "organization",
+                    resourceId: organizationId,
+                    metadata: { fields: Object.keys(input).sort().join(",") },
+                });
+
                 return organizationSummarySchema.parse({ ...updated, role: context.role });
             },
         );
@@ -143,6 +161,15 @@ export class OrganizationManagementService {
                         timeZone: input.timeZone ?? null,
                     })
                     .returning();
+
+                await recordAuditEvent(transaction, {
+                    organizationId,
+                    actorUserId: principal.user.id,
+                    action: "site.created",
+                    resourceType: "site",
+                    resourceId: site!.id,
+                    metadata: { code: site!.code },
+                });
 
                 return organizationSiteSchema.parse(site);
             },
@@ -274,6 +301,15 @@ export class OrganizationManagementService {
                     throw new ContractException("INVITATION_ALREADY_PENDING", 409);
                 }
 
+                await recordAuditEvent(transaction, {
+                    organizationId,
+                    actorUserId: principal.user.id,
+                    action: "invitation.created",
+                    resourceType: "invitation",
+                    resourceId: invitation.id,
+                    metadata: { role: input.role },
+                });
+
                 return createdInvitationResponseSchema.parse({
                     id: invitation.id,
                     email: invitation.email,
@@ -345,6 +381,14 @@ export class OrganizationManagementService {
                 if (!cancelled[0]) {
                     throw new ContractException("INVITATION_NOT_PENDING", 409);
                 }
+
+                await recordAuditEvent(transaction, {
+                    organizationId,
+                    actorUserId: principal.user.id,
+                    action: "invitation.cancelled",
+                    resourceType: "invitation",
+                    resourceId: invitationId,
+                });
             },
         );
     }
@@ -431,6 +475,15 @@ export class OrganizationManagementService {
                 })
                 .where(eq(organizationInvitations.id, invitation.id));
 
+            await recordAuditEvent(transaction, {
+                organizationId: invitation.organizationId,
+                actorUserId: principal.user.id,
+                action: "invitation.accepted",
+                resourceType: "invitation",
+                resourceId: invitation.id,
+                metadata: { role: this.roleKeyFromId(invitation.roleId) },
+            });
+
             return { organizationId: invitation.organizationId };
         });
     }
@@ -502,7 +555,36 @@ export class OrganizationManagementService {
                     .update(organizationMemberships)
                     .set(changes)
                     .where(eq(organizationMemberships.id, membershipId));
+
+                const action = role
+                    ? "membership.role_changed"
+                    : status === "suspended"
+                      ? "membership.suspended"
+                      : "membership.removed";
+                await recordAuditEvent(transaction, {
+                    organizationId,
+                    actorUserId: principal.user.id,
+                    action,
+                    resourceType: "membership",
+                    resourceId: membershipId,
+                    metadata: role
+                        ? {
+                              previousRole: this.roleKeyFromId(target.roleId),
+                              newRole: role,
+                          }
+                        : { status: status! },
+                });
             },
         );
+    }
+
+    private roleKeyFromId(roleId: string): OrganizationRole {
+        const entry = Object.entries(systemOrganizationRoleIds).find(([, id]) => id === roleId);
+
+        if (!entry) {
+            throw new Error("Membership references an unknown system role.");
+        }
+
+        return entry[0] as OrganizationRole;
     }
 }

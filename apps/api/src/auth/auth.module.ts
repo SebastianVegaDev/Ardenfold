@@ -30,5 +30,6 @@ import { OrganizationManagementService } from "./organization-management.service
             useClass: OrganizationAuthorizationGuard,
         },
     ],
+    exports: [OrganizationAuthorizationService],
 })
 export class AuthModule {}

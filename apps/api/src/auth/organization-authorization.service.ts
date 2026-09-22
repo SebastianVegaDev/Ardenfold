@@ -102,6 +102,11 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.members.invite',
                             ${String(context.permissions.includes("members.invite"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.audit.read',
+                            ${String(context.permissions.includes("audit.read"))},
+                            true
                         )
                 `);
 

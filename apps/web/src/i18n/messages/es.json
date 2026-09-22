@@ -89,6 +89,19 @@
         "statuses": { "active": "Activo", "suspended": "Suspendido", "removed": "Eliminado" },
         "invitationStatuses": { "pending": "Pendiente", "accepted": "Aceptada", "cancelled": "Cancelada", "expired": "Expirada" }
     },
+    "audit": {
+        "actions": {
+            "organizationCreated": "Organización creada",
+            "organizationUpdated": "Perfil de la organización actualizado",
+            "siteCreated": "Sede creada",
+            "invitationCreated": "Invitación creada",
+            "invitationCancelled": "Invitación cancelada",
+            "invitationAccepted": "Invitación aceptada",
+            "membershipRoleChanged": "Rol del miembro actualizado",
+            "membershipSuspended": "Membresía suspendida",
+            "membershipRemoved": "Membresía eliminada"
+        }
+    },
     "states": {
         "loading": "Cargando",
         "notFound": {

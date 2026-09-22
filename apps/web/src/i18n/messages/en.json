@@ -89,6 +89,19 @@
         "statuses": { "active": "Active", "suspended": "Suspended", "removed": "Removed" },
         "invitationStatuses": { "pending": "Pending", "accepted": "Accepted", "cancelled": "Cancelled", "expired": "Expired" }
     },
+    "audit": {
+        "actions": {
+            "organizationCreated": "Organization created",
+            "organizationUpdated": "Organization profile updated",
+            "siteCreated": "Site created",
+            "invitationCreated": "Invitation created",
+            "invitationCancelled": "Invitation cancelled",
+            "invitationAccepted": "Invitation accepted",
+            "membershipRoleChanged": "Member role changed",
+            "membershipSuspended": "Membership suspended",
+            "membershipRemoved": "Membership removed"
+        }
+    },
     "states": {
         "loading": "Loading",
         "notFound": {
