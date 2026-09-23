@@ -92,6 +92,14 @@ export const permissionCodeSchema = z.enum([
     "members.invite",
     "members.manage",
     "audit.read",
+    "parties.read",
+    "parties.write",
+    "parties.archive",
+    "assets.read",
+    "assets.write",
+    "assets.manage_relationships",
+    "assets.archive",
+    "registry.import",
 ]);
 
 export const organizationSummarySchema = z.strictObject({
