@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { dateOnlySchema, decimalSchema, instantSchema, paginationQuerySchema } from "./index";
+import {
+    addAssetIdentifierRequestSchema,
+    assetListQuerySchema,
+    createAssetRequestSchema,
+    dateOnlySchema,
+    decimalSchema,
+    instantSchema,
+    paginationQuerySchema,
+    setAssetLifecycleRequestSchema,
+    updateAssetRequestSchema,
+} from "./index";
 
 describe("wire contracts", () => {
     it("preserves decimal precision and trailing zeroes", () => {
@@ -46,5 +56,36 @@ describe("wire contracts", () => {
         { unknown: "x" },
     ])("rejects invalid pagination: %j", (input) => {
         expect(paginationQuerySchema.safeParse(input).success).toBe(false);
+    });
+
+    it("keeps asset identifiers typed without requiring global uniqueness", () => {
+        const parsed = createAssetRequestSchema.parse({
+            displayName: "  Field meter  ",
+            identifiers: [
+                { type: "serial_number", originalValue: "SN-42" },
+                { type: "customer_code", originalValue: "C-42" },
+            ],
+        });
+        expect(parsed.displayName).toBe("Field meter");
+        expect(parsed.lifecycle).toBe("registered");
+        expect(parsed.identifiers).toHaveLength(2);
+        expect(
+            addAssetIdentifierRequestSchema.safeParse({
+                expectedVersion: 0,
+                type: "serial_number",
+                originalValue: "SN-42",
+            }).success,
+        ).toBe(false);
+    });
+
+    it("validates asset lifecycle and versioned changes", () => {
+        expect(assetListQuerySchema.parse({ limit: "2", lifecycle: "retired" }).limit).toBe(2);
+        expect(
+            setAssetLifecycleRequestSchema.safeParse({
+                expectedVersion: 1,
+                lifecycle: "unknown",
+            }).success,
+        ).toBe(false);
+        expect(updateAssetRequestSchema.safeParse({ expectedVersion: 1 }).success).toBe(false);
     });
 });

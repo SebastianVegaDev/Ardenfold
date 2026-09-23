@@ -234,7 +234,15 @@
             "partyRolesChanged": "Party roles changed",
             "partyDetailsChanged": "Party details changed",
             "partyArchived": "Party archived",
-            "partyRestored": "Party restored"
+            "partyRestored": "Party restored",
+            "assetCreated": "Asset created",
+            "assetUpdated": "Asset updated",
+            "assetLifecycleChanged": "Asset lifecycle changed",
+            "assetIdentifierAdded": "Asset identifier added",
+            "assetIdentifierChanged": "Asset identifier changed",
+            "assetIdentifierRetired": "Asset identifier retired",
+            "assetArchived": "Asset archived",
+            "assetRestored": "Asset restored"
         }
     },
     "states": {

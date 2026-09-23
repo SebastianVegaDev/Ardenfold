@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
 import { AppController } from "./app.controller";
+import { AssetsModule } from "./assets/assets.module";
 import { AuthModule } from "./auth/auth.module";
 import { AuditModule } from "./audit/audit.module";
 import { validateEnvironment } from "./config/environment";
@@ -23,6 +24,7 @@ import { PartiesModule } from "./parties/parties.module";
         AuthModule,
         AuditModule,
         PartiesModule,
+        AssetsModule,
     ],
     controllers: [AppController],
 })
