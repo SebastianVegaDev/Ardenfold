@@ -1,4 +1,25 @@
 import { z } from "zod";
+import {
+    addPartyIdentifierRequestSchema,
+    createPartyAddressRequestSchema,
+    createPartyContactChannelRequestSchema,
+    createPartyContactRequestSchema,
+    createPartyRequestSchema,
+    partyAddressSchema,
+    partyContactSchema,
+    partyDetailSchema,
+    partyIdentifierSchema,
+    partyListResponseSchema,
+    partySummarySchema,
+    partyVersionRequestSchema,
+    setPartyRolesRequestSchema,
+    updatePartyAddressRequestSchema,
+    updatePartyContactChannelRequestSchema,
+    updatePartyContactRequestSchema,
+    updatePartyRequestSchema,
+} from "./parties";
+
+export * from "./parties";
 
 export const identifierSchema = z.uuid();
 
@@ -204,6 +225,12 @@ export const auditActionSchema = z.enum([
     "membership.role_changed",
     "membership.suspended",
     "membership.removed",
+    "party.created",
+    "party.updated",
+    "party.roles_changed",
+    "party.details_changed",
+    "party.archived",
+    "party.restored",
 ]);
 
 export const auditMetadataSchema = z.record(
@@ -264,6 +291,23 @@ export const contractSchemas = {
     OrganizationInvitationListResponse: organizationInvitationListResponseSchema,
     AuditEvent: auditEventSchema,
     AuditEventListResponse: auditEventListResponseSchema,
+    PartyIdentifier: partyIdentifierSchema,
+    PartyContact: partyContactSchema,
+    PartyAddress: partyAddressSchema,
+    PartySummary: partySummarySchema,
+    PartyDetail: partyDetailSchema,
+    PartyListResponse: partyListResponseSchema,
+    CreatePartyRequest: createPartyRequestSchema,
+    UpdatePartyRequest: updatePartyRequestSchema,
+    SetPartyRolesRequest: setPartyRolesRequestSchema,
+    PartyVersionRequest: partyVersionRequestSchema,
+    AddPartyIdentifierRequest: addPartyIdentifierRequestSchema,
+    CreatePartyContactRequest: createPartyContactRequestSchema,
+    UpdatePartyContactRequest: updatePartyContactRequestSchema,
+    CreatePartyContactChannelRequest: createPartyContactChannelRequestSchema,
+    UpdatePartyContactChannelRequest: updatePartyContactChannelRequestSchema,
+    CreatePartyAddressRequest: createPartyAddressRequestSchema,
+    UpdatePartyAddressRequest: updatePartyAddressRequestSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;

@@ -7,6 +7,7 @@ import { AuditModule } from "./audit/audit.module";
 import { validateEnvironment } from "./config/environment";
 import { DatabaseModule } from "./infrastructure/database/database.module";
 import { ObservabilityModule } from "./observability/observability.module";
+import { PartiesModule } from "./parties/parties.module";
 
 @Module({
     imports: [
@@ -21,6 +22,7 @@ import { ObservabilityModule } from "./observability/observability.module";
         DatabaseModule,
         AuthModule,
         AuditModule,
+        PartiesModule,
     ],
     controllers: [AppController],
 })

@@ -26,6 +26,12 @@ export const auditActionValues = [
     "membership.role_changed",
     "membership.suspended",
     "membership.removed",
+    "party.created",
+    "party.updated",
+    "party.roles_changed",
+    "party.details_changed",
+    "party.archived",
+    "party.restored",
 ] as const;
 
 export type AuditAction = (typeof auditActionValues)[number];
