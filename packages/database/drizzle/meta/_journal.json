@@ -43,6 +43,13 @@
       "when": 1790116935260,
       "tag": "0005_immutable_audit_log",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790190594798,
+      "tag": "0006_parties_contacts_addresses",
+      "breakpoints": true
     }
   ]
 }

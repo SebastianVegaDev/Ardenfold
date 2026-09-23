@@ -12,6 +12,9 @@ import {
     buildOrganization,
     buildOrganizationMembership,
     buildOrganizationSite,
+    buildParty,
+    buildPartyContact,
+    buildPartyIdentifier,
     buildUser,
     resetDatabaseFactorySequence,
 } from "../testing";
@@ -25,6 +28,12 @@ import {
     organizations,
     organizationSites,
     permissions,
+    parties,
+    partyRoles,
+    partyIdentifiers,
+    partyContacts,
+    partyContactChannels,
+    partyAddresses,
     systemOrganizationRoleIds,
     users,
 } from "./index";
@@ -110,6 +119,12 @@ describe("identity, tenancy and row-level security", () => {
                 'organization_roles',
                 'organization_sites',
                 'organizations',
+                'parties',
+                'party_addresses',
+                'party_contact_channels',
+                'party_contacts',
+                'party_identifiers',
+                'party_roles',
                 'permissions',
                 'users'
               )
@@ -125,6 +140,12 @@ describe("identity, tenancy and row-level security", () => {
             "organization_roles",
             "organization_sites",
             "organizations",
+            "parties",
+            "party_addresses",
+            "party_contact_channels",
+            "party_contacts",
+            "party_identifiers",
+            "party_roles",
             "permissions",
             "users",
         ]);
@@ -151,9 +172,11 @@ describe("identity, tenancy and row-level security", () => {
             "owner",
             "viewer",
         ]);
-        expect(catalog).toHaveLength(8);
+        expect(catalog).toHaveLength(16);
         expect(viewerPermissions.map((permission) => permission.code)).toEqual([
+            "assets.read",
             "organization.read",
+            "parties.read",
             "sites.read",
         ]);
     });
@@ -722,6 +745,141 @@ describe("identity, tenancy and row-level security", () => {
                 () => Promise.resolve(undefined),
             ),
         ).rejects.toThrow(/organizationId/u);
+    });
+
+    it("isolates party records and permits matching identifiers in separate organizations", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+        const [firstParty] = await connection.database
+            .insert(parties)
+            .values(buildParty(fixture.firstOrganizationId))
+            .returning();
+        const [secondParty] = await connection.database
+            .insert(parties)
+            .values(buildParty(fixture.secondOrganizationId))
+            .returning();
+
+        await connection.database.insert(partyRoles).values([
+            {
+                organizationId: fixture.firstOrganizationId,
+                partyId: firstParty!.id,
+                role: "customer",
+            },
+            {
+                organizationId: fixture.firstOrganizationId,
+                partyId: firstParty!.id,
+                role: "provider",
+            },
+        ]);
+        await connection.database.insert(partyIdentifiers).values([
+            buildPartyIdentifier(fixture.firstOrganizationId, firstParty!.id, {
+                originalValue: "Tax 42",
+                normalizedValue: "TAX42",
+            }),
+            buildPartyIdentifier(fixture.secondOrganizationId, secondParty!.id, {
+                originalValue: "Tax 42",
+                normalizedValue: "TAX42",
+            }),
+        ]);
+
+        await runtimeConnection.withTenantTransaction(
+            { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+            async (transaction) => {
+                await transaction.execute(
+                    sql`SELECT set_config('ardenfold.permission.parties.read', 'true', true)`,
+                );
+                expect((await transaction.select().from(parties)).map((party) => party.id)).toEqual(
+                    [firstParty!.id],
+                );
+                expect(
+                    (await transaction.select().from(partyIdentifiers)).map(
+                        (identifier) => identifier.partyId,
+                    ),
+                ).toEqual([firstParty!.id]);
+                expect(await transaction.select().from(partyRoles)).toHaveLength(2);
+            },
+        );
+
+        expect(await runtimeConnection.database.select().from(parties)).toEqual([]);
+        expect(await runtimeConnection.database.select().from(partyIdentifiers)).toEqual([]);
+
+        await expectDatabaseError(
+            runtimeConnection.withTenantTransaction(
+                { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+                async (transaction) => {
+                    await transaction.execute(
+                        sql`SELECT set_config('ardenfold.permission.parties.write', 'true', true)`,
+                    );
+                    await transaction
+                        .insert(partyContacts)
+                        .values(buildPartyContact(fixture.firstOrganizationId, secondParty!.id));
+                },
+            ),
+            "23503",
+            "party_contacts_party_fk",
+        );
+    });
+
+    it("enforces party contact and address constraints and loses access after membership removal", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+        const [party] = await connection.database
+            .insert(parties)
+            .values(buildParty(fixture.firstOrganizationId))
+            .returning();
+        const [contact] = await connection.database
+            .insert(partyContacts)
+            .values(buildPartyContact(fixture.firstOrganizationId, party!.id))
+            .returning();
+
+        await connection.database.insert(partyContactChannels).values({
+            organizationId: fixture.firstOrganizationId,
+            contactId: contact!.id,
+            type: "email",
+            value: "contact@example.test",
+        });
+        await expectDatabaseError(
+            connection.database.insert(partyAddresses).values({
+                organizationId: fixture.firstOrganizationId,
+                partyId: party!.id,
+                label: "Office",
+                line1: "Main Street 1",
+                locality: "Lima",
+                countryCode: "pe",
+            }),
+            "23514",
+            "party_addresses_country_code_format",
+        );
+
+        await connection.database
+            .update(organizationMemberships)
+            .set({
+                status: "removed",
+                removedAt: new Date(),
+            })
+            .where(eq(organizationMemberships.userId, fixture.firstUserId));
+
+        await runtimeConnection.withTenantTransaction(
+            { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+            async (transaction) => {
+                await transaction.execute(
+                    sql`SELECT set_config('ardenfold.permission.parties.read', 'true', true)`,
+                );
+                expect(await transaction.select().from(parties)).toEqual([]);
+            },
+        );
+
+        const rls = await connection.database.execute<{
+            relname: string;
+            relrowsecurity: boolean;
+            relforcerowsecurity: boolean;
+        }>(sql`
+            SELECT relname, relrowsecurity, relforcerowsecurity FROM pg_class
+            WHERE relname IN ('parties', 'party_roles', 'party_identifiers', 'party_contacts', 'party_contact_channels', 'party_addresses')
+            ORDER BY relname
+        `);
+        expect(rls.rows).toHaveLength(6);
+        expect(rls.rows.every((table) => table.relrowsecurity && table.relforcerowsecurity)).toBe(
+            true,
+        );
     });
 });
 

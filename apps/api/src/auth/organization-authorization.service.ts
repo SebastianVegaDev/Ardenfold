@@ -105,6 +105,16 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.audit.read',
                             ${String(context.permissions.includes("audit.read"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.parties.read',
+                            ${String(context.permissions.includes("parties.read"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.parties.write',
+                            ${String(context.permissions.includes("parties.write"))},
+                            true
                         )
                 `);
 

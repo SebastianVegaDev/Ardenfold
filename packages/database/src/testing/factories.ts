@@ -3,6 +3,9 @@ import type {
     NewOrganization,
     NewOrganizationMembership,
     NewOrganizationSite,
+    NewParty,
+    NewPartyContact,
+    NewPartyIdentifier,
     NewUser,
 } from "../schema";
 import { systemOrganizationRoleIds } from "../schema";
@@ -80,6 +83,49 @@ export function buildOrganizationMembership(
         userId,
         status: "active",
         roleId: systemOrganizationRoleIds.viewer,
+        ...overrides,
+    };
+}
+
+export function buildParty(organizationId: string, overrides: Partial<NewParty> = {}): NewParty {
+    const value = nextSequence();
+
+    return {
+        organizationId,
+        kind: "organization",
+        displayName: `Test Party ${value}`,
+        ...overrides,
+    };
+}
+
+export function buildPartyContact(
+    organizationId: string,
+    partyId: string,
+    overrides: Partial<NewPartyContact> = {},
+): NewPartyContact {
+    const value = nextSequence();
+
+    return {
+        organizationId,
+        partyId,
+        displayName: `Test Contact ${value}`,
+        ...overrides,
+    };
+}
+
+export function buildPartyIdentifier(
+    organizationId: string,
+    partyId: string,
+    overrides: Partial<NewPartyIdentifier> = {},
+): NewPartyIdentifier {
+    const value = nextSequence();
+
+    return {
+        organizationId,
+        partyId,
+        type: "tax_id",
+        originalValue: `TAX ${value}`,
+        normalizedValue: `TAX${value}`,
         ...overrides,
     };
 }
