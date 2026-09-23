@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    buildAsset,
+    buildAssetIdentifier,
     buildExternalIdentity,
     buildOrganization,
     buildOrganizationMembership,
@@ -28,5 +30,19 @@ describe("database development factories", () => {
         expect(site.code).toBe("SITE-4");
         expect(membership.status).toBe("active");
         expect(organization).not.toHaveProperty("id");
+    });
+
+    it("builds independent asset identity fixtures", () => {
+        resetDatabaseFactorySequence();
+        const organizationId = "00000000-0000-4000-8000-000000000002";
+        const assetId = "00000000-0000-4000-8000-000000000003";
+        const asset = buildAsset(organizationId);
+        const identifier = buildAssetIdentifier(organizationId, assetId);
+
+        expect(asset.displayName).toBe("Test Asset 1");
+        expect(asset).not.toHaveProperty("ownerPartyId");
+        expect(identifier.type).toBe("serial_number");
+        expect(identifier.originalValue).toBe("SN 2");
+        expect(identifier.assetId).toBe(assetId);
     });
 });
