@@ -100,6 +100,17 @@ it never silently overwrites the reason, actor, time or prior business context.
 The implementation may restrict corrections to a safe supported interval shape
 until richer temporal editing is explicitly designed.
 
+The initial implementation restricts corrections to the current open interval.
+Each transition or correction supersedes its previous row and writes a linked
+revision; the superseded row remains readable in relationship history. Current
+state is a projection of the three independent, unsuperseded open intervals,
+not an identity column on the asset. Ownership and custody targets are either
+an active local party or the recording organization itself. Location targets
+are an active local site, an address of an active local party, or a free-form
+description; location always carries a placement description. All party, site
+and address references use organization-scoped foreign keys and are validated
+inside the authorized transaction before a revision is written.
+
 ## History and audit
 
 The registry writes immutable, tenant-scoped business-history entries for
@@ -112,6 +123,13 @@ Security-relevant attempts and successful mutations also write Audit records
 through the existing audit module. Audit proves who attempted an operation;
 registry history explains the evolving business record. Neither replaces the
 other, and normal reads of current state never rebuild state from either log.
+
+The `recordAssetHistory` application boundary appends safe domain events in the
+same authorized transaction as the registry change. Future work-order and
+certificate modules can contribute references through that boundary, with a
+source kind and source reference, without direct access to Asset Registry
+tables. The append-only history row stores correlation, actor and aggregate
+version separately from operational audit data.
 
 ## Authorization and concurrency
 

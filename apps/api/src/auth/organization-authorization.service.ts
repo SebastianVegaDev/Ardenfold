@@ -125,6 +125,16 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.assets.write',
                             ${String(context.permissions.includes("assets.write"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.assets.manage_relationships',
+                            ${String(context.permissions.includes("assets.manage_relationships"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.assets.archive',
+                            ${String(context.permissions.includes("assets.archive"))},
+                            true
                         )
                 `);
 

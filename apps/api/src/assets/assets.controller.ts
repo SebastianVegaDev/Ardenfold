@@ -1,4 +1,12 @@
 import {
+    assetHistoryQuerySchema,
+    correctAssetRelationshipRequestSchema,
+    endAssetRelationshipRequestSchema,
+    startAssetRelationshipRequestSchema,
+    type AssetHistoryQuery,
+    type CorrectAssetRelationshipRequest,
+    type EndAssetRelationshipRequest,
+    type StartAssetRelationshipRequest,
     addAssetIdentifierRequestSchema,
     assetListQuerySchema,
     assetVersionRequestSchema,
@@ -37,13 +45,17 @@ import {
 import { RequirePermissions } from "../auth/require-permissions.decorator";
 import { ContractValidationPipe } from "../http/contracts";
 import { AssetManagementService } from "./asset-management.service";
+import { AssetRelationshipsService } from "./asset-relationships.service";
 
 @ApiTags("assets")
 @ApiBearerAuth()
 @ApiHeader({ name: organizationHeader, required: true })
 @Controller("assets")
 export class AssetsController {
-    constructor(private readonly assets: AssetManagementService) {}
+    constructor(
+        private readonly assets: AssetManagementService,
+        private readonly relationships: AssetRelationshipsService,
+    ) {}
 
     @Post()
     @RequirePermissions("assets.write")
@@ -89,6 +101,93 @@ export class AssetsController {
         @Param("assetId", new ContractValidationPipe(identifierSchema)) assetId: string,
     ) {
         return this.assets.get(principal, org.id, assetId);
+    }
+
+    @Get(":assetId/relationships/current")
+    @RequirePermissions("assets.read")
+    @ApiOperation({ operationId: "getAssetCurrentRelationships" })
+    @ApiOkResponse({ schema: { $ref: "#/components/schemas/AssetCurrentRelationships" } })
+    currentRelationships(
+        @CurrentPrincipal() principal: AuthenticatedPrincipal,
+        @CurrentOrganization() org: ActiveOrganizationContext,
+        @Param("assetId", new ContractValidationPipe(identifierSchema)) assetId: string,
+    ) {
+        return this.relationships.current(principal, org.id, assetId);
+    }
+
+    @Get(":assetId/relationships/history")
+    @RequirePermissions("assets.read")
+    @ApiOperation({ operationId: "listAssetRelationshipHistory" })
+    @ApiQuery({ name: "limit", required: false, type: Number })
+    @ApiQuery({ name: "cursor", required: false, type: String })
+    @ApiOkResponse({ schema: { $ref: "#/components/schemas/AssetRelationshipHistoryResponse" } })
+    relationshipHistory(
+        @CurrentPrincipal() principal: AuthenticatedPrincipal,
+        @CurrentOrganization() org: ActiveOrganizationContext,
+        @Param("assetId", new ContractValidationPipe(identifierSchema)) assetId: string,
+        @Query(new ContractValidationPipe(assetHistoryQuerySchema)) query: AssetHistoryQuery,
+    ) {
+        return this.relationships.relationshipHistory(principal, org.id, assetId, query);
+    }
+
+    @Get(":assetId/history")
+    @RequirePermissions("assets.read")
+    @ApiOperation({ operationId: "listAssetBusinessHistory" })
+    @ApiQuery({ name: "limit", required: false, type: Number })
+    @ApiQuery({ name: "cursor", required: false, type: String })
+    @ApiOkResponse({ schema: { $ref: "#/components/schemas/AssetHistoryResponse" } })
+    businessHistory(
+        @CurrentPrincipal() principal: AuthenticatedPrincipal,
+        @CurrentOrganization() org: ActiveOrganizationContext,
+        @Param("assetId", new ContractValidationPipe(identifierSchema)) assetId: string,
+        @Query(new ContractValidationPipe(assetHistoryQuerySchema)) query: AssetHistoryQuery,
+    ) {
+        return this.relationships.businessHistory(principal, org.id, assetId, query);
+    }
+
+    @Post(":assetId/relationships/start")
+    @RequirePermissions("assets.manage_relationships")
+    @ApiOperation({ operationId: "startAssetRelationship" })
+    @ApiBody({ schema: { $ref: "#/components/schemas/StartAssetRelationshipRequest" } })
+    @ApiCreatedResponse({ schema: { $ref: "#/components/schemas/AssetCurrentRelationships" } })
+    startRelationship(
+        @CurrentPrincipal() principal: AuthenticatedPrincipal,
+        @CurrentOrganization() org: ActiveOrganizationContext,
+        @Param("assetId", new ContractValidationPipe(identifierSchema)) assetId: string,
+        @Body(new ContractValidationPipe(startAssetRelationshipRequestSchema))
+        input: StartAssetRelationshipRequest,
+    ) {
+        return this.relationships.start(principal, org.id, assetId, input);
+    }
+
+    @Post(":assetId/relationships/end")
+    @RequirePermissions("assets.manage_relationships")
+    @ApiOperation({ operationId: "endAssetRelationship" })
+    @ApiBody({ schema: { $ref: "#/components/schemas/EndAssetRelationshipRequest" } })
+    @ApiCreatedResponse({ schema: { $ref: "#/components/schemas/AssetCurrentRelationships" } })
+    endRelationship(
+        @CurrentPrincipal() principal: AuthenticatedPrincipal,
+        @CurrentOrganization() org: ActiveOrganizationContext,
+        @Param("assetId", new ContractValidationPipe(identifierSchema)) assetId: string,
+        @Body(new ContractValidationPipe(endAssetRelationshipRequestSchema))
+        input: EndAssetRelationshipRequest,
+    ) {
+        return this.relationships.end(principal, org.id, assetId, input);
+    }
+
+    @Post(":assetId/relationships/correct")
+    @RequirePermissions("assets.manage_relationships")
+    @ApiOperation({ operationId: "correctAssetRelationship" })
+    @ApiBody({ schema: { $ref: "#/components/schemas/CorrectAssetRelationshipRequest" } })
+    @ApiCreatedResponse({ schema: { $ref: "#/components/schemas/AssetCurrentRelationships" } })
+    correctRelationship(
+        @CurrentPrincipal() principal: AuthenticatedPrincipal,
+        @CurrentOrganization() org: ActiveOrganizationContext,
+        @Param("assetId", new ContractValidationPipe(identifierSchema)) assetId: string,
+        @Body(new ContractValidationPipe(correctAssetRelationshipRequestSchema))
+        input: CorrectAssetRelationshipRequest,
+    ) {
+        return this.relationships.correct(principal, org.id, assetId, input);
     }
 
     @Patch(":assetId")

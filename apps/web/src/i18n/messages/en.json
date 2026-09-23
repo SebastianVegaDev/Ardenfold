@@ -242,7 +242,10 @@
             "assetIdentifierChanged": "Asset identifier changed",
             "assetIdentifierRetired": "Asset identifier retired",
             "assetArchived": "Asset archived",
-            "assetRestored": "Asset restored"
+            "assetRestored": "Asset restored",
+            "assetRelationshipStarted": "Asset relationship started",
+            "assetRelationshipEnded": "Asset relationship ended",
+            "assetRelationshipCorrected": "Asset relationship corrected"
         }
     },
     "states": {

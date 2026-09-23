@@ -12,6 +12,16 @@ import {
     updateAssetRequestSchema,
 } from "./assets";
 import {
+    assetCurrentRelationshipsSchema,
+    assetHistoryEntrySchema,
+    assetHistoryResponseSchema,
+    assetRelationshipSchema,
+    assetRelationshipHistoryResponseSchema,
+    correctAssetRelationshipRequestSchema,
+    endAssetRelationshipRequestSchema,
+    startAssetRelationshipRequestSchema,
+} from "./asset-history";
+import {
     addPartyIdentifierRequestSchema,
     createPartyAddressRequestSchema,
     createPartyContactChannelRequestSchema,
@@ -33,6 +43,7 @@ import {
 
 export * from "./parties";
 export * from "./assets";
+export * from "./asset-history";
 
 export const identifierSchema = z.uuid();
 
@@ -252,6 +263,9 @@ export const auditActionSchema = z.enum([
     "asset.identifier_retired",
     "asset.archived",
     "asset.restored",
+    "asset.relationship_started",
+    "asset.relationship_ended",
+    "asset.relationship_corrected",
 ]);
 
 export const auditMetadataSchema = z.record(
@@ -339,6 +353,14 @@ export const contractSchemas = {
     SetAssetLifecycleRequest: setAssetLifecycleRequestSchema,
     AddAssetIdentifierRequest: addAssetIdentifierRequestSchema,
     ChangeAssetIdentifierRequest: changeAssetIdentifierRequestSchema,
+    AssetRelationship: assetRelationshipSchema,
+    AssetCurrentRelationships: assetCurrentRelationshipsSchema,
+    AssetRelationshipHistoryResponse: assetRelationshipHistoryResponseSchema,
+    AssetHistoryEntry: assetHistoryEntrySchema,
+    AssetHistoryResponse: assetHistoryResponseSchema,
+    StartAssetRelationshipRequest: startAssetRelationshipRequestSchema,
+    EndAssetRelationshipRequest: endAssetRelationshipRequestSchema,
+    CorrectAssetRelationshipRequest: correctAssetRelationshipRequestSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;
