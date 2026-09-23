@@ -16,4 +16,12 @@ export const auditActionMessageKeys: Readonly<Record<AuditAction, string>> = {
     "party.details_changed": "audit.actions.partyDetailsChanged",
     "party.archived": "audit.actions.partyArchived",
     "party.restored": "audit.actions.partyRestored",
+    "asset.created": "audit.actions.assetCreated",
+    "asset.updated": "audit.actions.assetUpdated",
+    "asset.lifecycle_changed": "audit.actions.assetLifecycleChanged",
+    "asset.identifier_added": "audit.actions.assetIdentifierAdded",
+    "asset.identifier_changed": "audit.actions.assetIdentifierChanged",
+    "asset.identifier_retired": "audit.actions.assetIdentifierRetired",
+    "asset.archived": "audit.actions.assetArchived",
+    "asset.restored": "audit.actions.assetRestored",
 };

@@ -1,5 +1,17 @@
 import { z } from "zod";
 import {
+    addAssetIdentifierRequestSchema,
+    assetDetailSchema,
+    assetIdentifierSchema,
+    assetListResponseSchema,
+    assetSummarySchema,
+    assetVersionRequestSchema,
+    changeAssetIdentifierRequestSchema,
+    createAssetRequestSchema,
+    setAssetLifecycleRequestSchema,
+    updateAssetRequestSchema,
+} from "./assets";
+import {
     addPartyIdentifierRequestSchema,
     createPartyAddressRequestSchema,
     createPartyContactChannelRequestSchema,
@@ -20,6 +32,7 @@ import {
 } from "./parties";
 
 export * from "./parties";
+export * from "./assets";
 
 export const identifierSchema = z.uuid();
 
@@ -231,6 +244,14 @@ export const auditActionSchema = z.enum([
     "party.details_changed",
     "party.archived",
     "party.restored",
+    "asset.created",
+    "asset.updated",
+    "asset.lifecycle_changed",
+    "asset.identifier_added",
+    "asset.identifier_changed",
+    "asset.identifier_retired",
+    "asset.archived",
+    "asset.restored",
 ]);
 
 export const auditMetadataSchema = z.record(
@@ -308,6 +329,16 @@ export const contractSchemas = {
     UpdatePartyContactChannelRequest: updatePartyContactChannelRequestSchema,
     CreatePartyAddressRequest: createPartyAddressRequestSchema,
     UpdatePartyAddressRequest: updatePartyAddressRequestSchema,
+    AssetIdentifier: assetIdentifierSchema,
+    AssetSummary: assetSummarySchema,
+    AssetDetail: assetDetailSchema,
+    AssetListResponse: assetListResponseSchema,
+    CreateAssetRequest: createAssetRequestSchema,
+    UpdateAssetRequest: updateAssetRequestSchema,
+    AssetVersionRequest: assetVersionRequestSchema,
+    SetAssetLifecycleRequest: setAssetLifecycleRequestSchema,
+    AddAssetIdentifierRequest: addAssetIdentifierRequestSchema,
+    ChangeAssetIdentifierRequest: changeAssetIdentifierRequestSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;

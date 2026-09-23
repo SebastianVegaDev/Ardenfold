@@ -234,7 +234,15 @@
             "partyRolesChanged": "Roles de contraparte actualizados",
             "partyDetailsChanged": "Detalles de contraparte actualizados",
             "partyArchived": "Contraparte archivada",
-            "partyRestored": "Contraparte restaurada"
+            "partyRestored": "Contraparte restaurada",
+            "assetCreated": "Activo creado",
+            "assetUpdated": "Activo actualizado",
+            "assetLifecycleChanged": "Ciclo de vida del activo modificado",
+            "assetIdentifierAdded": "Identificador del activo agregado",
+            "assetIdentifierChanged": "Identificador del activo modificado",
+            "assetIdentifierRetired": "Identificador del activo retirado",
+            "assetArchived": "Activo archivado",
+            "assetRestored": "Activo restaurado"
         }
     },
     "states": {

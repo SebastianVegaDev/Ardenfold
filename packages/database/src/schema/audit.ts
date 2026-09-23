@@ -32,6 +32,14 @@ export const auditActionValues = [
     "party.details_changed",
     "party.archived",
     "party.restored",
+    "asset.created",
+    "asset.updated",
+    "asset.lifecycle_changed",
+    "asset.identifier_added",
+    "asset.identifier_changed",
+    "asset.identifier_retired",
+    "asset.archived",
+    "asset.restored",
 ] as const;
 
 export type AuditAction = (typeof auditActionValues)[number];
