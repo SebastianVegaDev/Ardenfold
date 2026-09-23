@@ -112,14 +112,14 @@ The M2 permission catalog extends the existing organization context with:
 
 | Permission | Allows |
 | --- | --- |
-| `parties:read` | Read parties, contacts, addresses and identifiers. |
-| `parties:write` | Create and edit active party aggregates. |
-| `parties:archive` | Archive or restore parties. |
-| `assets:read` | Read assets, identifiers, relationships and registry history. |
-| `assets:write` | Create and edit active assets and identifiers. |
-| `assets:manage_relationships` | Change or correct ownership, custody and location. |
-| `assets:archive` | Archive or restore assets. |
-| `registry:import` | Preview and confirm registry import sessions. |
+| `parties.read` | Read parties, contacts, addresses and identifiers. |
+| `parties.write` | Create and edit active party aggregates. |
+| `parties.archive` | Archive or restore parties. |
+| `assets.read` | Read assets, identifiers, relationships and registry history. |
+| `assets.write` | Create and edit active assets and identifiers. |
+| `assets.manage_relationships` | Change or correct ownership, custody and location. |
+| `assets.archive` | Archive or restore assets. |
+| `registry.import` | Preview and confirm registry import sessions. |
 
 All permissions are enforced by the existing authorization guard and
 `withAuthorizedTransaction`; UI visibility is only a usability control. New
