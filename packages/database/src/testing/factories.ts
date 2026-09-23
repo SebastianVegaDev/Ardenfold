@@ -1,4 +1,6 @@
 import type {
+    NewAsset,
+    NewAssetIdentifier,
     NewExternalIdentity,
     NewOrganization,
     NewOrganizationMembership,
@@ -126,6 +128,33 @@ export function buildPartyIdentifier(
         type: "tax_id",
         originalValue: `TAX ${value}`,
         normalizedValue: `TAX${value}`,
+        ...overrides,
+    };
+}
+
+export function buildAsset(organizationId: string, overrides: Partial<NewAsset> = {}): NewAsset {
+    const value = nextSequence();
+
+    return {
+        organizationId,
+        displayName: `Test Asset ${value}`,
+        ...overrides,
+    };
+}
+
+export function buildAssetIdentifier(
+    organizationId: string,
+    assetId: string,
+    overrides: Partial<NewAssetIdentifier> = {},
+): NewAssetIdentifier {
+    const value = nextSequence();
+
+    return {
+        organizationId,
+        assetId,
+        type: "serial_number",
+        originalValue: `SN ${value}`,
+        normalizedValue: `SN${value}`,
         ...overrides,
     };
 }

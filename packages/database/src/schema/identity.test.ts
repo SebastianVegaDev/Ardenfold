@@ -8,6 +8,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { createDatabaseConnection, type DatabaseConnection } from "../index";
 import {
+    buildAsset,
+    buildAssetIdentifier,
     buildExternalIdentity,
     buildOrganization,
     buildOrganizationMembership,
@@ -19,6 +21,8 @@ import {
     resetDatabaseFactorySequence,
 } from "../testing";
 import {
+    assetIdentifiers,
+    assets,
     auditEvents,
     externalIdentities,
     organizationMemberships,
@@ -111,6 +115,8 @@ describe("identity, tenancy and row-level security", () => {
             FROM information_schema.tables
             WHERE table_schema = 'public'
               AND table_name IN (
+                'assets',
+                'asset_identifiers',
                 'audit_events',
                 'external_identities',
                 'organization_memberships',
@@ -132,6 +138,8 @@ describe("identity, tenancy and row-level security", () => {
         `);
 
         expect(result.rows.map((row) => row.table_name)).toEqual([
+            "asset_identifiers",
+            "assets",
             "audit_events",
             "external_identities",
             "organization_invitations",
@@ -500,6 +508,10 @@ describe("identity, tenancy and row-level security", () => {
             FROM pg_indexes
             WHERE schemaname = 'public'
               AND indexname IN (
+                'asset_identifiers_org_asset_status_idx',
+                'asset_identifiers_org_type_normalized_idx',
+                'assets_organization_lifecycle_idx',
+                'assets_organization_status_name_id_idx',
                 'external_identities_user_id_idx',
                 'organization_memberships_organization_id_status_idx',
                 'organization_memberships_user_id_status_idx',
@@ -509,6 +521,10 @@ describe("identity, tenancy and row-level security", () => {
         `);
 
         expect(result.rows.map((row) => row.indexname)).toEqual([
+            "asset_identifiers_org_asset_status_idx",
+            "asset_identifiers_org_type_normalized_idx",
+            "assets_organization_lifecycle_idx",
+            "assets_organization_status_name_id_idx",
             "external_identities_user_id_idx",
             "organization_memberships_organization_id_status_idx",
             "organization_memberships_user_id_status_idx",
@@ -879,6 +895,129 @@ describe("identity, tenancy and row-level security", () => {
         expect(rls.rows).toHaveLength(6);
         expect(rls.rows.every((table) => table.relrowsecurity && table.relforcerowsecurity)).toBe(
             true,
+        );
+    });
+
+    it("isolates assets and permits the same serial number in separate organizations", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+        const [firstAsset] = await connection.database
+            .insert(assets)
+            .values(buildAsset(fixture.firstOrganizationId))
+            .returning();
+        const [secondAsset] = await connection.database
+            .insert(assets)
+            .values(buildAsset(fixture.secondOrganizationId))
+            .returning();
+
+        await connection.database.insert(assetIdentifiers).values([
+            buildAssetIdentifier(fixture.firstOrganizationId, firstAsset!.id, {
+                originalValue: "SN 42",
+                normalizedValue: "SN42",
+            }),
+            buildAssetIdentifier(fixture.secondOrganizationId, secondAsset!.id, {
+                originalValue: "SN 42",
+                normalizedValue: "SN42",
+            }),
+        ]);
+
+        await runtimeConnection.withTenantTransaction(
+            { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+            async (transaction) => {
+                await transaction.execute(
+                    sql`SELECT set_config('ardenfold.permission.assets.read', 'true', true)`,
+                );
+                expect((await transaction.select().from(assets)).map((asset) => asset.id)).toEqual([
+                    firstAsset!.id,
+                ]);
+                expect(
+                    (await transaction.select().from(assetIdentifiers)).map(
+                        (identifier) => identifier.assetId,
+                    ),
+                ).toEqual([firstAsset!.id]);
+            },
+        );
+
+        expect(await runtimeConnection.database.select().from(assets)).toEqual([]);
+        expect(await runtimeConnection.database.select().from(assetIdentifiers)).toEqual([]);
+
+        await expectDatabaseError(
+            runtimeConnection.withTenantTransaction(
+                { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+                async (transaction) => {
+                    await transaction.execute(
+                        sql`SELECT set_config('ardenfold.permission.assets.write', 'true', true)`,
+                    );
+                    await transaction
+                        .insert(assetIdentifiers)
+                        .values(buildAssetIdentifier(fixture.firstOrganizationId, secondAsset!.id));
+                },
+            ),
+            "23503",
+            "asset_identifiers_asset_fk",
+        );
+
+        const rls = await connection.database.execute<{
+            relname: string;
+            relrowsecurity: boolean;
+            relforcerowsecurity: boolean;
+        }>(sql`
+            SELECT relname, relrowsecurity, relforcerowsecurity FROM pg_class
+            WHERE relname IN ('assets', 'asset_identifiers')
+            ORDER BY relname
+        `);
+        expect(rls.rows).toHaveLength(2);
+        expect(rls.rows.every((table) => table.relrowsecurity && table.relforcerowsecurity)).toBe(
+            true,
+        );
+    });
+
+    it("rejects invalid asset lifecycle, identifier and archival states", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+        const [asset] = await connection.database
+            .insert(assets)
+            .values(buildAsset(fixture.firstOrganizationId))
+            .returning();
+
+        await expectDatabaseError(
+            connection.database
+                .insert(assets)
+                .values(buildAsset(fixture.firstOrganizationId, { displayName: "  " })),
+            "23514",
+            "assets_display_name_not_blank",
+        );
+        await expectDatabaseError(
+            connection.database
+                .update(assets)
+                .set({ status: "archived" })
+                .where(eq(assets.id, asset!.id)),
+            "23514",
+            "assets_archive_state",
+        );
+        await expectDatabaseError(
+            connection.database.insert(assetIdentifiers).values(
+                buildAssetIdentifier(fixture.firstOrganizationId, asset!.id, {
+                    normalizedValue: " ",
+                }),
+            ),
+            "23514",
+            "asset_identifiers_normalized_not_blank",
+        );
+        await expectDatabaseError(
+            connection.database.insert(assetIdentifiers).values(
+                buildAssetIdentifier(fixture.firstOrganizationId, asset!.id, {
+                    status: "retired",
+                }),
+            ),
+            "23514",
+            "asset_identifiers_retired_state",
+        );
+        await expectDatabaseError(
+            connection.database.execute(sql`
+                UPDATE assets SET lifecycle = 'unknown'
+                WHERE id = ${asset!.id}
+            `),
+            "22P02",
+            undefined,
         );
     });
 });

@@ -50,6 +50,13 @@
       "when": 1790190594798,
       "tag": "0006_parties_contacts_addresses",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790193038232,
+      "tag": "0007_asset_identity",
+      "breakpoints": true
     }
   ]
 }

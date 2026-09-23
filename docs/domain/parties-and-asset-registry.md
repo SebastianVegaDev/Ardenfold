@@ -17,12 +17,12 @@ asset is valid only after it has been resolved through the active authorized
 organization transaction. UUIDs are opaque identifiers, not authorization
 credentials.
 
-| Aggregate | Owned records | Key invariant |
-| --- | --- | --- |
-| Party | party, roles, identifiers, contacts, channels, addresses | A party is a private organization record, never a platform principal. |
-| Asset | asset, identifiers | An asset is private to its recording organization; identifiers are evidence, not global identity. |
-| Asset relationship | ownership, custody or location interval | Each relationship has independent temporal history. |
-| Registry history | immutable business events | History explains business change and is not reconstructed from audit logs. |
+| Aggregate          | Owned records                                            | Key invariant                                                                                     |
+| ------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Party              | party, roles, identifiers, contacts, channels, addresses | A party is a private organization record, never a platform principal.                             |
+| Asset              | asset, identifiers                                       | An asset is private to its recording organization; identifiers are evidence, not global identity. |
+| Asset relationship | ownership, custody or location interval                  | Each relationship has independent temporal history.                                               |
+| Registry history   | immutable business events                                | History explains business change and is not reconstructed from audit logs.                        |
 
 ## Parties
 
@@ -57,6 +57,13 @@ an internal identifier, serial number, customer code or another controlled
 type. Original and normalized values are preserved. Serial numbers, tax
 identifiers and manufacturer/model combinations are never global uniqueness or
 visibility mechanisms.
+
+The identity schema uses `registered`, `in_service`, `out_of_service` and
+`retired` as lifecycle values. Archival is independent of that lifecycle: it
+marks whether the asset remains in ordinary registry workflows. Identifiers
+may be retired but are not deleted, allowing a replacement to preserve the
+previous value. Matching normalized identifiers, even within one
+organization, remain advisory evidence rather than an automatic merge.
 
 An asset may refer to a party only through an authorized party reference in the
 same organization. The initial model deliberately has no direct reference to a
@@ -110,16 +117,16 @@ other, and normal reads of current state never rebuild state from either log.
 
 The M2 permission catalog extends the existing organization context with:
 
-| Permission | Allows |
-| --- | --- |
-| `parties.read` | Read parties, contacts, addresses and identifiers. |
-| `parties.write` | Create and edit active party aggregates. |
-| `parties.archive` | Archive or restore parties. |
-| `assets.read` | Read assets, identifiers, relationships and registry history. |
-| `assets.write` | Create and edit active assets and identifiers. |
-| `assets.manage_relationships` | Change or correct ownership, custody and location. |
-| `assets.archive` | Archive or restore assets. |
-| `registry.import` | Preview and confirm registry import sessions. |
+| Permission                    | Allows                                                        |
+| ----------------------------- | ------------------------------------------------------------- |
+| `parties.read`                | Read parties, contacts, addresses and identifiers.            |
+| `parties.write`               | Create and edit active party aggregates.                      |
+| `parties.archive`             | Archive or restore parties.                                   |
+| `assets.read`                 | Read assets, identifiers, relationships and registry history. |
+| `assets.write`                | Create and edit active assets and identifiers.                |
+| `assets.manage_relationships` | Change or correct ownership, custody and location.            |
+| `assets.archive`              | Archive or restore assets.                                    |
+| `registry.import`             | Preview and confirm registry import sessions.                 |
 
 All permissions are enforced by the existing authorization guard and
 `withAuthorizedTransaction`; UI visibility is only a usability control. New
