@@ -79,29 +79,46 @@ test("asset API preserves tenant identity, duplicate signals and versioned lifec
         token: invitation.body.acceptanceToken,
     });
     expect(acceptance.status).toBe(201);
-    expect((await request(viewerToken, "/assets", "GET", northId)).status).toBe(200);
-    expect(
-        (
-            await request(viewerToken, "/assets", "POST", northId, {
-                displayName: "Forbidden asset",
-            })
-        ).status,
-    ).toBe(403);
-    expect(
-        (
-            await request(viewerToken, `/assets/${firstId}`, "PATCH", northId, {
-                expectedVersion: 1,
-                displayName: "Forbidden edit",
-            })
-        ).status,
-    ).toBe(403);
-    expect(
-        (
-            await request(viewerToken, `/assets/${firstId}/archive`, "POST", northId, {
-                expectedVersion: 1,
-            })
-        ).status,
-    ).toBe(403);
+    try {
+        expect((await request(viewerToken, "/assets", "GET", northId)).status).toBe(200);
+        expect(
+            (
+                await request(viewerToken, "/assets", "POST", northId, {
+                    displayName: "Forbidden asset",
+                })
+            ).status,
+        ).toBe(403);
+        expect(
+            (
+                await request(viewerToken, `/assets/${firstId}`, "PATCH", northId, {
+                    expectedVersion: 1,
+                    displayName: "Forbidden edit",
+                })
+            ).status,
+        ).toBe(403);
+        expect(
+            (
+                await request(viewerToken, `/assets/${firstId}/archive`, "POST", northId, {
+                    expectedVersion: 1,
+                })
+            ).status,
+        ).toBe(403);
+    } finally {
+        const members = await request(token, "/organizations/current/members", "GET", northId);
+        const membershipId = (
+            members.body.data as Array<{ email: string; membershipId: string }>
+        ).find((member) => member.email === "member@example.test")?.membershipId;
+        if (membershipId) {
+            const removal = await fetch(`${api}/organizations/current/members/${membershipId}`, {
+                method: "DELETE",
+                headers: {
+                    authorization: `Bearer ${token}`,
+                    "x-ardenfold-organization-id": northId,
+                },
+            });
+            expect(removal.status).toBe(204);
+        }
+    }
 
     const third = await request(token, "/assets", "POST", northId, {
         displayName: "Another north meter",
