@@ -39,7 +39,7 @@ export async function recordAssetHistory(
             event: true,
             aggregateVersion: true,
         })
-        .parse(input);
+        .parse({ event: input.event, aggregateVersion: input.aggregateVersion });
 
     await transaction.insert(assetHistoryEntries).values({
         organizationId: input.organizationId,

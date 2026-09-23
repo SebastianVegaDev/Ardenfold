@@ -5,7 +5,10 @@ import {
     type OrganizationSite,
     type OrganizationSiteListResponse,
 } from "@ardenfold/contracts";
-import { organizationSites } from "@ardenfold/database/schema";
+import {
+    organizationSites,
+    type OrganizationSite as OrganizationSiteRow,
+} from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
 import { sql } from "drizzle-orm";
 
@@ -20,6 +23,17 @@ function ensureTimeZone(timeZone: string): void {
     } catch {
         throw new ContractException("INVALID_TIME_ZONE", 400);
     }
+}
+
+function siteSummary(site: OrganizationSiteRow): OrganizationSite {
+    return organizationSiteSchema.parse({
+        id: site.id,
+        organizationId: site.organizationId,
+        name: site.name,
+        code: site.code,
+        timeZone: site.timeZone,
+        isActive: site.isActive,
+    });
 }
 
 @Injectable()
@@ -59,7 +73,7 @@ export class SiteManagementService {
                     metadata: { code: site!.code },
                 });
 
-                return organizationSiteSchema.parse(site);
+                return siteSummary(site!);
             },
         );
     }
@@ -78,7 +92,7 @@ export class SiteManagementService {
                     .from(organizationSites)
                     .orderBy(sql`lower(${organizationSites.name})`);
 
-                return organizationSiteListResponseSchema.parse({ data: sites });
+                return organizationSiteListResponseSchema.parse({ data: sites.map(siteSummary) });
             },
         );
     }
