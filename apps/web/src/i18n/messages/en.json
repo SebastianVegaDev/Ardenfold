@@ -37,6 +37,7 @@
         "closeNavigation": "Close navigation",
         "primaryNavigation": "Primary navigation",
         "home": "Home",
+        "parties": "Parties",
         "settings": "Organization settings",
         "organization": "Organization selector",
         "organizationPlaceholder": "Select organization",
@@ -124,6 +125,97 @@
             "accepted": "Accepted",
             "cancelled": "Cancelled",
             "expired": "Expired"
+        }
+    },
+    "parties": {
+        "title": "Parties",
+        "description": "Manage the customers and providers recorded by this organization.",
+        "forbidden": "Your role cannot access the party registry.",
+        "loadError": "The party registry could not be loaded. Try again.",
+        "success": "The party record was updated.",
+        "error": "The change could not be completed. Review the information and try again.",
+        "conflict": "This record changed since you opened it. Review the current values and try again.",
+        "back": "Back to parties",
+        "search": "Search by name",
+        "role": "Business role",
+        "status": "Status",
+        "allRoles": "All roles",
+        "allStatuses": "All statuses",
+        "applyFilters": "Apply filters",
+        "clearFilters": "Clear filters",
+        "kind": "Party type",
+        "displayName": "Display name",
+        "legalName": "Legal name (optional)",
+        "kinds": { "organization": "Organization", "individual": "Individual" },
+        "roles": { "customer": "Customer", "provider": "Provider" },
+        "statuses": { "active": "Active", "archived": "Archived" },
+        "create": { "title": "Add a party", "submit": "Create party" },
+        "list": {
+            "title": "Registry",
+            "empty": "No parties have been registered yet.",
+            "noResults": "No parties match these filters.",
+            "view": "View details",
+            "next": "Next page"
+        },
+        "detail": {
+            "profile": "Profile",
+            "save": "Save changes",
+            "roles": "Roles",
+            "saveRoles": "Save roles",
+            "created": "Created",
+            "updated": "Last updated",
+            "readOnly": "Your role allows viewing this record only."
+        },
+        "identifiers": {
+            "title": "Identifiers",
+            "empty": "No identifiers recorded.",
+            "type": "Identifier type",
+            "value": "Identifier value",
+            "add": "Add identifier",
+            "remove": "Remove identifier"
+        },
+        "contacts": {
+            "title": "Contacts",
+            "empty": "No contacts recorded.",
+            "name": "Contact name",
+            "jobTitle": "Job title (optional)",
+            "primary": "Primary contact",
+            "add": "Add contact",
+            "save": "Save contact",
+            "remove": "Remove contact",
+            "confirmRemove": "Confirm contact removal"
+        },
+        "channels": {
+            "title": "Contact channels",
+            "type": "Channel type",
+            "types": { "email": "Email", "phone": "Phone", "other": "Other" },
+            "label": "Label (optional)",
+            "value": "Contact detail",
+            "add": "Add channel",
+            "save": "Save channel",
+            "remove": "Remove channel"
+        },
+        "addresses": {
+            "title": "Addresses",
+            "empty": "No addresses recorded.",
+            "label": "Address label",
+            "line1": "Address line 1",
+            "line2": "Address line 2 (optional)",
+            "locality": "City or locality",
+            "region": "Region (optional)",
+            "postalCode": "Postal code (optional)",
+            "countryCode": "Two-letter country code",
+            "add": "Add address",
+            "save": "Save address",
+            "remove": "Remove address",
+            "confirmRemove": "Confirm address removal"
+        },
+        "lifecycle": {
+            "archive": "Archive party",
+            "restore": "Restore party",
+            "confirmArchive": "Confirm archival",
+            "confirmRestore": "Confirm restoration",
+            "archivedHint": "Archived parties stay available for historical review."
         }
     },
     "audit": {

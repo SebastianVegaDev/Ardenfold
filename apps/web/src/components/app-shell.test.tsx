@@ -10,6 +10,7 @@ const copy: AppShellCopy = {
     closeNavigation: "Close navigation",
     primaryNavigation: "Primary navigation",
     home: "Home",
+    parties: "Parties",
     settings: "Settings",
     organization: "Organization",
     organizationPlaceholder: "Select organization",
@@ -36,6 +37,8 @@ describe("AppShell", () => {
                 activeOrganizationId={organizations[0]!.id}
                 copy={copy}
                 homeHref="/en/app"
+                partiesHref="/en/app/parties"
+                canReadParties
                 locale="en"
                 onboardingHref="/en/app/onboarding"
                 organizations={organizations}
@@ -53,6 +56,10 @@ describe("AppShell", () => {
             organizations[0]!.id,
         );
         expect(screen.getByText("Ada")).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: "Parties" })).toHaveAttribute(
+            "href",
+            "/en/app/parties",
+        );
         expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
     });
 

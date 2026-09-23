@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@ardenfold/ui";
-import { Building2, House, LogOut, Menu, Settings, UserRound, X } from "lucide-react";
+import { Building2, House, LogOut, Menu, Settings, UserRound, UsersRound, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
@@ -16,6 +16,7 @@ export type AppShellCopy = Readonly<{
     closeNavigation: string;
     primaryNavigation: string;
     home: string;
+    parties: string;
     settings: string;
     organization: string;
     organizationPlaceholder: string;
@@ -35,6 +36,8 @@ type AppShellProps = Readonly<{
     activeOrganizationId: string | undefined;
     onboardingHref: string;
     settingsHref: string;
+    partiesHref?: string;
+    canReadParties?: boolean;
 }>;
 
 export function AppShell({
@@ -43,6 +46,8 @@ export function AppShell({
     children,
     copy,
     homeHref,
+    partiesHref,
+    canReadParties = false,
     locale,
     onboardingHref,
     organizations,
@@ -61,6 +66,16 @@ export function AppShell({
                 <House aria-hidden="true" className="size-5 shrink-0" />
                 <span className="md:hidden lg:inline">{copy.home}</span>
             </Link>
+            {canReadParties && partiesHref ? (
+                <Link
+                    className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    href={partiesHref}
+                    onClick={() => setMobileNavigationOpen(false)}
+                >
+                    <UsersRound aria-hidden="true" className="size-5 shrink-0" />
+                    <span className="md:hidden lg:inline">{copy.parties}</span>
+                </Link>
+            ) : null}
             {organizations.length > 0 ? (
                 <Link
                     className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
