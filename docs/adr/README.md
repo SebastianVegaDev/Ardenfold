@@ -84,3 +84,4 @@ Accepted records:
 
 - [ADR-0001: Use WorkOS AuthKit for managed authentication](./0001-use-workos-authkit-for-managed-authentication.md)
 - [ADR-0002: Use local RBAC and verified organization context](./0002-use-local-rbac-and-verified-organization-context.md)
+- [ADR-0003: Use organization-local registry identity and independent temporal relationships](./0003-use-organization-local-registry-identity-and-independent-temporal-relationships.md)
