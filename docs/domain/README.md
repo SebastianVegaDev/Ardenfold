@@ -45,6 +45,7 @@ M1 does not implement the complete commercial or technical lifecycle.
 1. [Domain glossary](./glossary.md)
 2. [Module boundaries](./boundaries.md)
 3. [Workflow and invariants](./workflow-and-invariants.md)
+4. [Parties and Asset Registry implementation model](./parties-and-asset-registry.md)
 
 ## Modeling principles
 
