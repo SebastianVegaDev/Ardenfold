@@ -10,4 +10,10 @@ export const auditActionMessageKeys: Readonly<Record<AuditAction, string>> = {
     "membership.role_changed": "audit.actions.membershipRoleChanged",
     "membership.suspended": "audit.actions.membershipSuspended",
     "membership.removed": "audit.actions.membershipRemoved",
+    "party.created": "audit.actions.partyCreated",
+    "party.updated": "audit.actions.partyUpdated",
+    "party.roles_changed": "audit.actions.partyRolesChanged",
+    "party.details_changed": "audit.actions.partyDetailsChanged",
+    "party.archived": "audit.actions.partyArchived",
+    "party.restored": "audit.actions.partyRestored",
 };
