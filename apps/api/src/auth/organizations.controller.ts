@@ -31,10 +31,13 @@ import { ContractValidationPipe } from "../http/contracts";
 import type { AuthenticatedPrincipal } from "./auth.types";
 import { CurrentOrganization } from "./current-organization.decorator";
 import { CurrentPrincipal } from "./current-principal.decorator";
+import { InvitationManagementService } from "./organization-management/invitation-management.service";
+import { MembershipManagementService } from "./organization-management/membership-management.service";
+import { OrganizationLifecycleService } from "./organization-management/organization-lifecycle.service";
+import { SiteManagementService } from "./organization-management/site-management.service";
 import { OrganizationAuthorizationService } from "./organization-authorization.service";
 import { organizationHeader, type ActiveOrganizationContext } from "./organization-context.types";
 import { RequirePermissions } from "./require-permissions.decorator";
-import { OrganizationManagementService } from "./organization-management.service";
 
 @ApiTags("organizations")
 @ApiBearerAuth()
@@ -42,7 +45,10 @@ import { OrganizationManagementService } from "./organization-management.service
 export class OrganizationsController {
     constructor(
         private readonly authorization: OrganizationAuthorizationService,
-        private readonly management: OrganizationManagementService,
+        private readonly organizations: OrganizationLifecycleService,
+        private readonly sites: SiteManagementService,
+        private readonly memberships: MembershipManagementService,
+        private readonly invitations: InvitationManagementService,
     ) {}
 
     @Get()
@@ -60,7 +66,7 @@ export class OrganizationsController {
         @Body(new ContractValidationPipe(createOrganizationRequestSchema))
         input: CreateOrganizationRequest,
     ) {
-        return this.management.createOrganization(principal, input);
+        return this.organizations.createOrganization(principal, input);
     }
 
     @Get("current")
@@ -85,7 +91,7 @@ export class OrganizationsController {
         @Body(new ContractValidationPipe(updateOrganizationRequestSchema))
         input: UpdateOrganizationRequest,
     ) {
-        return this.management.updateOrganization(principal, organization.id, input);
+        return this.organizations.updateOrganization(principal, organization.id, input);
     }
 
     @Post("current/sites")
@@ -99,7 +105,7 @@ export class OrganizationsController {
         @Body(new ContractValidationPipe(createOrganizationSiteRequestSchema))
         input: CreateOrganizationSiteRequest,
     ) {
-        return this.management.createSite(principal, organization.id, input);
+        return this.sites.createSite(principal, organization.id, input);
     }
 
     @Get("current/sites")
@@ -111,7 +117,7 @@ export class OrganizationsController {
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
         @CurrentOrganization() organization: ActiveOrganizationContext,
     ) {
-        return this.management.listSites(principal, organization.id);
+        return this.sites.listSites(principal, organization.id);
     }
 
     @Get("current/members")
@@ -123,7 +129,7 @@ export class OrganizationsController {
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
         @CurrentOrganization() organization: ActiveOrganizationContext,
     ) {
-        return this.management.listMembers(principal, organization.id);
+        return this.memberships.listMembers(principal, organization.id);
     }
 
     @Patch("current/members/:membershipId/role")
@@ -138,7 +144,7 @@ export class OrganizationsController {
         @Body(new ContractValidationPipe(updateMembershipRoleRequestSchema))
         input: UpdateMembershipRoleRequest,
     ) {
-        return this.management.updateMembershipRole(
+        return this.memberships.updateMembershipRole(
             principal,
             organization.id,
             membershipId,
@@ -156,7 +162,7 @@ export class OrganizationsController {
         @CurrentOrganization() organization: ActiveOrganizationContext,
         @Param("membershipId", new ContractValidationPipe(identifierSchema)) membershipId: string,
     ) {
-        return this.management.suspendMembership(principal, organization.id, membershipId);
+        return this.memberships.suspendMembership(principal, organization.id, membershipId);
     }
 
     @Delete("current/members/:membershipId")
@@ -169,7 +175,7 @@ export class OrganizationsController {
         @CurrentOrganization() organization: ActiveOrganizationContext,
         @Param("membershipId", new ContractValidationPipe(identifierSchema)) membershipId: string,
     ) {
-        return this.management.removeMembership(principal, organization.id, membershipId);
+        return this.memberships.removeMembership(principal, organization.id, membershipId);
     }
 
     @Get("current/invitations")
@@ -180,7 +186,7 @@ export class OrganizationsController {
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
         @CurrentOrganization() organization: ActiveOrganizationContext,
     ) {
-        return this.management.listInvitations(principal, organization.id);
+        return this.invitations.listInvitations(principal, organization.id);
     }
 
     @Post("current/invitations")
@@ -193,7 +199,7 @@ export class OrganizationsController {
         @Body(new ContractValidationPipe(createInvitationRequestSchema))
         input: CreateInvitationRequest,
     ) {
-        return this.management.createInvitation(principal, organization.id, input);
+        return this.invitations.createInvitation(principal, organization.id, input);
     }
 
     @Delete("current/invitations/:invitationId")
@@ -206,7 +212,7 @@ export class OrganizationsController {
         @CurrentOrganization() organization: ActiveOrganizationContext,
         @Param("invitationId", new ContractValidationPipe(identifierSchema)) invitationId: string,
     ) {
-        return this.management.cancelInvitation(principal, organization.id, invitationId);
+        return this.invitations.cancelInvitation(principal, organization.id, invitationId);
     }
 }
 
@@ -214,7 +220,7 @@ export class OrganizationsController {
 @ApiBearerAuth()
 @Controller("invitations")
 export class InvitationsController {
-    constructor(private readonly management: OrganizationManagementService) {}
+    constructor(private readonly invitations: InvitationManagementService) {}
 
     @Post("accept")
     @ApiOperation({ operationId: "acceptOrganizationInvitation" })
@@ -230,6 +236,6 @@ export class InvitationsController {
         @Body(new ContractValidationPipe(acceptInvitationRequestSchema))
         input: AcceptInvitationRequest,
     ) {
-        return this.management.acceptInvitation(principal, input);
+        return this.invitations.acceptInvitation(principal, input);
     }
 }
