@@ -37,6 +37,7 @@
         "closeNavigation": "Cerrar navegación",
         "primaryNavigation": "Navegación principal",
         "home": "Inicio",
+        "parties": "Contrapartes",
         "settings": "Configuración de la organización",
         "organization": "Selector de organización",
         "organizationPlaceholder": "Seleccionar organización",
@@ -124,6 +125,97 @@
             "accepted": "Aceptada",
             "cancelled": "Cancelada",
             "expired": "Expirada"
+        }
+    },
+    "parties": {
+        "title": "Contrapartes",
+        "description": "Administra los clientes y proveedores registrados por esta organización.",
+        "forbidden": "Tu rol no permite acceder al registro de contrapartes.",
+        "loadError": "No pudimos cargar el registro de contrapartes. Inténtalo de nuevo.",
+        "success": "Se actualizó la contraparte.",
+        "error": "No pudimos completar el cambio. Revisa la información e inténtalo de nuevo.",
+        "conflict": "Este registro cambió desde que lo abriste. Revisa los valores actuales e inténtalo de nuevo.",
+        "back": "Volver a contrapartes",
+        "search": "Buscar por nombre",
+        "role": "Rol comercial",
+        "status": "Estado",
+        "allRoles": "Todos los roles",
+        "allStatuses": "Todos los estados",
+        "applyFilters": "Aplicar filtros",
+        "clearFilters": "Limpiar filtros",
+        "kind": "Tipo de contraparte",
+        "displayName": "Nombre visible",
+        "legalName": "Razón social (opcional)",
+        "kinds": { "organization": "Organización", "individual": "Persona" },
+        "roles": { "customer": "Cliente", "provider": "Proveedor" },
+        "statuses": { "active": "Activa", "archived": "Archivada" },
+        "create": { "title": "Agregar contraparte", "submit": "Crear contraparte" },
+        "list": {
+            "title": "Registro",
+            "empty": "Aún no hay contrapartes registradas.",
+            "noResults": "Ninguna contraparte coincide con estos filtros.",
+            "view": "Ver detalles",
+            "next": "Página siguiente"
+        },
+        "detail": {
+            "profile": "Perfil",
+            "save": "Guardar cambios",
+            "roles": "Roles",
+            "saveRoles": "Guardar roles",
+            "created": "Creada",
+            "updated": "Última actualización",
+            "readOnly": "Tu rol solo permite consultar este registro."
+        },
+        "identifiers": {
+            "title": "Identificadores",
+            "empty": "No hay identificadores registrados.",
+            "type": "Tipo de identificador",
+            "value": "Valor del identificador",
+            "add": "Agregar identificador",
+            "remove": "Quitar identificador"
+        },
+        "contacts": {
+            "title": "Contactos",
+            "empty": "No hay contactos registrados.",
+            "name": "Nombre del contacto",
+            "jobTitle": "Cargo (opcional)",
+            "primary": "Contacto principal",
+            "add": "Agregar contacto",
+            "save": "Guardar contacto",
+            "remove": "Quitar contacto",
+            "confirmRemove": "Confirmar eliminación del contacto"
+        },
+        "channels": {
+            "title": "Medios de contacto",
+            "type": "Tipo de medio",
+            "types": { "email": "Correo", "phone": "Teléfono", "other": "Otro" },
+            "label": "Etiqueta (opcional)",
+            "value": "Dato de contacto",
+            "add": "Agregar medio",
+            "save": "Guardar medio",
+            "remove": "Quitar medio"
+        },
+        "addresses": {
+            "title": "Direcciones",
+            "empty": "No hay direcciones registradas.",
+            "label": "Etiqueta de dirección",
+            "line1": "Dirección línea 1",
+            "line2": "Dirección línea 2 (opcional)",
+            "locality": "Ciudad o localidad",
+            "region": "Región (opcional)",
+            "postalCode": "Código postal (opcional)",
+            "countryCode": "Código de país de dos letras",
+            "add": "Agregar dirección",
+            "save": "Guardar dirección",
+            "remove": "Quitar dirección",
+            "confirmRemove": "Confirmar eliminación de la dirección"
+        },
+        "lifecycle": {
+            "archive": "Archivar contraparte",
+            "restore": "Restaurar contraparte",
+            "confirmArchive": "Confirmar archivo",
+            "confirmRestore": "Confirmar restauración",
+            "archivedHint": "Las contrapartes archivadas siguen disponibles para consultar su historial."
         }
     },
     "audit": {
