@@ -136,7 +136,13 @@
             "invitationAccepted": "Invitación aceptada",
             "membershipRoleChanged": "Rol del miembro actualizado",
             "membershipSuspended": "Membresía suspendida",
-            "membershipRemoved": "Membresía eliminada"
+            "membershipRemoved": "Membresía eliminada",
+            "partyCreated": "Contraparte creada",
+            "partyUpdated": "Contraparte actualizada",
+            "partyRolesChanged": "Roles de contraparte actualizados",
+            "partyDetailsChanged": "Detalles de contraparte actualizados",
+            "partyArchived": "Contraparte archivada",
+            "partyRestored": "Contraparte restaurada"
         }
     },
     "states": {

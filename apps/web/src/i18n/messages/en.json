@@ -136,7 +136,13 @@
             "invitationAccepted": "Invitation accepted",
             "membershipRoleChanged": "Member role changed",
             "membershipSuspended": "Membership suspended",
-            "membershipRemoved": "Membership removed"
+            "membershipRemoved": "Membership removed",
+            "partyCreated": "Party created",
+            "partyUpdated": "Party updated",
+            "partyRolesChanged": "Party roles changed",
+            "partyDetailsChanged": "Party details changed",
+            "partyArchived": "Party archived",
+            "partyRestored": "Party restored"
         }
     },
     "states": {
