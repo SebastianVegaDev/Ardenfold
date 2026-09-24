@@ -242,7 +242,10 @@
             "assetIdentifierChanged": "Identificador del activo modificado",
             "assetIdentifierRetired": "Identificador del activo retirado",
             "assetArchived": "Activo archivado",
-            "assetRestored": "Activo restaurado"
+            "assetRestored": "Activo restaurado",
+            "assetRelationshipStarted": "Relación del activo iniciada",
+            "assetRelationshipEnded": "Relación del activo terminada",
+            "assetRelationshipCorrected": "Relación del activo corregida"
         }
     },
     "states": {

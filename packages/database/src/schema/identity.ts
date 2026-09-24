@@ -7,6 +7,7 @@ import {
     pgTable,
     text,
     timestamp,
+    unique,
     uniqueIndex,
     uuid,
     varchar,
@@ -126,6 +127,7 @@ export const organizationSites = pgTable(
         ...auditTimestamps(),
     },
     (table) => [
+        unique("organization_sites_organization_id_id_unique").on(table.organizationId, table.id),
         index("organization_sites_organization_id_idx").on(table.organizationId),
         uniqueIndex("organization_sites_organization_id_code_uidx")
             .on(table.organizationId, table.code)

@@ -21,7 +21,9 @@ import {
     resetDatabaseFactorySequence,
 } from "../testing";
 import {
+    assetHistoryEntries,
     assetIdentifiers,
+    assetRelationships,
     assets,
     auditEvents,
     externalIdentities,
@@ -117,6 +119,8 @@ describe("identity, tenancy and row-level security", () => {
               AND table_name IN (
                 'assets',
                 'asset_identifiers',
+                'asset_history_entries',
+                'asset_relationships',
                 'audit_events',
                 'external_identities',
                 'organization_memberships',
@@ -138,7 +142,9 @@ describe("identity, tenancy and row-level security", () => {
         `);
 
         expect(result.rows.map((row) => row.table_name)).toEqual([
+            "asset_history_entries",
             "asset_identifiers",
+            "asset_relationships",
             "assets",
             "audit_events",
             "external_identities",
@@ -508,8 +514,11 @@ describe("identity, tenancy and row-level security", () => {
             FROM pg_indexes
             WHERE schemaname = 'public'
               AND indexname IN (
+                'asset_history_entries_org_asset_occurred_idx',
                 'asset_identifiers_org_asset_status_idx',
                 'asset_identifiers_org_type_normalized_idx',
+                'asset_relationships_current_unique',
+                'asset_relationships_org_asset_kind_from_idx',
                 'assets_organization_lifecycle_idx',
                 'assets_organization_status_name_id_idx',
                 'external_identities_user_id_idx',
@@ -521,8 +530,11 @@ describe("identity, tenancy and row-level security", () => {
         `);
 
         expect(result.rows.map((row) => row.indexname)).toEqual([
+            "asset_history_entries_org_asset_occurred_idx",
             "asset_identifiers_org_asset_status_idx",
             "asset_identifiers_org_type_normalized_idx",
+            "asset_relationships_current_unique",
+            "asset_relationships_org_asset_kind_from_idx",
             "assets_organization_lifecycle_idx",
             "assets_organization_status_name_id_idx",
             "external_identities_user_id_idx",
@@ -1018,6 +1030,108 @@ describe("identity, tenancy and row-level security", () => {
             `),
             "22P02",
             undefined,
+        );
+    });
+
+    it("keeps asset relationships and business history tenant-scoped and constrained", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+        const [asset] = await connection.database
+            .insert(assets)
+            .values(buildAsset(fixture.firstOrganizationId))
+            .returning();
+        const [party] = await connection.database
+            .insert(parties)
+            .values(buildParty(fixture.firstOrganizationId))
+            .returning();
+        const [foreignParty] = await connection.database
+            .insert(parties)
+            .values(buildParty(fixture.secondOrganizationId))
+            .returning();
+        const effectiveFrom = new Date("2026-09-20T10:00:00.000Z");
+        const base = {
+            organizationId: fixture.firstOrganizationId,
+            assetId: asset!.id,
+            kind: "ownership" as const,
+            subject: "party" as const,
+            partyId: party!.id,
+            effectiveFrom,
+            aggregateVersion: 2,
+            recordedByUserId: fixture.firstUserId,
+        };
+        const [relationship] = await connection.database
+            .insert(assetRelationships)
+            .values(base)
+            .returning();
+        await connection.database.insert(assetHistoryEntries).values({
+            organizationId: fixture.firstOrganizationId,
+            assetId: asset!.id,
+            event: "relationship_started",
+            aggregateVersion: 2,
+            actorUserId: fixture.firstUserId,
+            traceId: "00000000-0000-4000-8000-000000000090",
+            payload: { kind: "ownership" },
+        });
+
+        await expectDatabaseError(
+            connection.database
+                .insert(assetRelationships)
+                .values({ ...base, partyId: foreignParty!.id, kind: "custody" }),
+            "23503",
+            "asset_relationships_party_fk",
+        );
+        await expectDatabaseError(
+            connection.database
+                .insert(assetRelationships)
+                .values({ ...base, effectiveTo: new Date("2026-09-19T10:00:00.000Z") }),
+            "23514",
+            "asset_relationships_interval_order",
+        );
+        await expectDatabaseError(
+            connection.database
+                .insert(assetRelationships)
+                .values({ ...base, subject: "site", partyId: null }),
+            "23514",
+            "asset_relationships_subject_shape",
+        );
+        await expectDatabaseError(
+            connection.database.insert(assetRelationships).values(base),
+            "23505",
+            "asset_relationships_current_unique",
+        );
+        await expectDatabaseError(
+            connection.database
+                .update(assetRelationships)
+                .set({ partyId: foreignParty!.id })
+                .where(eq(assetRelationships.id, relationship!.id)),
+            "23514",
+            "asset_relationships_revision_immutable",
+        );
+
+        await runtimeConnection.withTenantTransaction(
+            { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+            async (transaction) => {
+                await transaction.execute(
+                    sql`SELECT set_config('ardenfold.permission.assets.read', 'true', true)`,
+                );
+                expect(await transaction.select().from(assetRelationships)).toHaveLength(1);
+                expect(await transaction.select().from(assetHistoryEntries)).toHaveLength(1);
+            },
+        );
+        expect(await runtimeConnection.database.select().from(assetRelationships)).toEqual([]);
+        expect(await runtimeConnection.database.select().from(assetHistoryEntries)).toEqual([]);
+
+        const rls = await connection.database.execute<{
+            relname: string;
+            relrowsecurity: boolean;
+            relforcerowsecurity: boolean;
+        }>(sql`
+            SELECT relname, relrowsecurity, relforcerowsecurity FROM pg_class
+            WHERE relname IN ('asset_relationships', 'asset_history_entries')
+            ORDER BY relname
+        `);
+        expect(rls.rows).toHaveLength(2);
+        expect(rls.rows.every((table) => table.relrowsecurity && table.relforcerowsecurity)).toBe(
+            true,
         );
     });
 });

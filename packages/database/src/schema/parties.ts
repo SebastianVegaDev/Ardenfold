@@ -200,6 +200,7 @@ export const partyAddresses = pgTable(
         ...timestamps(),
     },
     (table) => [
+        unique("party_addresses_organization_id_id_unique").on(table.organizationId, table.id),
         foreignKey({
             name: "party_addresses_party_fk",
             columns: [table.organizationId, table.partyId],

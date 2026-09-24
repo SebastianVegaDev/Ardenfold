@@ -23,6 +23,7 @@ import { recordAuditEvent } from "../audit/audit.service";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
 import { ContractException } from "../http/contracts";
+import { recordAssetHistory, type AssetHistoryEventType } from "./asset-history.writer";
 import { advanceAssetVersion, getAsset } from "./asset-transaction";
 
 const cursorSchema = z.strictObject({ name: z.string(), id: z.uuid() });
@@ -105,6 +106,14 @@ export class AssetManagementService {
                     action: "asset.created",
                     resourceType: "asset",
                     resourceId: asset!.id,
+                });
+                await recordAssetHistory(transaction, {
+                    organizationId,
+                    assetId: asset!.id,
+                    actorUserId: principal.user.id,
+                    aggregateVersion: asset!.version,
+                    event: "asset_created",
+                    payload: { identifierCount: identifiers.length },
                 });
                 return this.getInTransaction(transaction, organizationId, asset!.id);
             },
@@ -297,6 +306,7 @@ export class AssetManagementService {
                     .update(assets)
                     .set({ lifecycle: input.lifecycle })
                     .where(and(eq(assets.organizationId, organizationId), eq(assets.id, assetId)));
+                return { from: current.lifecycle, to: input.lifecycle };
             },
         );
     }
@@ -342,6 +352,13 @@ export class AssetManagementService {
                     resourceType: "asset",
                     resourceId: assetId,
                 });
+                await recordAssetHistory(transaction, {
+                    organizationId,
+                    assetId,
+                    actorUserId: principal.user.id,
+                    aggregateVersion: updated.version,
+                    event: archived ? "asset_archived" : "asset_restored",
+                });
                 return this.getInTransaction(transaction, organizationId, assetId);
             },
         );
@@ -361,13 +378,17 @@ export class AssetManagementService {
             input.expectedVersion,
             "asset.identifier_added",
             async (transaction) => {
-                await transaction.insert(assetIdentifiers).values({
-                    organizationId,
-                    assetId,
-                    type: input.type.toLowerCase(),
-                    originalValue: input.originalValue,
-                    normalizedValue,
-                });
+                const [identifier] = await transaction
+                    .insert(assetIdentifiers)
+                    .values({
+                        organizationId,
+                        assetId,
+                        type: input.type.toLowerCase(),
+                        originalValue: input.originalValue,
+                        normalizedValue,
+                    })
+                    .returning({ id: assetIdentifiers.id });
+                return { identifierId: identifier!.id, type: input.type.toLowerCase() };
             },
         );
     }
@@ -400,13 +421,20 @@ export class AssetManagementService {
                     )
                     .returning();
                 if (!retired) throw new ContractException("ASSET_IDENTIFIER_NOT_FOUND", 404);
-                await transaction.insert(assetIdentifiers).values({
-                    organizationId,
-                    assetId,
-                    type: input.type.toLowerCase(),
-                    originalValue: input.originalValue,
-                    normalizedValue,
-                });
+                const [replacement] = await transaction
+                    .insert(assetIdentifiers)
+                    .values({
+                        organizationId,
+                        assetId,
+                        type: input.type.toLowerCase(),
+                        originalValue: input.originalValue,
+                        normalizedValue,
+                    })
+                    .returning({ id: assetIdentifiers.id });
+                return {
+                    retiredIdentifierId: identifierId,
+                    replacementIdentifierId: replacement!.id,
+                };
             },
         );
     }
@@ -438,6 +466,7 @@ export class AssetManagementService {
                     )
                     .returning();
                 if (!retired) throw new ContractException("ASSET_IDENTIFIER_NOT_FOUND", 404);
+                return { identifierId };
             },
         );
     }
@@ -453,7 +482,10 @@ export class AssetManagementService {
             | "asset.identifier_added"
             | "asset.identifier_changed"
             | "asset.identifier_retired",
-        operation: (transaction: ArdenfoldTransaction, current: Asset) => Promise<void>,
+        operation: (
+            transaction: ArdenfoldTransaction,
+            current: Asset,
+        ) => Promise<void | Readonly<Record<string, string | number | boolean | null>>>,
     ): Promise<AssetDetail> {
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
@@ -461,14 +493,34 @@ export class AssetManagementService {
             ["assets.write"],
             async (transaction) => {
                 const current = await getAsset(transaction, organizationId, assetId);
-                await advanceAssetVersion(transaction, organizationId, assetId, expectedVersion);
-                await operation(transaction, current);
+                const updated = await advanceAssetVersion(
+                    transaction,
+                    organizationId,
+                    assetId,
+                    expectedVersion,
+                );
+                const payload = await operation(transaction, current);
                 await recordAuditEvent(transaction, {
                     organizationId,
                     actorUserId: principal.user.id,
                     action,
                     resourceType: "asset",
                     resourceId: assetId,
+                });
+                const event: Record<typeof action, AssetHistoryEventType> = {
+                    "asset.updated": "asset_updated",
+                    "asset.lifecycle_changed": "lifecycle_changed",
+                    "asset.identifier_added": "identifier_added",
+                    "asset.identifier_changed": "identifier_changed",
+                    "asset.identifier_retired": "identifier_retired",
+                };
+                await recordAssetHistory(transaction, {
+                    organizationId,
+                    assetId,
+                    actorUserId: principal.user.id,
+                    aggregateVersion: updated.version,
+                    event: event[action],
+                    payload: payload ?? {},
                 });
                 return this.getInTransaction(transaction, organizationId, assetId);
             },
