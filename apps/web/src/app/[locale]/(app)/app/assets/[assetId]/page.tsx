@@ -11,9 +11,9 @@ import {
     getCurrentRelationships,
     getRelationshipHistory,
     listAvailableSites,
-} from "@/assets/api-client";
-import { AssetFormFields } from "@/assets/asset-form-fields";
-import { RelationshipForm } from "@/assets/relationship-form";
+} from "@/features/assets/api-client";
+import { AssetFormFields } from "@/features/assets/asset-form-fields";
+import { RelationshipForm } from "@/features/assets/relationship-form";
 import { getActiveOrganization } from "@/auth/api-client";
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import type { Locale } from "@/i18n/locales";

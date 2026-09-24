@@ -2,7 +2,7 @@ import { Button, Input, Label } from "@ardenfold/ui";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-import { listAssets, AssetApiError } from "@/assets/api-client";
+import { listAssets, AssetApiError } from "@/features/assets/api-client";
 import { getActiveOrganization } from "@/auth/api-client";
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import type { Locale } from "@/i18n/locales";

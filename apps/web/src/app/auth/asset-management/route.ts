@@ -1,7 +1,7 @@
 import { identifierSchema } from "@ardenfold/contracts";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { mutateAsset, AssetApiError } from "@/assets/api-client";
+import { mutateAsset, AssetApiError } from "@/features/assets/api-client";
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import { getTechnicalFallbackLocale, isLocale } from "@/i18n/locales";
 

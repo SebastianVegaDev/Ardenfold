@@ -5,7 +5,7 @@ import { Button, Input, Label } from "@ardenfold/ui";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AssetFormFields } from "@/assets/asset-form-fields";
+import { AssetFormFields } from "@/features/assets/asset-form-fields";
 import type { Locale } from "@/i18n/locales";
 
 type Kind = "ownership" | "custody" | "location";
