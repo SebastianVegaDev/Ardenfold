@@ -15,8 +15,8 @@ import { and, desc, eq, lt, or } from "drizzle-orm";
 import { z } from "zod";
 
 import { ContractException } from "../http/contracts";
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
+import type { AuthenticatedPrincipal } from "../auth/authentication/types";
+import { OrganizationAuthorizationService } from "../auth/authorization/organization-authorization.service";
 
 const cursorSchema = z.strictObject({
     occurredAt: z.iso.datetime({ precision: 3 }),

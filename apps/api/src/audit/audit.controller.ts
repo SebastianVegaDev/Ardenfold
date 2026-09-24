@@ -6,14 +6,14 @@ import {
 import { Controller, Get, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
-import { CurrentOrganization } from "../auth/current-organization.decorator";
-import { CurrentPrincipal } from "../auth/current-principal.decorator";
+import { CurrentPrincipal } from "../auth/authentication/current-principal.decorator";
+import type { AuthenticatedPrincipal } from "../auth/authentication/types";
+import { RequirePermissions } from "../auth/authorization/require-permissions.decorator";
+import { CurrentOrganization } from "../auth/organization-context/current-organization.decorator";
 import {
     organizationHeader,
     type ActiveOrganizationContext,
-} from "../auth/organization-context.types";
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { RequirePermissions } from "../auth/require-permissions.decorator";
+} from "../auth/organization-context/organization-context.types";
 import { ContractValidationPipe } from "../http/contracts";
 import { AuditService } from "./audit.service";
 

@@ -1,7 +1,7 @@
 import type { ExecutionContext } from "@nestjs/common";
 import { describe, expect, it, vi } from "vitest";
 
-import { ContractException } from "../http/contracts";
+import { ContractException } from "../../http/contracts";
 import { OrganizationAuthorizationGuard } from "./organization-authorization.guard";
 import type { OrganizationAuthorizationService } from "./organization-authorization.service";
 

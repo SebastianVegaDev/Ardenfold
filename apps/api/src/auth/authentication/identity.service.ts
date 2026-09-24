@@ -2,8 +2,8 @@ import { externalIdentities, users, type User } from "@ardenfold/database/schema
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 
-import { DatabaseService } from "../infrastructure/database/database.service";
-import type { WorkosTokenClaims } from "./auth.types";
+import { DatabaseService } from "../../infrastructure/database/database.service";
+import type { WorkosTokenClaims } from "./types";
 import { WorkosProfileService } from "./workos-profile.service";
 
 const PROVIDER = "workos";

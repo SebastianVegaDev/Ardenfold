@@ -3,7 +3,7 @@ import { Reflector } from "@nestjs/core";
 import type { FastifyRequest } from "fastify";
 
 import { IdentityService } from "./identity.service";
-import { PUBLIC_ROUTE } from "./public.decorator";
+import { PUBLIC_ROUTE } from "../authorization/public.decorator";
 import { WorkosTokenVerifier } from "./workos-token-verifier";
 
 const MAX_BEARER_TOKEN_LENGTH = 8_192;

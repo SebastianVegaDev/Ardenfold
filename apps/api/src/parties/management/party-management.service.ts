@@ -25,8 +25,8 @@ import { Injectable } from "@nestjs/common";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { recordAuditEvent } from "../../audit/audit.service";
-import type { AuthenticatedPrincipal } from "../../auth/auth.types";
-import { OrganizationAuthorizationService } from "../../auth/organization-authorization.service";
+import type { AuthenticatedPrincipal } from "../../auth/authentication/types";
+import { OrganizationAuthorizationService } from "../../auth/authorization/organization-authorization.service";
 import { ContractException } from "../../http/contracts";
 import {
     decodeRegistryCursor,

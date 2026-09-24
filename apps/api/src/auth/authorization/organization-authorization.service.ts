@@ -15,9 +15,9 @@ import type { ArdenfoldTransaction } from "@ardenfold/database";
 import { Injectable } from "@nestjs/common";
 import { and, eq, sql } from "drizzle-orm";
 
-import { ContractException } from "../http/contracts";
-import { DatabaseService } from "../infrastructure/database/database.service";
-import type { ActiveOrganizationContext } from "./organization-context.types";
+import { ContractException } from "../../http/contracts";
+import { DatabaseService } from "../../infrastructure/database/database.service";
+import type { ActiveOrganizationContext } from "../organization-context/organization-context.types";
 
 @Injectable()
 export class OrganizationAuthorizationService {

@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
 
-import type { EnvironmentVariables } from "../config/environment";
-import type { WorkosTokenClaims } from "./auth.types";
+import type { EnvironmentVariables } from "../../config/environment";
+import type { WorkosTokenClaims } from "./types";
 
 function requiredClaim(payload: JWTPayload, claim: "sub" | "sid" | "client_id"): string {
     const value = payload[claim];
