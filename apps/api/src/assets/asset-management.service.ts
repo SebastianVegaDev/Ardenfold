@@ -16,17 +16,20 @@ import {
 import type { ArdenfoldTransaction } from "@ardenfold/database";
 import { assetIdentifiers, assets, type Asset } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
-import { and, asc, eq, ne, sql } from "drizzle-orm";
-import { z } from "zod";
+import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 
 import { recordAuditEvent } from "../audit/audit.service";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
 import { ContractException } from "../http/contracts";
+import {
+    decodeRegistryCursor,
+    encodeRegistryCursor,
+    registryFilterKey,
+    searchPattern,
+} from "../registry/search";
 import { recordAssetHistory, type AssetHistoryEventType } from "./asset-history.writer";
 import { advanceAssetVersion, getAsset } from "./asset-transaction";
-
-const cursorSchema = z.strictObject({ name: z.string(), id: z.uuid() });
 
 function summary(asset: Asset): AssetSummary {
     return assetSummarySchema.parse({
@@ -200,16 +203,19 @@ export class AssetManagementService {
         organizationId: string,
         query: AssetListQuery,
     ): Promise<AssetListResponse> {
-        let cursor: z.infer<typeof cursorSchema> | undefined;
-        if (query.cursor) {
-            try {
-                cursor = cursorSchema.parse(
-                    JSON.parse(Buffer.from(query.cursor, "base64url").toString("utf8")),
-                );
-            } catch {
-                throw new ContractException("INVALID_ASSET_CURSOR", 400);
-            }
-        }
+        const filters = registryFilterKey({
+            name: query.name,
+            q: query.q,
+            status: query.status,
+            lifecycle: query.lifecycle,
+            manufacturer: query.manufacturer,
+            model: query.model,
+            classification: query.classification,
+            sort: query.sort,
+        });
+        const cursor = query.cursor
+            ? decodeRegistryCursor(query.cursor, filters, "INVALID_ASSET_CURSOR")
+            : undefined;
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,
@@ -219,19 +225,84 @@ export class AssetManagementService {
                 const conditions = [eq(assets.organizationId, organizationId)];
                 if (query.status) conditions.push(eq(assets.status, query.status));
                 if (query.lifecycle) conditions.push(eq(assets.lifecycle, query.lifecycle));
-                if (query.name) {
-                    const escaped = query.name.toLowerCase().replace(/[\\%_]/gu, "\\$&");
-                    conditions.push(sql`${normalizedName} LIKE ${`%${escaped}%`} ESCAPE ${"\\"}`);
-                }
-                if (cursor)
+                if (query.manufacturer)
                     conditions.push(
-                        sql`(${normalizedName}, ${assets.id}) > (${cursor.name}, ${cursor.id}::uuid)`,
+                        sql`lower(${assets.manufacturer}) LIKE ${searchPattern(query.manufacturer)} ESCAPE ${"\\"}`,
                     );
+                if (query.model)
+                    conditions.push(
+                        sql`lower(${assets.model}) LIKE ${searchPattern(query.model)} ESCAPE ${"\\"}`,
+                    );
+                if (query.classification)
+                    conditions.push(
+                        sql`lower(${assets.classification}) LIKE ${searchPattern(query.classification)} ESCAPE ${"\\"}`,
+                    );
+                if (query.name) {
+                    conditions.push(
+                        sql`${normalizedName} LIKE ${searchPattern(query.name)} ESCAPE ${"\\"}`,
+                    );
+                }
+                if (query.q) {
+                    const pattern = searchPattern(query.q);
+                    conditions.push(sql`(
+                        ${normalizedName} LIKE ${pattern} ESCAPE ${"\\"}
+                        OR lower(coalesce(${assets.manufacturer}, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                        OR lower(coalesce(${assets.model}, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                        OR lower(coalesce(${assets.classification}, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                        OR EXISTS (
+                            SELECT 1 FROM asset_identifiers identifier
+                            WHERE identifier.organization_id = ${organizationId}::uuid
+                              AND identifier.asset_id = ${assets.id}
+                              AND identifier.status = 'active'
+                              AND (lower(identifier.original_value) LIKE ${pattern} ESCAPE ${"\\"}
+                                   OR lower(identifier.normalized_value) LIKE ${pattern} ESCAPE ${"\\"})
+                        )
+                        OR EXISTS (
+                            SELECT 1 FROM asset_relationships relationship
+                            LEFT JOIN parties target_party
+                              ON target_party.organization_id = relationship.organization_id
+                             AND target_party.id = relationship.party_id
+                            LEFT JOIN organization_sites target_site
+                              ON target_site.organization_id = relationship.organization_id
+                             AND target_site.id = relationship.site_id
+                            LEFT JOIN party_addresses target_address
+                              ON target_address.organization_id = relationship.organization_id
+                             AND target_address.id = relationship.party_address_id
+                            WHERE relationship.organization_id = ${organizationId}::uuid
+                              AND relationship.asset_id = ${assets.id}
+                              AND relationship.effective_to IS NULL
+                              AND relationship.superseded_at IS NULL
+                              AND (lower(coalesce(target_party.display_name, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                                   OR lower(coalesce(target_site.name, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                                   OR lower(coalesce(target_address.line1, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                                   OR lower(coalesce(target_address.locality, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                                   OR lower(coalesce(relationship.location_description, '')) LIKE ${pattern} ESCAPE ${"\\"})
+                        )
+                    )`);
+                }
+                if (cursor) {
+                    if (cursor.sort !== query.sort)
+                        throw new ContractException("INVALID_ASSET_CURSOR", 400);
+                    conditions.push(
+                        query.sort === "updated_desc"
+                            ? sql`(${assets.updatedAt}, ${assets.id}) < (${new Date(cursor.key)}, ${cursor.id}::uuid)`
+                            : query.sort === "name_desc"
+                              ? sql`(${normalizedName}, ${assets.id}) < (${cursor.key}, ${cursor.id}::uuid)`
+                              : sql`(${normalizedName}, ${assets.id}) > (${cursor.key}, ${cursor.id}::uuid)`,
+                    );
+                }
                 const rows = await transaction
                     .select()
                     .from(assets)
                     .where(and(...conditions))
-                    .orderBy(asc(normalizedName), asc(assets.id))
+                    .orderBy(
+                        query.sort === "updated_desc"
+                            ? desc(assets.updatedAt)
+                            : query.sort === "name_desc"
+                              ? desc(normalizedName)
+                              : asc(normalizedName),
+                        query.sort === "name_asc" ? asc(assets.id) : desc(assets.id),
+                    )
                     .limit(query.limit + 1);
                 const page = rows.slice(0, query.limit);
                 const last = page.at(-1);
@@ -239,13 +310,15 @@ export class AssetManagementService {
                     data: page.map(summary),
                     nextCursor:
                         rows.length > query.limit && last
-                            ? Buffer.from(
-                                  JSON.stringify({
-                                      name: last.displayName.toLowerCase(),
-                                      id: last.id,
-                                  }),
-                                  "utf8",
-                              ).toString("base64url")
+                            ? encodeRegistryCursor({
+                                  key:
+                                      query.sort === "updated_desc"
+                                          ? last.updatedAt.toISOString()
+                                          : last.displayName.toLowerCase(),
+                                  id: last.id,
+                                  sort: query.sort,
+                                  filters,
+                              })
                             : null,
                 });
             },

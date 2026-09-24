@@ -64,6 +64,13 @@
       "when": 1790193893183,
       "tag": "0008_asset_relationships_history",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790270000000,
+      "tag": "0009_registry_search_indexes",
+      "breakpoints": true
     }
   ]
 }

@@ -50,6 +50,13 @@ test("party registry supports creation, details, lifecycle and both locales", as
     await page.getByRole("button", { name: "Restore party" }).click();
     await expect(page.getByText("Confirm archival")).toBeVisible();
 
+    await page.goto("/en/app/parties");
+    await page.getByLabel("Search names, identifiers and contacts").fill("TAX123");
+    await page.getByLabel("Sort by").selectOption("updated_desc");
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await expect(page).toHaveURL(/\/en\/app\/parties\?q=TAX123.*sort=updated_desc/u);
+    await expect(page.getByRole("link", { name: "Field Instruments Ltd" })).toBeVisible();
+
     await page.goto("/es/app/parties");
     await expect(page.getByRole("heading", { name: "Contrapartes" })).toBeVisible();
     await page.setViewportSize({ width: 390, height: 844 });

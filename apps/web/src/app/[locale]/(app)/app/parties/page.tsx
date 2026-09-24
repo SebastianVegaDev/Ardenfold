@@ -11,7 +11,10 @@ type Props = Readonly<{
     params: Promise<{ locale: Locale }>;
     searchParams: Promise<{
         name?: string;
+        q?: string;
+        sort?: string;
         role?: string;
+        kind?: string;
         status?: string;
         cursor?: string;
         notice?: string;
@@ -42,7 +45,10 @@ export default async function PartiesPage({ params, searchParams }: Props) {
     const canWrite = active.permissions.includes("parties.write");
     const paramsForApi = new URLSearchParams();
     if (query.name) paramsForApi.set("name", query.name);
+    if (query.q) paramsForApi.set("q", query.q);
+    if (query.sort) paramsForApi.set("sort", query.sort);
     if (query.role) paramsForApi.set("role", query.role);
+    if (query.kind) paramsForApi.set("kind", query.kind);
     if (query.status) paramsForApi.set("status", query.status);
     if (query.cursor) paramsForApi.set("cursor", query.cursor);
     let result;
@@ -67,14 +73,16 @@ export default async function PartiesPage({ params, searchParams }: Props) {
             <div className="mx-auto max-w-6xl p-6 sm:p-8">
                 <h1 className="font-display text-3xl font-semibold">{t("title")}</h1>
                 <p role="alert" className="mt-4">
-                    {t("loadError")}
+                    {error instanceof PartyApiError && error.status === 400
+                        ? t("invalidFilters")
+                        : t("loadError")}
                 </p>
             </div>
         );
     }
     const nextParams = new URLSearchParams(paramsForApi);
     if (result.nextCursor) nextParams.set("cursor", result.nextCursor);
-    const filtered = Boolean(query.name || query.role || query.status);
+    const filtered = Boolean(query.name || query.q || query.role || query.kind || query.status);
 
     return (
         <div className="mx-auto max-w-6xl space-y-8 p-6 sm:p-8">
@@ -95,7 +103,13 @@ export default async function PartiesPage({ params, searchParams }: Props) {
             >
                 <div className="sm:col-span-2">
                     <Label htmlFor="party-search">{t("search")}</Label>
-                    <Input id="party-search" name="name" defaultValue={query.name ?? ""} />
+                    <Input
+                        id="party-search"
+                        name="q"
+                        defaultValue={query.q ?? query.name ?? ""}
+                        minLength={2}
+                        maxLength={100}
+                    />
                 </div>
                 <div>
                     <Label htmlFor="party-role-filter">{t("role")}</Label>
@@ -111,6 +125,19 @@ export default async function PartiesPage({ params, searchParams }: Props) {
                     </select>
                 </div>
                 <div>
+                    <Label htmlFor="party-kind-filter">{t("kind")}</Label>
+                    <select
+                        id="party-kind-filter"
+                        name="kind"
+                        defaultValue={query.kind ?? ""}
+                        className="mt-2 h-10 w-full rounded-control border border-border bg-surface px-3"
+                    >
+                        <option value="">{t("allKinds")}</option>
+                        <option value="organization">{t("kinds.organization")}</option>
+                        <option value="individual">{t("kinds.individual")}</option>
+                    </select>
+                </div>
+                <div>
                     <Label htmlFor="party-status-filter">{t("status")}</Label>
                     <select
                         id="party-status-filter"
@@ -121,6 +148,19 @@ export default async function PartiesPage({ params, searchParams }: Props) {
                         <option value="">{t("allStatuses")}</option>
                         <option value="active">{t("statuses.active")}</option>
                         <option value="archived">{t("statuses.archived")}</option>
+                    </select>
+                </div>
+                <div>
+                    <Label htmlFor="party-sort">{t("sort")}</Label>
+                    <select
+                        id="party-sort"
+                        name="sort"
+                        defaultValue={query.sort ?? "name_asc"}
+                        className="mt-2 h-10 w-full rounded-control border border-border bg-surface px-3"
+                    >
+                        <option value="name_asc">{t("sorts.name_asc")}</option>
+                        <option value="name_desc">{t("sorts.name_desc")}</option>
+                        <option value="updated_desc">{t("sorts.updated_desc")}</option>
                     </select>
                 </div>
                 <div className="flex gap-3 sm:col-span-4">

@@ -76,6 +76,11 @@ export class AssetsController {
     @ApiQuery({ name: "limit", required: false, type: Number })
     @ApiQuery({ name: "cursor", required: false, type: String })
     @ApiQuery({ name: "name", required: false, type: String })
+    @ApiQuery({ name: "manufacturer", required: false, type: String })
+    @ApiQuery({ name: "model", required: false, type: String })
+    @ApiQuery({ name: "classification", required: false, type: String })
+    @ApiQuery({ name: "q", required: false, type: String })
+    @ApiQuery({ name: "sort", required: false, enum: ["name_asc", "name_desc", "updated_desc"] })
     @ApiQuery({ name: "status", required: false, enum: ["active", "archived"] })
     @ApiQuery({
         name: "lifecycle",

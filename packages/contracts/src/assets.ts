@@ -61,6 +61,11 @@ export const assetListQuerySchema = z.strictObject({
     status: assetStatusSchema.optional(),
     lifecycle: assetLifecycleSchema.optional(),
     name: z.string().trim().min(1).max(100).optional(),
+    manufacturer: z.string().trim().min(1).max(100).optional(),
+    model: z.string().trim().min(1).max(100).optional(),
+    classification: z.string().trim().min(1).max(100).optional(),
+    q: z.string().trim().min(2).max(100).optional(),
+    sort: z.enum(["name_asc", "name_desc", "updated_desc"]).default("name_asc"),
 });
 
 export const newAssetIdentifierSchema = z.strictObject({

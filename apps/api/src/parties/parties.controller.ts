@@ -79,7 +79,10 @@ export class PartiesController {
     @ApiQuery({ name: "cursor", required: false, type: String })
     @ApiQuery({ name: "status", required: false, enum: ["active", "archived"] })
     @ApiQuery({ name: "role", required: false, enum: ["customer", "provider"] })
+    @ApiQuery({ name: "kind", required: false, enum: ["organization", "individual"] })
     @ApiQuery({ name: "name", required: false, type: String })
+    @ApiQuery({ name: "q", required: false, type: String })
+    @ApiQuery({ name: "sort", required: false, enum: ["name_asc", "name_desc", "updated_desc"] })
     @ApiOkResponse({ schema: { $ref: "#/components/schemas/PartyListResponse" } })
     list(
         @CurrentPrincipal() principal: AuthenticatedPrincipal,

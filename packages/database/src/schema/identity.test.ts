@@ -544,6 +544,56 @@ describe("identity, tenancy and row-level security", () => {
         ]);
     });
 
+    it("uses trigram indexes for selective registry searches on representative rows", async () => {
+        const [organization] = await connection.database
+            .insert(organizations)
+            .values(buildOrganization())
+            .returning();
+        await connection.database.execute(sql`
+            INSERT INTO parties (organization_id, kind, display_name)
+            SELECT ${organization!.id}::uuid, 'organization',
+                   CASE WHEN n = 1 THEN 'needle-unique-party' ELSE 'Company ' || n::text END
+            FROM generate_series(1, 5000) AS n
+        `);
+        await connection.database.execute(sql`
+            INSERT INTO assets (organization_id, display_name, manufacturer)
+            SELECT ${organization!.id}::uuid,
+                   CASE WHEN n = 1 THEN 'needle-unique-asset' ELSE 'Meter ' || n::text END,
+                   CASE WHEN n = 1 THEN 'needle-manufacturer' ELSE 'Generic' END
+            FROM generate_series(1, 5000) AS n
+        `);
+        await connection.database.execute(sql`ANALYZE parties`);
+        await connection.database.execute(sql`ANALYZE assets`);
+
+        const partyPlan = await connection.database.execute<{ "QUERY PLAN": string }>(sql`
+            EXPLAIN (COSTS OFF)
+            SELECT id FROM parties
+            WHERE organization_id = ${organization!.id}::uuid
+              AND lower(display_name) LIKE '%needle-unique%'
+        `);
+        const assetPlan = await connection.database.execute<{ "QUERY PLAN": string }>(sql`
+            EXPLAIN (COSTS OFF)
+            SELECT id FROM assets
+            WHERE organization_id = ${organization!.id}::uuid
+              AND lower(display_name) LIKE '%needle-unique%'
+        `);
+        const manufacturerPlan = await connection.database.execute<{ "QUERY PLAN": string }>(sql`
+            EXPLAIN (COSTS OFF)
+            SELECT id FROM assets
+            WHERE organization_id = ${organization!.id}::uuid
+              AND lower(manufacturer) LIKE '%needle-manufacturer%'
+        `);
+        expect(partyPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
+            "parties_name_trgm_idx",
+        );
+        expect(assetPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
+            "assets_name_trgm_idx",
+        );
+        expect(manufacturerPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
+            "assets_manufacturer_trgm_idx",
+        );
+    });
+
     it("keeps the runtime role non-owner and unable to bypass row-level security", async () => {
         const roleResult = await connection.database.execute<{
             rolcreaterole: boolean;
