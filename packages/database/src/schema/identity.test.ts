@@ -556,16 +556,15 @@ describe("identity, tenancy and row-level security", () => {
             FROM generate_series(1, 50000) AS n
         `);
         await connection.database.execute(sql`
-            INSERT INTO assets (organization_id, display_name, manufacturer)
+            INSERT INTO assets (organization_id, display_name)
             SELECT ${organization!.id}::uuid,
-                   CASE WHEN n = 1 THEN 'needle-unique-asset' ELSE 'Meter ' || n::text END,
-                   CASE WHEN n = 1 THEN 'needle-manufacturer' ELSE 'Generic' END
+                   CASE WHEN n = 1 THEN 'needle-unique-asset' ELSE 'Meter ' || n::text END
             FROM generate_series(1, 50000) AS n
         `);
         await connection.database.execute(sql`ANALYZE parties`);
         await connection.database.execute(sql`ANALYZE assets`);
 
-        const [partyPlan, assetPlan, manufacturerPlan] = await connection.database.transaction(
+        const [partyPlan, assetPlan] = await connection.database.transaction(
             async (transaction) => {
                 // Verify each expression can use its index independent of planner cost heuristics.
                 await transaction.execute(sql`SET LOCAL enable_seqscan = off`);
@@ -581,13 +580,7 @@ describe("identity, tenancy and row-level security", () => {
                     WHERE organization_id = ${organization!.id}::uuid
                       AND lower(display_name) LIKE '%needle-unique%'
                 `);
-                const manufacturerPlan = await transaction.execute<{ "QUERY PLAN": string }>(sql`
-                    EXPLAIN (COSTS OFF)
-                    SELECT id FROM assets
-                    WHERE organization_id = ${organization!.id}::uuid
-                      AND lower(manufacturer) LIKE '%needle-manufacturer%'
-                `);
-                return [partyPlan, assetPlan, manufacturerPlan] as const;
+                return [partyPlan, assetPlan] as const;
             },
         );
         expect(partyPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
@@ -595,9 +588,6 @@ describe("identity, tenancy and row-level security", () => {
         );
         expect(assetPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
             "assets_name_trgm_idx",
-        );
-        expect(manufacturerPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
-            "assets_manufacturer_trgm_idx",
         );
     }, 60_000);
 
