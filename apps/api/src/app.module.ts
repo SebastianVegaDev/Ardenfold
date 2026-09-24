@@ -9,6 +9,7 @@ import { validateEnvironment } from "./config/environment";
 import { DatabaseModule } from "./infrastructure/database/database.module";
 import { ObservabilityModule } from "./observability/observability.module";
 import { PartiesModule } from "./parties/parties.module";
+import { RegistryImportsModule } from "./registry/registry-imports.module";
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { PartiesModule } from "./parties/parties.module";
         AuditModule,
         PartiesModule,
         AssetsModule,
+        RegistryImportsModule,
     ],
     controllers: [AppController],
 })

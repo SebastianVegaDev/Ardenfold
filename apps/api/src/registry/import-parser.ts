@@ -8,6 +8,7 @@ import {
 } from "@ardenfold/contracts";
 
 import { ContractException } from "../http/contracts";
+import { normalizeRegistryIdentifier } from "./identifier-normalization";
 
 export const importHeaders = {
     party: [
@@ -105,6 +106,13 @@ function parseRow(kind: "party" | "asset", values: string[], rowNumber: number):
         : null;
     if (parsedIdentifier && !parsedIdentifier.success) errors.push(issue("INVALID_IDENTIFIER", "identifier_value"));
     const identifier = parsedIdentifier?.success ? parsedIdentifier.data : null;
+    if (identifier) {
+        try {
+            normalizeRegistryIdentifier(identifier.originalValue);
+        } catch {
+            errors.push(issue("INVALID_IDENTIFIER", "identifier_value"));
+        }
+    }
     if (kind === "party") {
         const roles = (record.roles ?? "").split("|").map((role) => role.trim()).filter(Boolean);
         const parsed = createPartyRequestSchema.safeParse({
