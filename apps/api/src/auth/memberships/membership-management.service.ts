@@ -15,8 +15,8 @@ import { and, count, eq, ne, sql } from "drizzle-orm";
 
 import { recordAuditEvent } from "../../audit/audit.service";
 import { ContractException } from "../../http/contracts";
-import type { AuthenticatedPrincipal } from "../auth.types";
-import { OrganizationAuthorizationService } from "../organization-authorization.service";
+import type { AuthenticatedPrincipal } from "../authentication/types";
+import { OrganizationAuthorizationService } from "../authorization/organization-authorization.service";
 
 @Injectable()
 export class MembershipManagementService {

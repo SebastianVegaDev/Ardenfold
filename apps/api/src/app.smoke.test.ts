@@ -17,7 +17,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { z } from "zod";
 
 import { AppModule } from "./app.module";
-import { Public } from "./auth/public.decorator";
+import { Public } from "./auth/authorization/public.decorator";
 import { DatabaseService } from "./infrastructure/database/database.service";
 
 import { configureHttp, createHttpAdapter, ContractValidationPipe } from "./http/contracts";

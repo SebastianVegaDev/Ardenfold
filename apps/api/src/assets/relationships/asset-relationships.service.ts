@@ -26,8 +26,8 @@ import { and, desc, eq, isNull, lt, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { recordAuditEvent } from "../../audit/audit.service";
-import type { AuthenticatedPrincipal } from "../../auth/auth.types";
-import { OrganizationAuthorizationService } from "../../auth/organization-authorization.service";
+import type { AuthenticatedPrincipal } from "../../auth/authentication/types";
+import { OrganizationAuthorizationService } from "../../auth/authorization/organization-authorization.service";
 import { ContractException } from "../../http/contracts";
 import { recordAssetHistory } from "../history/asset-history.writer";
 import { advanceAssetVersion, getAsset } from "../shared/asset-transaction";

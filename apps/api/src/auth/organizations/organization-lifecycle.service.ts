@@ -17,8 +17,8 @@ import { eq } from "drizzle-orm";
 import { recordAuditEvent } from "../../audit/audit.service";
 import { ContractException } from "../../http/contracts";
 import { DatabaseService } from "../../infrastructure/database/database.service";
-import type { AuthenticatedPrincipal } from "../auth.types";
-import { OrganizationAuthorizationService } from "../organization-authorization.service";
+import type { AuthenticatedPrincipal } from "../authentication/types";
+import { OrganizationAuthorizationService } from "../authorization/organization-authorization.service";
 
 function ensureTimeZone(timeZone: string): void {
     try {

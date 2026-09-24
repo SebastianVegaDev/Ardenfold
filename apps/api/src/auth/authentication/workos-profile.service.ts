@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { WorkOS } from "@workos-inc/node";
 
-import type { EnvironmentVariables } from "../config/environment";
+import type { EnvironmentVariables } from "../../config/environment";
 
 export type ExternalUserProfile = Readonly<{
     email: string;

@@ -5,8 +5,8 @@ import {
 import { Controller, Get } from "@nestjs/common";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
-import { CurrentPrincipal } from "./current-principal.decorator";
-import type { AuthenticatedPrincipal } from "./auth.types";
+import { CurrentPrincipal } from "../current-principal.decorator";
+import type { AuthenticatedPrincipal } from "../types";
 
 @ApiTags("authentication")
 @ApiBearerAuth()

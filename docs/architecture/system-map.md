@@ -93,13 +93,13 @@ authorization, audit, concurrency, and RLS guarantees.
 
 | Domain | Owner and entry points | Authoritative data and public surface | Read next |
 | --- | --- | --- | --- |
-| Identity & Access | `apps/api/src/auth`; `AuthController`, `OrganizationsController`, organization-management services | organizations, sites, memberships, invitations, local roles and permissions; auth/organization contracts | [boundaries](../domain/boundaries.md), [tenant isolation](../development/tenant-isolation.md) |
+| Identity & Access | `apps/api/src/auth`; authentication, authorization, organization-context and resource HTTP controllers | organizations, sites, memberships, invitations, local roles and permissions; auth/organization contracts | [boundaries](../domain/boundaries.md), [tenant isolation](../development/tenant-isolation.md) |
 | Parties | `apps/api/src/parties`; `PartiesController`, management and details services | tenant-scoped parties, roles, identifiers, contacts, channels and addresses; party contracts | [registry model](../domain/parties-and-asset-registry.md) |
 | Asset Registry | `apps/api/src/assets`; `AssetsController`, asset management and relationships services | tenant-scoped assets, typed identifiers, lifecycle, archival state, temporal relationships and business history; asset contracts | [registry model](../domain/parties-and-asset-registry.md) |
-| Registry Import | `apps/api/src/registry`; `RegistryImportsController`, `RegistryImportService` | tenant-scoped import sessions, parsed rows, validation, progress and error output; registry-import contracts | [import testing](../testing/registry-imports.md) |
+| Registry Import | `apps/api/src/registry-imports`; `RegistryImportsController`, `RegistryImportService` | tenant-scoped import sessions, parsed rows, validation, progress and error output; registry-import contracts | [import testing](../testing/registry-imports.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
-domain folders `apps/web/src/assets`, `parties`, and `imports`. They consume
+feature folders `apps/web/src/features/assets`, `parties`, and `registry-imports`. They consume
 the public contracts; they do not own domain rules.
 
 ## Platform and shared foundations
@@ -123,16 +123,16 @@ tables directly when an authoritative service owns that workflow.
 
 | Change | Start here |
 | --- | --- |
-| Asset identifiers, profile, lifecycle, archive | `apps/api/src/assets/asset-management.service.ts`, `packages/contracts/src/assets.ts`, `packages/database/src/schema/assets.ts` |
-| Asset ownership, custody, or location | `apps/api/src/assets/asset-relationships.service.ts`, `asset-history.writer.ts`, `packages/database/src/schema/asset-history.ts` |
-| Asset business history | `apps/api/src/assets/asset-history.writer.ts`; do not use the audit module for domain-history changes |
-| Party contacts or addresses | `apps/api/src/parties/party-management.service.ts`, `packages/contracts/src/parties.ts`, `packages/database/src/schema/parties.ts` |
-| Organization membership or invitations | `apps/api/src/auth/organization-management/` and `organizations.controller.ts` |
-| Permission or organization authorization | `apps/api/src/auth/organization-authorization.service.ts`, guards, permission contracts, and database authorization schema |
+| Asset identifiers, profile, lifecycle, archive | `apps/api/src/assets/management/asset-management.service.ts`, `packages/contracts/src/assets.ts`, `packages/database/src/schema/assets.ts` |
+| Asset ownership, custody, or location | `apps/api/src/assets/relationships/asset-relationships.service.ts`, `history/asset-history.writer.ts`, `packages/database/src/schema/asset-history.ts` |
+| Asset business history | `apps/api/src/assets/history/asset-history.writer.ts`; do not use the audit module for domain-history changes |
+| Party contacts or addresses | `apps/api/src/parties/management/party-management.service.ts`, `packages/contracts/src/parties.ts`, `packages/database/src/schema/parties.ts` |
+| Organization membership or invitations | `apps/api/src/auth/memberships`, `apps/api/src/auth/invitations`, and their resource controllers in `auth/http` |
+| Permission or organization authorization | `apps/api/src/auth/authorization`, permission contracts, and database authorization schema |
 | RLS, tenant context, constraints, or migrations | `packages/database/src/schema/`, `packages/database/drizzle/`, and [tenant isolation](../development/tenant-isolation.md) |
 | API schemas and OpenAPI | owning module in `packages/contracts/src`, then `apps/api/src/http/openapi.ts` |
-| Web presentation | route composition in `apps/web/src/app`; feature UI/adapters in `apps/web/src/assets`, `parties`, or `imports` |
-| CSV import parsing, preview, commit, and recovery | `apps/api/src/registry/registry-import.service.ts`, `import-parser.ts`, `apps/web/src/imports`, and `packages/contracts/src/registry-imports.ts` |
+| Web presentation | route composition in `apps/web/src/app`; feature UI/adapters in `apps/web/src/features/assets`, `parties`, or `registry-imports` |
+| CSV import parsing, preview, commit, and recovery | `apps/api/src/registry-imports/workflow/registry-import.service.ts`, `parsing/import-parser.ts`, `apps/web/src/features/registry-imports`, and `packages/contracts/src/registry-imports.ts` |
 
 ## Finding proof
 

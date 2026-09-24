@@ -21,8 +21,8 @@ import { and, eq, sql } from "drizzle-orm";
 import { recordAuditEvent } from "../../audit/audit.service";
 import { ContractException } from "../../http/contracts";
 import { DatabaseService } from "../../infrastructure/database/database.service";
-import type { AuthenticatedPrincipal } from "../auth.types";
-import { OrganizationAuthorizationService } from "../organization-authorization.service";
+import type { AuthenticatedPrincipal } from "../authentication/types";
+import { OrganizationAuthorizationService } from "../authorization/organization-authorization.service";
 
 function hashInvitationToken(token: string): string {
     return createHash("sha256").update(token).digest("hex");

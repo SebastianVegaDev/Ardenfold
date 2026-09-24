@@ -5905,7 +5905,7 @@
     },
     "/api/v1/organizations/current/invitations": {
       "get": {
-        "operationId": "OrganizationsController_listInvitations",
+        "operationId": "listOrganizationInvitations",
         "parameters": [
           {
             "in": "header",
@@ -5961,12 +5961,13 @@
             "bearer": []
           }
         ],
+        "summary": "",
         "tags": [
           "organizations"
         ]
       },
       "post": {
-        "operationId": "OrganizationsController_invite",
+        "operationId": "createOrganizationInvitation",
         "parameters": [
           {
             "in": "header",
@@ -6022,6 +6023,7 @@
             "bearer": []
           }
         ],
+        "summary": "",
         "tags": [
           "organizations"
         ]
@@ -6029,7 +6031,7 @@
     },
     "/api/v1/organizations/current/invitations/{invitationId}": {
       "delete": {
-        "operationId": "OrganizationsController_cancelInvitation",
+        "operationId": "OrganizationInvitationsController_cancel",
         "parameters": [
           {
             "in": "path",
@@ -6157,7 +6159,7 @@
     },
     "/api/v1/organizations/current/members/{membershipId}": {
       "delete": {
-        "operationId": "OrganizationsController_removeMember",
+        "operationId": "OrganizationMembershipsController_remove",
         "parameters": [
           {
             "in": "path",
@@ -6221,7 +6223,7 @@
     },
     "/api/v1/organizations/current/members/{membershipId}/role": {
       "patch": {
-        "operationId": "OrganizationsController_updateMemberRole",
+        "operationId": "OrganizationMembershipsController_updateRole",
         "parameters": [
           {
             "in": "path",
@@ -6285,7 +6287,7 @@
     },
     "/api/v1/organizations/current/members/{membershipId}/suspend": {
       "post": {
-        "operationId": "OrganizationsController_suspendMember",
+        "operationId": "OrganizationMembershipsController_suspend",
         "parameters": [
           {
             "in": "path",

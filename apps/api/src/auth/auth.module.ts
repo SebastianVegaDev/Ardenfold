@@ -2,22 +2,33 @@ import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 
 import { DatabaseModule } from "../infrastructure/database/database.module";
-import { AuthController } from "./auth.controller";
-import { AuthenticationGuard } from "./authentication.guard";
-import { IdentityService } from "./identity.service";
-import { InvitationManagementService } from "./organization-management/invitation-management.service";
-import { MembershipManagementService } from "./organization-management/membership-management.service";
-import { OrganizationLifecycleService } from "./organization-management/organization-lifecycle.service";
-import { SiteManagementService } from "./organization-management/site-management.service";
-import { OrganizationAuthorizationGuard } from "./organization-authorization.guard";
-import { OrganizationAuthorizationService } from "./organization-authorization.service";
-import { InvitationsController, OrganizationsController } from "./organizations.controller";
-import { WorkosProfileService } from "./workos-profile.service";
-import { WorkosTokenVerifier } from "./workos-token-verifier";
+import { AuthenticationGuard } from "./authentication/authentication.guard";
+import { IdentityService } from "./authentication/identity.service";
+import { AuthController } from "./authentication/http/auth.controller";
+import { WorkosProfileService } from "./authentication/workos-profile.service";
+import { WorkosTokenVerifier } from "./authentication/workos-token-verifier";
+import { OrganizationAuthorizationGuard } from "./authorization/organization-authorization.guard";
+import { OrganizationAuthorizationService } from "./authorization/organization-authorization.service";
+import { InvitationAcceptanceController } from "./http/invitation-acceptance.controller";
+import { OrganizationInvitationsController } from "./http/organization-invitations.controller";
+import { OrganizationMembershipsController } from "./http/organization-memberships.controller";
+import { OrganizationSitesController } from "./http/organization-sites.controller";
+import { OrganizationsController } from "./http/organizations.controller";
+import { InvitationManagementService } from "./invitations/invitation-management.service";
+import { MembershipManagementService } from "./memberships/membership-management.service";
+import { OrganizationLifecycleService } from "./organizations/organization-lifecycle.service";
+import { SiteManagementService } from "./organizations/site-management.service";
 
 @Module({
     imports: [DatabaseModule],
-    controllers: [AuthController, OrganizationsController, InvitationsController],
+    controllers: [
+        AuthController,
+        OrganizationsController,
+        OrganizationSitesController,
+        OrganizationMembershipsController,
+        OrganizationInvitationsController,
+        InvitationAcceptanceController,
+    ],
     providers: [
         WorkosTokenVerifier,
         WorkosProfileService,

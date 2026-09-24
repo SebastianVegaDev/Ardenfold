@@ -1,4 +1,4 @@
-import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page, type TestInfo } from "@playwright/test";
 
 const webOrigin = "http://localhost:3000";
 const apiOrigin = "http://127.0.0.1:3001";
@@ -27,7 +27,9 @@ async function createOrganization(page: Page, name: string): Promise<void> {
         page.getByRole("button", { name: "Create organization" }).click(),
     ]);
     await expect(page).toHaveURL(/\/en\/app\?status=created$/u);
-    await expect(page.getByLabel("Organization selector").locator("option", { hasText: name })).toHaveCount(1);
+    await expect(
+        page.getByLabel("Organization selector").locator("option", { hasText: name }),
+    ).toHaveCount(1);
 }
 
 async function selectOrganization(page: Page, organizationId: string): Promise<void> {
@@ -91,6 +93,13 @@ async function accessToken(identity: "user_e2e_member"): Promise<string> {
     return body.access_token;
 }
 
+function scenarioOrganizationName(testInfo: TestInfo, label: string): string {
+    const attempt = `${testInfo.testId}-${testInfo.retry}`
+        .replaceAll(/[^a-zA-Z0-9]/gu, "")
+        .slice(-12);
+    return `${label} ${attempt}`;
+}
+
 test.describe.serial("M1 platform security", () => {
     test("protects anonymous routes and completes real authentication", async ({ page }) => {
         await page.goto("/en/app");
@@ -104,7 +113,9 @@ test.describe.serial("M1 platform security", () => {
 
     test("enforces organizations, roles, tenant isolation and membership lifecycle", async ({
         browser,
-    }) => {
+    }, testInfo) => {
+        const northOrganizationName = scenarioOrganizationName(testInfo, "North Archive");
+        const southOrganizationName = scenarioOrganizationName(testInfo, "South Archive");
         const ownerContext = await browser.newContext({ baseURL: webOrigin });
         const memberContext = await browser.newContext({ baseURL: webOrigin });
         const owner = await ownerContext.newPage();
@@ -113,8 +124,8 @@ test.describe.serial("M1 platform security", () => {
         try {
             await owner.goto("/en/sign-in");
             await signIn(owner, "user_e2e_owner");
-            await createOrganization(owner, "North Archive");
-            await createOrganization(owner, "South Archive");
+            await createOrganization(owner, northOrganizationName);
+            await createOrganization(owner, southOrganizationName);
 
             const selector = owner.getByLabel("Organization selector");
             const organizations = await selector.locator("option").evaluateAll((options) =>
@@ -124,10 +135,10 @@ test.describe.serial("M1 platform security", () => {
                 })),
             );
             const north = organizations.find(
-                (organization) => organization.name === "North Archive",
+                (organization) => organization.name === northOrganizationName,
             );
             const south = organizations.find(
-                (organization) => organization.name === "South Archive",
+                (organization) => organization.name === southOrganizationName,
             );
             expect(north).toBeDefined();
             expect(south).toBeDefined();
@@ -223,11 +234,17 @@ test.describe.serial("M1 platform security", () => {
                 localized.getByRole("navigation", { name: "Primary navigation" }),
             ).toBeVisible();
 
-            const logout = await postFormOutsideTrace(localizedContext, "/auth/sign-out?locale=en", {});
+            const logout = await postFormOutsideTrace(
+                localizedContext,
+                "/auth/sign-out?locale=en",
+                {},
+            );
             expect([302, 303, 307, 308]).toContain(logout.status);
             const logoutLocation = logout.headers.get("location");
             if (!logoutLocation?.startsWith(`${identityOrigin}/user_management/sessions/logout`)) {
-                throw new Error("Logout did not delegate session revocation to the identity provider.");
+                throw new Error(
+                    "Logout did not delegate session revocation to the identity provider.",
+                );
             }
             await localized.goto(logoutLocation);
             await expect(localized).toHaveURL(/\/en$/u);

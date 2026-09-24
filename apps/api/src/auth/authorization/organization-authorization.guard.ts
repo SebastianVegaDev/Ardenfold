@@ -3,9 +3,9 @@ import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import type { FastifyRequest } from "fastify";
 
-import { ContractException } from "../http/contracts";
+import { ContractException } from "../../http/contracts";
 import { OrganizationAuthorizationService } from "./organization-authorization.service";
-import { organizationHeader } from "./organization-context.types";
+import { organizationHeader } from "../organization-context/organization-context.types";
 import { REQUIRED_PERMISSIONS } from "./require-permissions.decorator";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;

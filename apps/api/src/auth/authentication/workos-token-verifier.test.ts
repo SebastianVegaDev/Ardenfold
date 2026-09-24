@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { exportJWK, generateKeyPair, SignJWT, type CryptoKey, type JWK } from "jose";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import type { EnvironmentVariables } from "../config/environment";
+import type { EnvironmentVariables } from "../../config/environment";
 import { WorkosTokenVerifier } from "./workos-token-verifier";
 
 describe("WorkosTokenVerifier", () => {
