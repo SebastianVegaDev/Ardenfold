@@ -1,0 +1,9 @@
+# Registry CSV imports
+
+Party and asset files use separate version 1 templates downloadable from the import page. The first header row must match the selected template exactly. Files must be UTF-8 (an optional UTF-8 BOM is accepted), at most 512 KiB and at most 500 data rows. Quoted commas, quotes and newlines follow CSV rules. One row represents one new party or asset; identifiers are optional but require both type and value. Party roles use `customer|provider` when both apply.
+
+Preview validates every row and stores only the parsed staging payload, row issues and organization-local duplicate candidates. It does not create authoritative parties or assets. A caller must select valid rows and confirm explicitly. Unselected valid rows become `skipped`; rejected rows remain rejected. Duplicate signals are advisory and never merge records. The source CSV is never stored in audit metadata.
+
+Confirmation uses one database transaction per approved row. It invokes the same creation operations as the normal API, including identifier normalization, RLS, audit and asset business history. The created record and row checkpoint commit atomically, so a retry cannot duplicate a completed row. Failed rows roll back individually and receive stable error codes. A completed session is immutable: the same confirmation returns the same results; a different selection is rejected. A process interrupted during confirmation can resume after its 60-second lease. Downloadable error CSV escapes spreadsheet formulas.
+
+The synchronous path is bounded to 500 rows and 512 KiB. Introduce an asynchronous worker only after measurements show that representative 500-row imports exceed the request time budget or sustained imports affect interactive latency; retain the same session and per-row idempotency contract when doing so.

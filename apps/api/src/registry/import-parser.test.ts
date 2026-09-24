@@ -21,14 +21,23 @@ describe("registry CSV imports", () => {
             "template_version,display_name,description,manufacturer,model,classification,lifecycle,identifier_type,identifier_value\n2,Unnamed,,,,,invalid,serial,!!!\n",
         );
         expect(rows[0]?.errors.map((error) => error.code)).toEqual([
-            "INVALID_TEMPLATE_VERSION", "INVALID_IDENTIFIER", "INVALID_LIFECYCLE",
+            "INVALID_TEMPLATE_VERSION",
+            "INVALID_IDENTIFIER",
+            "INVALID_LIFECYCLE",
         ]);
     });
 
     it("rejects malformed, oversized and incorrectly encoded files before staging", () => {
-        expect(() => parseImportCsv("party", 'template_version,display_name\n1,"unclosed')).toThrow();
+        expect(() =>
+            parseImportCsv("party", 'template_version,display_name\n1,"unclosed'),
+        ).toThrow();
         expect(() => parseImportCsv("party", `${csvTemplate("party")}\uFFFD`)).toThrow();
         expect(() => parseImportCsv("party", "x".repeat(524_289))).toThrow();
-        expect(() => parseImportCsv("party", csvTemplate("party") + "1,x,organization,customer,,,\n".repeat(500))).toThrow();
+        expect(() =>
+            parseImportCsv(
+                "party",
+                csvTemplate("party") + "1,x,organization,customer,,,\n".repeat(500),
+            ),
+        ).toThrow();
     });
 });

@@ -17,7 +17,10 @@ export const previewRegistryImportRequestSchema = z.strictObject({
 });
 
 export const commitRegistryImportRequestSchema = z.strictObject({
-    approvedRows: z.array(z.number().int().min(2).max(501)).max(500).refine((rows) => new Set(rows).size === rows.length),
+    approvedRows: z
+        .array(z.number().int().min(2).max(501))
+        .max(500)
+        .refine((rows) => new Set(rows).size === rows.length),
 });
 
 export const registryImportIssueSchema = z.strictObject({

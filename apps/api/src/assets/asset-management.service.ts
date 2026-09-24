@@ -68,7 +68,8 @@ export class AssetManagementService {
             principal.user.id,
             organizationId,
             ["assets.write"],
-            (transaction) => this.createInTransaction(transaction, principal, organizationId, input),
+            (transaction) =>
+                this.createInTransaction(transaction, principal, organizationId, input),
         );
     }
 

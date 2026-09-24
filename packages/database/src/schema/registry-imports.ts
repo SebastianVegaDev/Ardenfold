@@ -40,18 +40,21 @@ export const registryImportSessions = pgTable(
         completedAt: timestamp("completed_at", { withTimezone: true }),
     },
     (table) => [
-        primaryKey({ name: "registry_import_sessions_pk", columns: [table.organizationId, table.id] }),
-        index("registry_import_sessions_org_created_idx").on(
-            table.organizationId,
-            table.createdAt,
-        ),
+        primaryKey({
+            name: "registry_import_sessions_pk",
+            columns: [table.organizationId, table.id],
+        }),
+        index("registry_import_sessions_org_created_idx").on(table.organizationId, table.createdAt),
         check("registry_import_sessions_kind_check", sql`${table.kind} IN ('party', 'asset')`),
         check("registry_import_sessions_template_version_check", sql`${table.templateVersion} = 1`),
         check(
             "registry_import_sessions_status_check",
             sql`${table.status} IN ('previewed', 'committing', 'completed')`,
         ),
-        check("registry_import_sessions_total_rows_check", sql`${table.totalRows} BETWEEN 0 AND 500`),
+        check(
+            "registry_import_sessions_total_rows_check",
+            sql`${table.totalRows} BETWEEN 0 AND 500`,
+        ),
     ],
 );
 
@@ -66,9 +69,7 @@ export const registryImportRows = pgTable(
         payload: jsonb("payload").$type<Record<string, unknown> | null>(),
         errors: jsonb("errors").$type<ImportIssue[]>().notNull(),
         warnings: jsonb("warnings").$type<ImportIssue[]>().notNull(),
-        duplicateCandidates: jsonb("duplicate_candidates")
-            .$type<ImportCandidate[]>()
-            .notNull(),
+        duplicateCandidates: jsonb("duplicate_candidates").$type<ImportCandidate[]>().notNull(),
         resourceId: uuid("resource_id"),
         updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     },

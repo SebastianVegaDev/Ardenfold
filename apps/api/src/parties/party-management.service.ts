@@ -64,7 +64,8 @@ export class PartyManagementService {
             principal.user.id,
             organizationId,
             ["parties.write"],
-            (transaction) => this.createInTransaction(transaction, principal, organizationId, input),
+            (transaction) =>
+                this.createInTransaction(transaction, principal, organizationId, input),
         );
     }
 

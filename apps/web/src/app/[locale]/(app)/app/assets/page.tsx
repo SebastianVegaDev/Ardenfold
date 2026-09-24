@@ -93,7 +93,14 @@ export default async function AssetsPage({ params, searchParams }: Props) {
             <header>
                 <h1 className="font-display text-3xl font-semibold">{t("title")}</h1>
                 <p className="mt-2 text-muted-foreground">{t("description")}</p>
-                {canWrite ? <Link className="mt-3 inline-flex text-sm text-primary underline focus-visible:outline-2 focus-visible:outline-ring" href={`/${locale}/app/imports`}>{t("importCsv")}</Link> : null}
+                {canWrite ? (
+                    <Link
+                        className="mt-3 inline-flex text-sm text-primary underline focus-visible:outline-2 focus-visible:outline-ring"
+                        href={`/${locale}/app/imports`}
+                    >
+                        {t("importCsv")}
+                    </Link>
+                ) : null}
                 {query.notice ? (
                     <p
                         role={query.notice === "success" ? "status" : "alert"}

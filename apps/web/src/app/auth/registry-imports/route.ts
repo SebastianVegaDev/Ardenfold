@@ -2,7 +2,12 @@ import { identifierSchema, registryImportKindSchema } from "@ardenfold/contracts
 import { type NextRequest, NextResponse } from "next/server";
 
 import { getActiveOrganizationSession } from "@/auth/server-organization";
-import { ImportApiError, commitImport, downloadImportCsv, previewImport } from "@/imports/api-client";
+import {
+    ImportApiError,
+    commitImport,
+    downloadImportCsv,
+    previewImport,
+} from "@/imports/api-client";
 import { getTechnicalFallbackLocale, isLocale } from "@/i18n/locales";
 
 function value(form: FormData, name: string): string {
@@ -41,11 +46,21 @@ export async function POST(request: NextRequest) {
         } else {
             throw new Error("Unknown import action.");
         }
-        return NextResponse.redirect(new URL(`${target}${target.includes("?") ? "&" : "?"}notice=success`, request.url), 303);
+        return NextResponse.redirect(
+            new URL(`${target}${target.includes("?") ? "&" : "?"}notice=success`, request.url),
+            303,
+        );
     } catch (error) {
-        const notice = error instanceof ImportApiError && error.status === 409 ? "conflict"
-            : error instanceof ImportApiError && error.status === 403 ? "forbidden" : "error";
-        return NextResponse.redirect(new URL(`${target}${target.includes("?") ? "&" : "?"}notice=${notice}`, request.url), 303);
+        const notice =
+            error instanceof ImportApiError && error.status === 409
+                ? "conflict"
+                : error instanceof ImportApiError && error.status === 403
+                  ? "forbidden"
+                  : "error";
+        return NextResponse.redirect(
+            new URL(`${target}${target.includes("?") ? "&" : "?"}notice=${notice}`, request.url),
+            303,
+        );
     }
 }
 
@@ -53,11 +68,17 @@ export async function GET(request: NextRequest) {
     const { session, organization } = await getActiveOrganizationSession();
     const kind = registryImportKindSchema.safeParse(request.nextUrl.searchParams.get("kind"));
     const sessionId = identifierSchema.safeParse(request.nextUrl.searchParams.get("sessionId"));
-    const path = kind.success ? `/templates/${kind.data}` : sessionId.success ? `/${sessionId.data}/errors.csv` : null;
+    const path = kind.success
+        ? `/templates/${kind.data}`
+        : sessionId.success
+          ? `/${sessionId.data}/errors.csv`
+          : null;
     if (!path) return new Response(null, { status: 400 });
     try {
         const csv = await downloadImportCsv(session.accessToken, organization.id, path);
-        const name = kind.success ? `ardenfold-${kind.data}-v1.csv` : `ardenfold-import-${sessionId.data}-errors.csv`;
+        const name = kind.success
+            ? `ardenfold-${kind.data}-v1.csv`
+            : `ardenfold-import-${sessionId.data}-errors.csv`;
         return new Response(csv, {
             headers: {
                 "content-type": "text/csv; charset=utf-8",

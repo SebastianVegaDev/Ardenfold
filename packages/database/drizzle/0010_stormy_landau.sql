@@ -100,3 +100,25 @@ $$;
 CREATE TRIGGER registry_import_row_kind_guard
 BEFORE INSERT OR UPDATE ON registry_import_rows
 FOR EACH ROW EXECUTE FUNCTION ardenfold_registry_import_row_kind_guard();
+--> statement-breakpoint
+CREATE FUNCTION ardenfold_registry_import_session_identity_guard()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.organization_id IS DISTINCT FROM OLD.organization_id
+       OR NEW.id IS DISTINCT FROM OLD.id
+       OR NEW.kind IS DISTINCT FROM OLD.kind
+       OR NEW.template_version IS DISTINCT FROM OLD.template_version
+       OR NEW.content_hash IS DISTINCT FROM OLD.content_hash
+       OR NEW.created_by_user_id IS DISTINCT FROM OLD.created_by_user_id
+       OR NEW.total_rows IS DISTINCT FROM OLD.total_rows THEN
+        RAISE EXCEPTION 'Import session identity is immutable' USING ERRCODE = '23514';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+--> statement-breakpoint
+CREATE TRIGGER registry_import_session_identity_guard
+BEFORE UPDATE ON registry_import_sessions
+FOR EACH ROW EXECUTE FUNCTION ardenfold_registry_import_session_identity_guard();

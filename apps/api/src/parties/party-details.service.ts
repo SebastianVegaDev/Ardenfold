@@ -72,7 +72,14 @@ export class PartyDetailsService {
             principal.user.id,
             organizationId,
             ["parties.write"],
-            (transaction) => this.addIdentifierInTransaction(transaction, principal, organizationId, partyId, input),
+            (transaction) =>
+                this.addIdentifierInTransaction(
+                    transaction,
+                    principal,
+                    organizationId,
+                    partyId,
+                    input,
+                ),
         );
     }
 

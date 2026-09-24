@@ -20,17 +20,20 @@ async function request(
     method: "GET" | "POST" = "GET",
     body?: unknown,
 ): Promise<Response> {
-    const response = await fetch(new URL(`/api/v1/registry/imports${path}`, getServerEnvironment().ARDENFOLD_API_URL), {
-        method,
-        headers: {
-            authorization: `Bearer ${token}`,
-            "x-ardenfold-organization-id": organizationId,
-            accept: method === "GET" ? "text/csv, application/json" : "application/json",
-            ...(body === undefined ? {} : { "content-type": "application/json" }),
+    const response = await fetch(
+        new URL(`/api/v1/registry/imports${path}`, getServerEnvironment().ARDENFOLD_API_URL),
+        {
+            method,
+            headers: {
+                authorization: `Bearer ${token}`,
+                "x-ardenfold-organization-id": organizationId,
+                accept: method === "GET" ? "text/csv, application/json" : "application/json",
+                ...(body === undefined ? {} : { "content-type": "application/json" }),
+            },
+            ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+            cache: "no-store",
         },
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-        cache: "no-store",
-    });
+    );
     if (!response.ok) throw new ImportApiError(response.status);
     return response;
 }
@@ -59,7 +62,9 @@ export async function commitImport(
     sessionId: string,
     approvedRows: number[],
 ): Promise<RegistryImportSessionResponse> {
-    const response = await request(token, organizationId, `/${sessionId}/commit`, "POST", { approvedRows });
+    const response = await request(token, organizationId, `/${sessionId}/commit`, "POST", {
+        approvedRows,
+    });
     return registryImportSessionResponseSchema.parse(await response.json());
 }
 

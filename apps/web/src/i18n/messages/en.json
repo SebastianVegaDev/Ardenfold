@@ -372,8 +372,18 @@
         "error": "The import request failed. Check the file or try again.",
         "conflict": "This import session changed or is already being processed. Reload before trying again.",
         "kinds": { "party": "Parties", "asset": "Assets" },
-        "statuses": { "previewed": "Ready for review", "committing": "Processing", "completed": "Completed" },
-        "rowStatuses": { "valid": "Valid", "rejected": "Rejected", "committed": "Imported", "failed": "Failed", "skipped": "Not selected" },
+        "statuses": {
+            "previewed": "Ready for review",
+            "committing": "Processing",
+            "completed": "Completed"
+        },
+        "rowStatuses": {
+            "valid": "Valid",
+            "rejected": "Rejected",
+            "committed": "Imported",
+            "failed": "Failed",
+            "skipped": "Not selected"
+        },
         "upload": {
             "title": "Upload and preview",
             "hint": "Use a version 1 template. UTF-8 CSV only; maximum 512 KiB and 500 data rows. Preview does not create business records.",
@@ -416,7 +426,18 @@
             "IMPORT_ROW_FAILED": "The row could not be imported; download errors for details."
         },
         "fields": {
-            "template_version": "Template version", "display_name": "Display name", "kind": "Party type", "roles": "Roles", "legal_name": "Legal name", "identifier_type": "Identifier type", "identifier_value": "Identifier value", "lifecycle": "Lifecycle", "description": "Description", "manufacturer": "Manufacturer", "model": "Model", "classification": "Classification"
+            "template_version": "Template version",
+            "display_name": "Display name",
+            "kind": "Party type",
+            "roles": "Roles",
+            "legal_name": "Legal name",
+            "identifier_type": "Identifier type",
+            "identifier_value": "Identifier value",
+            "lifecycle": "Lifecycle",
+            "description": "Description",
+            "manufacturer": "Manufacturer",
+            "model": "Model",
+            "classification": "Classification"
         }
     },
     "audit": {
@@ -446,8 +467,8 @@
             "assetRestored": "Asset restored",
             "assetRelationshipStarted": "Asset relationship started",
             "assetRelationshipEnded": "Asset relationship ended",
-            "assetRelationshipCorrected": "Asset relationship corrected"
-            ,"registryImportCompleted": "Registry import completed"
+            "assetRelationshipCorrected": "Asset relationship corrected",
+            "registryImportCompleted": "Registry import completed"
         }
     },
     "states": {

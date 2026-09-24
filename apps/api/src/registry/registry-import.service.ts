@@ -17,7 +17,7 @@ import {
     type RegistryImportRow,
 } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 
 import { recordAuditEvent } from "../audit/audit.service";
 import { AssetManagementService } from "../assets/asset-management.service";
@@ -36,12 +36,19 @@ function permission(kind: Kind): "parties.write" | "assets.write" {
 }
 
 function sameNumbers(first: readonly number[] | null, second: readonly number[]): boolean {
-    return first !== null && first.length === second.length && first.every((value, index) => value === second[index]);
+    return (
+        first !== null &&
+        first.length === second.length &&
+        first.every((value, index) => value === second[index])
+    );
 }
 
 function errorIssue(error: unknown): RegistryImportIssue {
     return {
-        code: error instanceof ContractException && error.getStatus() < 500 ? error.code : "IMPORT_ROW_FAILED",
+        code:
+            error instanceof ContractException && error.getStatus() < 500
+                ? error.code
+                : "IMPORT_ROW_FAILED",
         field: null,
     };
 }
@@ -60,7 +67,11 @@ export class RegistryImportService {
         private readonly assets: AssetManagementService,
     ) {}
 
-    async assertPermission(principal: AuthenticatedPrincipal, organizationId: string, kind: Kind): Promise<void> {
+    async assertPermission(
+        principal: AuthenticatedPrincipal,
+        organizationId: string,
+        kind: Kind,
+    ): Promise<void> {
         await this.authorization.authorize(principal.user.id, organizationId, [permission(kind)]);
     }
 
@@ -70,7 +81,11 @@ export class RegistryImportService {
         input: PreviewRegistryImportRequest,
     ): Promise<RegistryImportSessionResponse> {
         const parsedRows = parseImportCsv(input.kind, input.csv);
-        const hash = createHash("sha256").update(input.kind).update("\0").update(input.csv).digest("hex");
+        const hash = createHash("sha256")
+            .update(input.kind)
+            .update("\0")
+            .update(input.csv)
+            .digest("hex");
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,
@@ -79,7 +94,12 @@ export class RegistryImportService {
                 const existing = await transaction
                     .select()
                     .from(registryImportSessions)
-                    .where(and(eq(registryImportSessions.organizationId, organizationId), eq(registryImportSessions.id, input.sessionId)))
+                    .where(
+                        and(
+                            eq(registryImportSessions.organizationId, organizationId),
+                            eq(registryImportSessions.id, input.sessionId),
+                        ),
+                    )
                     .limit(1);
                 if (existing[0]) {
                     if (existing[0].kind !== input.kind || existing[0].contentHash !== hash)
@@ -89,32 +109,53 @@ export class RegistryImportService {
                 const seen = new Set<string>();
                 const staged: Array<typeof registryImportRows.$inferInsert> = [];
                 for (const row of parsedRows) {
-                    const { warnings, candidates } = await this.warningsForRow(transaction, organizationId, input.kind, row, seen);
+                    const { warnings, candidates } = await this.warningsForRow(
+                        transaction,
+                        organizationId,
+                        input.kind,
+                        row,
+                        seen,
+                    );
                     staged.push({
                         organizationId,
                         sessionId: input.sessionId,
                         rowNumber: row.rowNumber,
                         kind: input.kind,
                         status: row.errors.length ? "rejected" : "valid",
-                        payload: row.payload === null ? { displayName: row.displayName } : input.kind === "party"
-                            ? { party: row.payload, identifier: row.identifier }
-                            : row.payload,
+                        payload:
+                            row.payload === null
+                                ? { displayName: row.displayName }
+                                : input.kind === "party"
+                                  ? { party: row.payload, identifier: row.identifier }
+                                  : row.payload,
                         errors: row.errors,
                         warnings,
                         duplicateCandidates: candidates,
                     });
                 }
-                const inserted = await transaction.insert(registryImportSessions).values({
-                    id: input.sessionId,
-                    organizationId,
-                    kind: input.kind,
-                    templateVersion: 1,
-                    contentHash: hash,
-                    totalRows: parsedRows.length,
-                    createdByUserId: principal.user.id,
-                }).onConflictDoNothing().returning({ id: registryImportSessions.id });
+                const inserted = await transaction
+                    .insert(registryImportSessions)
+                    .values({
+                        id: input.sessionId,
+                        organizationId,
+                        kind: input.kind,
+                        templateVersion: 1,
+                        contentHash: hash,
+                        totalRows: parsedRows.length,
+                        createdByUserId: principal.user.id,
+                    })
+                    .onConflictDoNothing()
+                    .returning({ id: registryImportSessions.id });
                 if (!inserted.length) {
-                    const [other] = await transaction.select().from(registryImportSessions).where(and(eq(registryImportSessions.organizationId, organizationId), eq(registryImportSessions.id, input.sessionId)));
+                    const [other] = await transaction
+                        .select()
+                        .from(registryImportSessions)
+                        .where(
+                            and(
+                                eq(registryImportSessions.organizationId, organizationId),
+                                eq(registryImportSessions.id, input.sessionId),
+                            ),
+                        );
                     if (!other || other.kind !== input.kind || other.contentHash !== hash)
                         throw new ContractException("IMPORT_SESSION_CONFLICT", 409);
                     return this.getInTransaction(transaction, organizationId, input.sessionId);
@@ -152,7 +193,11 @@ export class RegistryImportService {
             organizationId,
             [required],
             async (transaction) => {
-                const locked = await transaction.execute<{ status: string; approvedRows: number[] | null; leaseUntil: Date | null }>(sql`
+                const locked = await transaction.execute<{
+                    status: string;
+                    approvedRows: number[] | null;
+                    leaseUntil: Date | null;
+                }>(sql`
                     SELECT status, approved_rows AS "approvedRows", lease_until AS "leaseUntil"
                     FROM registry_import_sessions
                     WHERE organization_id = ${organizationId}::uuid AND id = ${sessionId}::uuid
@@ -161,30 +206,61 @@ export class RegistryImportService {
                 const session = locked.rows[0];
                 if (!session) throw new ContractException("IMPORT_SESSION_NOT_FOUND", 404);
                 if (session.status === "completed") {
-                    if (!sameNumbers(session.approvedRows, approved)) throw new ContractException("IMPORT_CONFIRMATION_CONFLICT", 409);
+                    if (!sameNumbers(session.approvedRows, approved))
+                        throw new ContractException("IMPORT_CONFIRMATION_CONFLICT", 409);
                     return false;
                 }
                 if (session.status === "committing") {
-                    if (!sameNumbers(session.approvedRows, approved)) throw new ContractException("IMPORT_CONFIRMATION_CONFLICT", 409);
-                    if (session.leaseUntil && session.leaseUntil > new Date()) throw new ContractException("IMPORT_ALREADY_COMMITTING", 409);
+                    if (!sameNumbers(session.approvedRows, approved))
+                        throw new ContractException("IMPORT_CONFIRMATION_CONFLICT", 409);
+                    if (session.leaseUntil && session.leaseUntil > new Date())
+                        throw new ContractException("IMPORT_ALREADY_COMMITTING", 409);
                 } else {
-                    const current = await this.getInTransaction(transaction, organizationId, sessionId);
-                    const valid = new Set(current.rows.filter((row) => row.status === "valid").map((row) => row.rowNumber));
-                    if (approved.some((row) => !valid.has(row))) throw new ContractException("IMPORT_APPROVAL_INVALID", 400);
+                    const current = await this.getInTransaction(
+                        transaction,
+                        organizationId,
+                        sessionId,
+                    );
+                    const valid = new Set(
+                        current.rows
+                            .filter((row) => row.status === "valid")
+                            .map((row) => row.rowNumber),
+                    );
+                    if (approved.some((row) => !valid.has(row)))
+                        throw new ContractException("IMPORT_APPROVAL_INVALID", 400);
                     await transaction
                         .update(registryImportRows)
                         .set({ status: "skipped", updatedAt: new Date() })
-                        .where(and(
-                            eq(registryImportRows.organizationId, organizationId),
-                            eq(registryImportRows.sessionId, sessionId),
-                            eq(registryImportRows.status, "valid"),
-                            ...(approved.length ? [sql`${registryImportRows.rowNumber} NOT IN (${sql.join(approved.map((row) => sql`${row}`), sql`, `)})`] : []),
-                        ));
+                        .where(
+                            and(
+                                eq(registryImportRows.organizationId, organizationId),
+                                eq(registryImportRows.sessionId, sessionId),
+                                eq(registryImportRows.status, "valid"),
+                                ...(approved.length
+                                    ? [
+                                          sql`${registryImportRows.rowNumber} NOT IN (${sql.join(
+                                              approved.map((row) => sql`${row}`),
+                                              sql`, `,
+                                          )})`,
+                                      ]
+                                    : []),
+                            ),
+                        );
                 }
                 await transaction
                     .update(registryImportSessions)
-                    .set({ status: "committing", approvedRows: approved, leaseUntil: new Date(Date.now() + 60_000), updatedAt: new Date() })
-                    .where(and(eq(registryImportSessions.organizationId, organizationId), eq(registryImportSessions.id, sessionId)));
+                    .set({
+                        status: "committing",
+                        approvedRows: approved,
+                        leaseUntil: new Date(Date.now() + 60_000),
+                        updatedAt: new Date(),
+                    })
+                    .where(
+                        and(
+                            eq(registryImportSessions.organizationId, organizationId),
+                            eq(registryImportSessions.id, sessionId),
+                        ),
+                    );
                 return true;
             },
         );
@@ -206,30 +282,61 @@ export class RegistryImportService {
                         `);
                         const row = locked.rows[0];
                         if (!row || row.status === "committed" || row.status === "failed") return;
-                        if (row.status !== "valid" || !row.payload) throw new ContractException("IMPORT_ROW_NOT_VALID", 409);
+                        if (row.status !== "valid" || !row.payload)
+                            throw new ContractException("IMPORT_ROW_NOT_VALID", 409);
                         let resourceId: string;
                         if (preview.kind === "party") {
                             const source = row.payload as { party?: unknown; identifier?: unknown };
                             const party = createPartyRequestSchema.parse(source.party);
-                            const created = await this.parties.createInTransaction(transaction, principal, organizationId, party);
+                            const created = await this.parties.createInTransaction(
+                                transaction,
+                                principal,
+                                organizationId,
+                                party,
+                            );
                             resourceId = created.id;
                             if (source.identifier) {
-                                const identifier = source.identifier as { type: string; originalValue: string };
-                                await this.partyDetails.addIdentifierInTransaction(transaction, principal, organizationId, created.id, {
-                                    expectedVersion: created.version,
-                                    type: identifier.type,
-                                    originalValue: identifier.originalValue,
-                                });
+                                const identifier = source.identifier as {
+                                    type: string;
+                                    originalValue: string;
+                                };
+                                await this.partyDetails.addIdentifierInTransaction(
+                                    transaction,
+                                    principal,
+                                    organizationId,
+                                    created.id,
+                                    {
+                                        expectedVersion: created.version,
+                                        type: identifier.type,
+                                        originalValue: identifier.originalValue,
+                                    },
+                                );
                             }
                         } else {
                             const asset = createAssetRequestSchema.parse(row.payload);
-                            const created = await this.assets.createInTransaction(transaction, principal, organizationId, asset);
+                            const created = await this.assets.createInTransaction(
+                                transaction,
+                                principal,
+                                organizationId,
+                                asset,
+                            );
                             resourceId = created.id;
                         }
                         await transaction
                             .update(registryImportRows)
-                            .set({ status: "committed", resourceId, errors: [], updatedAt: new Date() })
-                            .where(and(eq(registryImportRows.organizationId, organizationId), eq(registryImportRows.sessionId, sessionId), eq(registryImportRows.rowNumber, rowNumber)));
+                            .set({
+                                status: "committed",
+                                resourceId,
+                                errors: [],
+                                updatedAt: new Date(),
+                            })
+                            .where(
+                                and(
+                                    eq(registryImportRows.organizationId, organizationId),
+                                    eq(registryImportRows.sessionId, sessionId),
+                                    eq(registryImportRows.rowNumber, rowNumber),
+                                ),
+                            );
                     },
                 );
             } catch (error) {
@@ -241,8 +348,19 @@ export class RegistryImportService {
                     async (transaction) => {
                         await transaction
                             .update(registryImportRows)
-                            .set({ status: "failed", errors: [errorIssue(error)], updatedAt: new Date() })
-                            .where(and(eq(registryImportRows.organizationId, organizationId), eq(registryImportRows.sessionId, sessionId), eq(registryImportRows.rowNumber, rowNumber), eq(registryImportRows.status, "valid")));
+                            .set({
+                                status: "failed",
+                                errors: [errorIssue(error)],
+                                updatedAt: new Date(),
+                            })
+                            .where(
+                                and(
+                                    eq(registryImportRows.organizationId, organizationId),
+                                    eq(registryImportRows.sessionId, sessionId),
+                                    eq(registryImportRows.rowNumber, rowNumber),
+                                    eq(registryImportRows.status, "valid"),
+                                ),
+                            );
                     },
                 );
             }
@@ -254,19 +372,40 @@ export class RegistryImportService {
             [required],
             async (transaction) => {
                 const result = await this.getInTransaction(transaction, organizationId, sessionId);
+                if (
+                    approved.some((rowNumber) =>
+                        result.rows.some(
+                            (row) => row.rowNumber === rowNumber && row.status === "valid",
+                        ),
+                    )
+                )
+                    throw new ContractException("IMPORT_INCOMPLETE", 409);
                 const [completed] = await transaction
                     .update(registryImportSessions)
-                    .set({ status: "completed", leaseUntil: null, summary: result.summary, completedAt: new Date(), updatedAt: new Date() })
-                    .where(and(eq(registryImportSessions.organizationId, organizationId), eq(registryImportSessions.id, sessionId), eq(registryImportSessions.status, "committing")))
+                    .set({
+                        status: "completed",
+                        leaseUntil: null,
+                        summary: result.summary,
+                        completedAt: new Date(),
+                        updatedAt: new Date(),
+                    })
+                    .where(
+                        and(
+                            eq(registryImportSessions.organizationId, organizationId),
+                            eq(registryImportSessions.id, sessionId),
+                            eq(registryImportSessions.status, "committing"),
+                        ),
+                    )
                     .returning({ id: registryImportSessions.id });
-                if (completed) await recordAuditEvent(transaction, {
-                    organizationId,
-                    actorUserId: principal.user.id,
-                    action: "registry.import_completed",
-                    resourceType: "registry_import_session",
-                    resourceId: sessionId,
-                    metadata: { kind: preview.kind, ...result.summary },
-                });
+                if (completed)
+                    await recordAuditEvent(transaction, {
+                        organizationId,
+                        actorUserId: principal.user.id,
+                        action: "registry.import_completed",
+                        resourceType: "registry_import_session",
+                        resourceId: sessionId,
+                        metadata: { kind: preview.kind, ...result.summary },
+                    });
                 return { ...result, status: "completed" } as RegistryImportSessionResponse;
             },
         );
@@ -281,10 +420,15 @@ export class RegistryImportService {
         const lines = ["row_number,display_name,status,error_code,field"];
         for (const row of session.rows) {
             for (const error of row.errors) {
-                lines.push([
-                    String(row.rowNumber), csvCell(row.displayName ?? ""), row.status,
-                    csvCell(error.code), csvCell(error.field ?? ""),
-                ].join(","));
+                lines.push(
+                    [
+                        String(row.rowNumber),
+                        csvCell(row.displayName ?? ""),
+                        row.status,
+                        csvCell(error.code),
+                        csvCell(error.field ?? ""),
+                    ].join(","),
+                );
             }
         }
         return `${lines.join("\r\n")}\r\n`;
@@ -298,13 +442,23 @@ export class RegistryImportService {
         const [session] = await transaction
             .select()
             .from(registryImportSessions)
-            .where(and(eq(registryImportSessions.organizationId, organizationId), eq(registryImportSessions.id, sessionId)))
+            .where(
+                and(
+                    eq(registryImportSessions.organizationId, organizationId),
+                    eq(registryImportSessions.id, sessionId),
+                ),
+            )
             .limit(1);
         if (!session) throw new ContractException("IMPORT_SESSION_NOT_FOUND", 404);
         const rows = await transaction
             .select()
             .from(registryImportRows)
-            .where(and(eq(registryImportRows.organizationId, organizationId), eq(registryImportRows.sessionId, sessionId)))
+            .where(
+                and(
+                    eq(registryImportRows.organizationId, organizationId),
+                    eq(registryImportRows.sessionId, sessionId),
+                ),
+            )
             .orderBy(asc(registryImportRows.rowNumber));
         const summary = { valid: 0, rejected: 0, committed: 0, failed: 0, skipped: 0 };
         for (const row of rows) summary[row.status as keyof typeof summary] += 1;
@@ -318,9 +472,17 @@ export class RegistryImportService {
             summary,
             rows: rows.map((row) => ({
                 rowNumber: row.rowNumber,
-                displayName: row.kind === "party"
-                    ? (row.payload as { party?: { displayName?: string }; displayName?: string } | null)?.party?.displayName ?? (row.payload as { displayName?: string } | null)?.displayName ?? null
-                    : (row.payload as { displayName?: string } | null)?.displayName ?? null,
+                displayName:
+                    row.kind === "party"
+                        ? ((
+                              row.payload as {
+                                  party?: { displayName?: string };
+                                  displayName?: string;
+                              } | null
+                          )?.party?.displayName ??
+                          (row.payload as { displayName?: string } | null)?.displayName ??
+                          null)
+                        : ((row.payload as { displayName?: string } | null)?.displayName ?? null),
                 status: row.status,
                 errors: row.errors,
                 warnings: row.warnings,
@@ -344,8 +506,9 @@ export class RegistryImportService {
         const key = `${type}:${normalized}`;
         if (seen.has(key)) warnings.push({ code: "DUPLICATE_IN_FILE", field: "identifier_value" });
         seen.add(key);
-        const result = kind === "party"
-            ? await transaction.execute<RegistryImportCandidate>(sql`
+        const result =
+            kind === "party"
+                ? await transaction.execute<RegistryImportCandidate>(sql`
                   SELECT candidate.id, candidate.display_name AS "displayName", identifier.type AS "matchedType"
                   FROM party_identifiers identifier
                   JOIN parties candidate ON candidate.organization_id = identifier.organization_id AND candidate.id = identifier.party_id
@@ -354,7 +517,7 @@ export class RegistryImportService {
                     AND identifier.normalized_value = ${normalized}
                   ORDER BY candidate.display_name, candidate.id LIMIT 10
               `)
-            : await transaction.execute<RegistryImportCandidate>(sql`
+                : await transaction.execute<RegistryImportCandidate>(sql`
                   SELECT candidate.id, candidate.display_name AS "displayName", identifier.type AS "matchedType"
                   FROM asset_identifiers identifier
                   JOIN assets candidate ON candidate.organization_id = identifier.organization_id AND candidate.id = identifier.asset_id
@@ -364,7 +527,8 @@ export class RegistryImportService {
                     AND identifier.normalized_value = ${normalized}
                   ORDER BY candidate.display_name, candidate.id LIMIT 10
               `);
-        if (result.rows.length) warnings.push({ code: "POSSIBLE_DUPLICATE", field: "identifier_value" });
+        if (result.rows.length)
+            warnings.push({ code: "POSSIBLE_DUPLICATE", field: "identifier_value" });
         return { warnings, candidates: result.rows };
     }
 }

@@ -372,8 +372,18 @@
         "error": "No pudimos procesar la importación. Revisa el archivo o inténtalo de nuevo.",
         "conflict": "Esta sesión cambió o ya se está procesando. Recarga la página antes de intentarlo de nuevo.",
         "kinds": { "party": "Contrapartes", "asset": "Activos" },
-        "statuses": { "previewed": "Lista para revisar", "committing": "En proceso", "completed": "Completada" },
-        "rowStatuses": { "valid": "Válida", "rejected": "Rechazada", "committed": "Importada", "failed": "Fallida", "skipped": "No seleccionada" },
+        "statuses": {
+            "previewed": "Lista para revisar",
+            "committing": "En proceso",
+            "completed": "Completada"
+        },
+        "rowStatuses": {
+            "valid": "Válida",
+            "rejected": "Rechazada",
+            "committed": "Importada",
+            "failed": "Fallida",
+            "skipped": "No seleccionada"
+        },
         "upload": {
             "title": "Subir y previsualizar",
             "hint": "Usa una plantilla de versión 1. Solo CSV UTF-8; máximo 512 KiB y 500 filas de datos. La previsualización no crea registros de negocio.",
@@ -416,7 +426,18 @@
             "IMPORT_ROW_FAILED": "No se pudo importar la fila; descarga los errores para conocer el detalle."
         },
         "fields": {
-            "template_version": "Versión de plantilla", "display_name": "Nombre visible", "kind": "Tipo de contraparte", "roles": "Roles", "legal_name": "Razón social", "identifier_type": "Tipo de identificador", "identifier_value": "Valor del identificador", "lifecycle": "Ciclo de vida", "description": "Descripción", "manufacturer": "Fabricante", "model": "Modelo", "classification": "Clasificación"
+            "template_version": "Versión de plantilla",
+            "display_name": "Nombre visible",
+            "kind": "Tipo de contraparte",
+            "roles": "Roles",
+            "legal_name": "Razón social",
+            "identifier_type": "Tipo de identificador",
+            "identifier_value": "Valor del identificador",
+            "lifecycle": "Ciclo de vida",
+            "description": "Descripción",
+            "manufacturer": "Fabricante",
+            "model": "Modelo",
+            "classification": "Clasificación"
         }
     },
     "audit": {
@@ -446,8 +467,8 @@
             "assetRestored": "Activo restaurado",
             "assetRelationshipStarted": "Relación del activo iniciada",
             "assetRelationshipEnded": "Relación del activo terminada",
-            "assetRelationshipCorrected": "Relación del activo corregida"
-            ,"registryImportCompleted": "Importación del registro completada"
+            "assetRelationshipCorrected": "Relación del activo corregida",
+            "registryImportCompleted": "Importación del registro completada"
         }
     },
     "states": {

@@ -21,7 +21,10 @@ import type { FastifyReply } from "fastify";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { CurrentOrganization } from "../auth/current-organization.decorator";
 import { CurrentPrincipal } from "../auth/current-principal.decorator";
-import { organizationHeader, type ActiveOrganizationContext } from "../auth/organization-context.types";
+import {
+    organizationHeader,
+    type ActiveOrganizationContext,
+} from "../auth/organization-context.types";
 import { RequirePermissions } from "../auth/require-permissions.decorator";
 import { ContractValidationPipe } from "../http/contracts";
 import { csvTemplate } from "./import-parser";
@@ -40,7 +43,8 @@ export class RegistryImportsController {
     async template(
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
         @CurrentOrganization() organization: ActiveOrganizationContext,
-        @Param("kind", new ContractValidationPipe(registryImportKindSchema)) kind: "party" | "asset",
+        @Param("kind", new ContractValidationPipe(registryImportKindSchema))
+        kind: "party" | "asset",
         @Res({ passthrough: true }) reply: FastifyReply,
     ) {
         await this.imports.assertPermission(principal, organization.id, kind);
@@ -57,7 +61,8 @@ export class RegistryImportsController {
     preview(
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
         @CurrentOrganization() organization: ActiveOrganizationContext,
-        @Body(new ContractValidationPipe(previewRegistryImportRequestSchema)) input: PreviewRegistryImportRequest,
+        @Body(new ContractValidationPipe(previewRegistryImportRequestSchema))
+        input: PreviewRegistryImportRequest,
     ) {
         return this.imports.preview(principal, organization.id, input);
     }
@@ -72,7 +77,10 @@ export class RegistryImportsController {
     ) {
         const csv = await this.imports.errorsCsv(principal, organization.id, sessionId);
         reply.type("text/csv; charset=utf-8");
-        reply.header("content-disposition", `attachment; filename="ardenfold-import-${sessionId}-errors.csv"`);
+        reply.header(
+            "content-disposition",
+            `attachment; filename="ardenfold-import-${sessionId}-errors.csv"`,
+        );
         reply.header("cache-control", "no-store");
         return csv;
     }
@@ -97,7 +105,8 @@ export class RegistryImportsController {
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
         @CurrentOrganization() organization: ActiveOrganizationContext,
         @Param("sessionId", new ContractValidationPipe(identifierSchema)) sessionId: string,
-        @Body(new ContractValidationPipe(commitRegistryImportRequestSchema)) input: CommitRegistryImportRequest,
+        @Body(new ContractValidationPipe(commitRegistryImportRequestSchema))
+        input: CommitRegistryImportRequest,
     ) {
         return this.imports.commit(principal, organization.id, sessionId, input);
     }
