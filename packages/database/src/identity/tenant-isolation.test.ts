@@ -44,7 +44,7 @@ import {
     registryImportSessions,
     systemOrganizationRoleIds,
     users,
-} from "./index";
+} from "../schema";
 
 describe("identity, tenancy and row-level security", () => {
     let connection: DatabaseConnection;
