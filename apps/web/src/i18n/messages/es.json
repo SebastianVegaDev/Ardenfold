@@ -130,6 +130,7 @@
     },
     "parties": {
         "title": "Contrapartes",
+        "importCsv": "Importar CSV",
         "description": "Administra los clientes y proveedores registrados por esta organización.",
         "forbidden": "Tu rol no permite acceder al registro de contrapartes.",
         "loadError": "No pudimos cargar el registro de contrapartes. Inténtalo de nuevo.",
@@ -234,6 +235,7 @@
     },
     "assets": {
         "title": "Activos",
+        "importCsv": "Importar CSV",
         "description": "Registra activos, sigue sus relaciones y consulta su historial.",
         "forbidden": "Tu rol no puede acceder al registro de activos.",
         "loadError": "No pudimos cargar el registro de activos. Inténtalo de nuevo.",
@@ -361,6 +363,83 @@
             "archivedHint": "Los activos archivados siguen disponibles para consultar su historial."
         }
     },
+    "imports": {
+        "title": "Importar registros",
+        "description": "Previsualiza una plantilla CSV versionada, revisa cada fila y confirma explícitamente los registros válidos que deseas importar.",
+        "forbidden": "Tu rol no puede importar registros de esta organización.",
+        "loadError": "No pudimos cargar esta sesión de importación.",
+        "success": "Se procesó la solicitud de importación.",
+        "error": "No pudimos procesar la importación. Revisa el archivo o inténtalo de nuevo.",
+        "conflict": "Esta sesión cambió o ya se está procesando. Recarga la página antes de intentarlo de nuevo.",
+        "kinds": { "party": "Contrapartes", "asset": "Activos" },
+        "statuses": {
+            "previewed": "Lista para revisar",
+            "committing": "En proceso",
+            "completed": "Completada"
+        },
+        "rowStatuses": {
+            "valid": "Válida",
+            "rejected": "Rechazada",
+            "committed": "Importada",
+            "failed": "Fallida",
+            "skipped": "No seleccionada"
+        },
+        "upload": {
+            "title": "Subir y previsualizar",
+            "hint": "Usa una plantilla de versión 1. Solo CSV UTF-8; máximo 512 KiB y 500 filas de datos. La previsualización no crea registros de negocio.",
+            "partyTemplate": "Descargar plantilla de contrapartes",
+            "assetTemplate": "Descargar plantilla de activos",
+            "kind": "Tipo de importación",
+            "file": "Archivo CSV",
+            "preview": "Previsualizar importación"
+        },
+        "preview": {
+            "title": "Revisar importación",
+            "total": "{count, plural, one {# fila} other {# filas}}",
+            "tableCaption": "Filas de previsualización",
+            "row": "Fila",
+            "name": "Nombre visible",
+            "status": "Estado",
+            "notes": "Errores y advertencias",
+            "result": "Resultado",
+            "possibleDuplicate": "Posible duplicado",
+            "viewRecord": "Ver registro",
+            "downloadErrors": "Descargar errores por fila (CSV)",
+            "empty": "El archivo no contiene filas de datos.",
+            "approve": "Selecciona las filas válidas que deseas importar",
+            "confirm": "Revisé la previsualización y autorizo la importación de las filas válidas seleccionadas.",
+            "commit": "Confirmar importación",
+            "refresh": "Actualizar estado del procesamiento"
+        },
+        "issues": {
+            "INVALID_COLUMN_COUNT": "La fila tiene un número incorrecto de columnas.",
+            "INVALID_TEMPLATE_VERSION": "Usa la versión 1 de la plantilla.",
+            "REQUIRED_FIELD": "Falta un campo obligatorio.",
+            "INCOMPLETE_IDENTIFIER": "Indica el tipo y el valor del identificador.",
+            "INVALID_IDENTIFIER": "El identificador no es válido.",
+            "INVALID_KIND": "Elige un tipo de contraparte válido.",
+            "INVALID_ROLES": "Elige cliente, proveedor o ambos separados por |.",
+            "INVALID_LIFECYCLE": "Elige un ciclo de vida válido.",
+            "INVALID_FIELD": "Un campo tiene un valor inválido o excede su límite.",
+            "DUPLICATE_IN_FILE": "Este identificador también aparece antes en el archivo.",
+            "POSSIBLE_DUPLICATE": "Un registro de la organización ya usa este identificador.",
+            "IMPORT_ROW_FAILED": "No se pudo importar la fila; descarga los errores para conocer el detalle."
+        },
+        "fields": {
+            "template_version": "Versión de plantilla",
+            "display_name": "Nombre visible",
+            "kind": "Tipo de contraparte",
+            "roles": "Roles",
+            "legal_name": "Razón social",
+            "identifier_type": "Tipo de identificador",
+            "identifier_value": "Valor del identificador",
+            "lifecycle": "Ciclo de vida",
+            "description": "Descripción",
+            "manufacturer": "Fabricante",
+            "model": "Modelo",
+            "classification": "Clasificación"
+        }
+    },
     "audit": {
         "actions": {
             "organizationCreated": "Organización creada",
@@ -388,7 +467,8 @@
             "assetRestored": "Activo restaurado",
             "assetRelationshipStarted": "Relación del activo iniciada",
             "assetRelationshipEnded": "Relación del activo terminada",
-            "assetRelationshipCorrected": "Relación del activo corregida"
+            "assetRelationshipCorrected": "Relación del activo corregida",
+            "registryImportCompleted": "Importación del registro completada"
         }
     },
     "states": {

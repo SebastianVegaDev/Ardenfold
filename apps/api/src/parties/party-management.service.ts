@@ -64,33 +64,41 @@ export class PartyManagementService {
             principal.user.id,
             organizationId,
             ["parties.write"],
-            async (transaction) => {
-                const [party] = await transaction
-                    .insert(parties)
-                    .values({
-                        organizationId,
-                        kind: input.kind,
-                        displayName: input.displayName,
-                        legalName: input.legalName ?? null,
-                    })
-                    .returning();
-                await transaction.insert(partyRoles).values(
-                    input.roles.map((role) => ({
-                        organizationId,
-                        partyId: party!.id,
-                        role,
-                    })),
-                );
-                await recordAuditEvent(transaction, {
-                    organizationId,
-                    actorUserId: principal.user.id,
-                    action: "party.created",
-                    resourceType: "party",
-                    resourceId: party!.id,
-                });
-                return summary(party!, [...input.roles].sort());
-            },
+            (transaction) =>
+                this.createInTransaction(transaction, principal, organizationId, input),
         );
+    }
+
+    async createInTransaction(
+        transaction: ArdenfoldTransaction,
+        principal: AuthenticatedPrincipal,
+        organizationId: string,
+        input: CreatePartyRequest,
+    ): Promise<PartySummary> {
+        const [party] = await transaction
+            .insert(parties)
+            .values({
+                organizationId,
+                kind: input.kind,
+                displayName: input.displayName,
+                legalName: input.legalName ?? null,
+            })
+            .returning();
+        await transaction.insert(partyRoles).values(
+            input.roles.map((role) => ({
+                organizationId,
+                partyId: party!.id,
+                role,
+            })),
+        );
+        await recordAuditEvent(transaction, {
+            organizationId,
+            actorUserId: principal.user.id,
+            action: "party.created",
+            resourceType: "party",
+            resourceId: party!.id,
+        });
+        return summary(party!, [...input.roles].sort());
     }
 
     async get(

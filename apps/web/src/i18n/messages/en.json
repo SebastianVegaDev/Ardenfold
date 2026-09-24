@@ -130,6 +130,7 @@
     },
     "parties": {
         "title": "Parties",
+        "importCsv": "Import CSV",
         "description": "Manage the customers and providers recorded by this organization.",
         "forbidden": "Your role cannot access the party registry.",
         "loadError": "The party registry could not be loaded. Try again.",
@@ -234,6 +235,7 @@
     },
     "assets": {
         "title": "Assets",
+        "importCsv": "Import CSV",
         "description": "Register assets, track their relationships and review their history.",
         "forbidden": "Your role cannot access the asset registry.",
         "loadError": "The asset registry could not be loaded. Try again.",
@@ -361,6 +363,83 @@
             "archivedHint": "Archived assets remain available for historical review."
         }
     },
+    "imports": {
+        "title": "Import registry records",
+        "description": "Preview a versioned CSV template, review every row and explicitly confirm the valid records to import.",
+        "forbidden": "Your role cannot import records for this organization.",
+        "loadError": "This import session could not be loaded.",
+        "success": "The import request was processed.",
+        "error": "The import request failed. Check the file or try again.",
+        "conflict": "This import session changed or is already being processed. Reload before trying again.",
+        "kinds": { "party": "Parties", "asset": "Assets" },
+        "statuses": {
+            "previewed": "Ready for review",
+            "committing": "Processing",
+            "completed": "Completed"
+        },
+        "rowStatuses": {
+            "valid": "Valid",
+            "rejected": "Rejected",
+            "committed": "Imported",
+            "failed": "Failed",
+            "skipped": "Not selected"
+        },
+        "upload": {
+            "title": "Upload and preview",
+            "hint": "Use a version 1 template. UTF-8 CSV only; maximum 512 KiB and 500 data rows. Preview does not create business records.",
+            "partyTemplate": "Download party template",
+            "assetTemplate": "Download asset template",
+            "kind": "Import type",
+            "file": "CSV file",
+            "preview": "Preview import"
+        },
+        "preview": {
+            "title": "Review import",
+            "total": "{count, plural, one {# row} other {# rows}}",
+            "tableCaption": "Import preview rows",
+            "row": "Row",
+            "name": "Display name",
+            "status": "Status",
+            "notes": "Errors and warnings",
+            "result": "Result",
+            "possibleDuplicate": "Possible duplicate",
+            "viewRecord": "View record",
+            "downloadErrors": "Download row errors (CSV)",
+            "empty": "The file contains no data rows.",
+            "approve": "Select valid rows to import",
+            "confirm": "I reviewed the preview and authorize importing the selected valid rows.",
+            "commit": "Confirm import",
+            "refresh": "Refresh processing status"
+        },
+        "issues": {
+            "INVALID_COLUMN_COUNT": "The row has the wrong number of columns.",
+            "INVALID_TEMPLATE_VERSION": "Use template version 1.",
+            "REQUIRED_FIELD": "A required field is missing.",
+            "INCOMPLETE_IDENTIFIER": "Enter both identifier type and value.",
+            "INVALID_IDENTIFIER": "The identifier is invalid.",
+            "INVALID_KIND": "Choose a valid party type.",
+            "INVALID_ROLES": "Choose customer, provider or both separated by |.",
+            "INVALID_LIFECYCLE": "Choose a valid asset lifecycle.",
+            "INVALID_FIELD": "A field has an invalid value or exceeds its limit.",
+            "DUPLICATE_IN_FILE": "This identifier also appears earlier in the file.",
+            "POSSIBLE_DUPLICATE": "An organization record already uses this identifier.",
+            "IMPORT_ROW_FAILED": "The row could not be imported; download errors for details."
+        },
+        "fields": {
+            "template_version": "Template version",
+            "display_name": "Display name",
+            "kind": "Party type",
+            "roles": "Roles",
+            "legal_name": "Legal name",
+            "identifier_type": "Identifier type",
+            "identifier_value": "Identifier value",
+            "lifecycle": "Lifecycle",
+            "description": "Description",
+            "manufacturer": "Manufacturer",
+            "model": "Model",
+            "classification": "Classification"
+        }
+    },
     "audit": {
         "actions": {
             "organizationCreated": "Organization created",
@@ -388,7 +467,8 @@
             "assetRestored": "Asset restored",
             "assetRelationshipStarted": "Asset relationship started",
             "assetRelationshipEnded": "Asset relationship ended",
-            "assetRelationshipCorrected": "Asset relationship corrected"
+            "assetRelationshipCorrected": "Asset relationship corrected",
+            "registryImportCompleted": "Registry import completed"
         }
     },
     "states": {

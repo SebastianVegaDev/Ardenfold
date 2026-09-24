@@ -4,3 +4,4 @@ export * from "./audit";
 export * from "./parties";
 export * from "./assets";
 export * from "./asset-history";
+export * from "./registry-imports";

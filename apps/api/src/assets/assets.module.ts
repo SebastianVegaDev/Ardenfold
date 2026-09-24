@@ -9,5 +9,6 @@ import { AssetsController } from "./assets.controller";
     imports: [AuthModule],
     controllers: [AssetsController],
     providers: [AssetManagementService, AssetRelationshipsService],
+    exports: [AssetManagementService],
 })
 export class AssetsModule {}
