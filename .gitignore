@@ -159,3 +159,9 @@ vite.config.ts.timestamp-*
 
 # Local-only brand source kit (curated assets belong in app public directories)
 /ardenfold-brand-kit/
+
+# Local editor and operating-system state
+.idea/
+*.swp
+*.swo
+.DS_Store
