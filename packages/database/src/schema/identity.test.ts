@@ -565,24 +565,31 @@ describe("identity, tenancy and row-level security", () => {
         await connection.database.execute(sql`ANALYZE parties`);
         await connection.database.execute(sql`ANALYZE assets`);
 
-        const partyPlan = await connection.database.execute<{ "QUERY PLAN": string }>(sql`
-            EXPLAIN (COSTS OFF)
-            SELECT id FROM parties
-            WHERE organization_id = ${organization!.id}::uuid
-              AND lower(display_name) LIKE '%needle-unique%'
-        `);
-        const assetPlan = await connection.database.execute<{ "QUERY PLAN": string }>(sql`
-            EXPLAIN (COSTS OFF)
-            SELECT id FROM assets
-            WHERE organization_id = ${organization!.id}::uuid
-              AND lower(display_name) LIKE '%needle-unique%'
-        `);
-        const manufacturerPlan = await connection.database.execute<{ "QUERY PLAN": string }>(sql`
-            EXPLAIN (COSTS OFF)
-            SELECT id FROM assets
-            WHERE organization_id = ${organization!.id}::uuid
-              AND lower(manufacturer) LIKE '%needle-manufacturer%'
-        `);
+        const [partyPlan, assetPlan, manufacturerPlan] = await connection.database.transaction(
+            async (transaction) => {
+                // Verify each expression can use its index independent of planner cost heuristics.
+                await transaction.execute(sql`SET LOCAL enable_seqscan = off`);
+                const partyPlan = await transaction.execute<{ "QUERY PLAN": string }>(sql`
+                    EXPLAIN (COSTS OFF)
+                    SELECT id FROM parties
+                    WHERE organization_id = ${organization!.id}::uuid
+                      AND lower(display_name) LIKE '%needle-unique%'
+                `);
+                const assetPlan = await transaction.execute<{ "QUERY PLAN": string }>(sql`
+                    EXPLAIN (COSTS OFF)
+                    SELECT id FROM assets
+                    WHERE organization_id = ${organization!.id}::uuid
+                      AND lower(display_name) LIKE '%needle-unique%'
+                `);
+                const manufacturerPlan = await transaction.execute<{ "QUERY PLAN": string }>(sql`
+                    EXPLAIN (COSTS OFF)
+                    SELECT id FROM assets
+                    WHERE organization_id = ${organization!.id}::uuid
+                      AND lower(manufacturer) LIKE '%needle-manufacturer%'
+                `);
+                return [partyPlan, assetPlan, manufacturerPlan] as const;
+            },
+        );
         expect(partyPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
             "parties_name_trgm_idx",
         );
