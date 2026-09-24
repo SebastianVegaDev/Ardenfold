@@ -6,7 +6,7 @@ import {
     type CommitRegistryImportRequest,
     type PreviewRegistryImportRequest,
 } from "@ardenfold/contracts";
-import { Body, Controller, Get, Param, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Res } from "@nestjs/common";
 import {
     ApiBearerAuth,
     ApiBody,
@@ -89,6 +89,7 @@ export class RegistryImportsController {
     }
 
     @Post(":sessionId/commit")
+    @HttpCode(200)
     @ApiOperation({ operationId: "commitRegistryImport" })
     @ApiBody({ schema: { $ref: "#/components/schemas/CommitRegistryImportRequest" } })
     @ApiOkResponse({ schema: { $ref: "#/components/schemas/RegistryImportSessionResponse" } })
