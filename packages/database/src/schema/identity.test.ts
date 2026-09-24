@@ -40,6 +40,8 @@ import {
     partyContacts,
     partyContactChannels,
     partyAddresses,
+    registryImportRows,
+    registryImportSessions,
     systemOrganizationRoleIds,
     users,
 } from "./index";
@@ -1179,6 +1181,103 @@ describe("identity, tenancy and row-level security", () => {
         expect(rls.rows).toHaveLength(2);
         expect(rls.rows.every((table) => table.relrowsecurity && table.relforcerowsecurity)).toBe(
             true,
+        );
+    });
+
+    it("isolates import checkpoints by tenant and revokes them with membership", async () => {
+        const fixture = await seedTenantIsolationFixture(connection);
+        const sessionId = "00000000-0000-4000-8000-000000000054";
+        await connection.database.insert(organizationMemberships).values({
+            organizationId: fixture.secondOrganizationId,
+            userId: fixture.firstUserId,
+            roleId: systemOrganizationRoleIds.owner,
+        });
+        await connection.database.insert(registryImportSessions).values([
+            {
+                id: sessionId,
+                organizationId: fixture.firstOrganizationId,
+                kind: "party",
+                templateVersion: 1,
+                contentHash: "a".repeat(64),
+                totalRows: 1,
+                createdByUserId: fixture.firstUserId,
+            },
+            {
+                id: sessionId,
+                organizationId: fixture.secondOrganizationId,
+                kind: "party",
+                templateVersion: 1,
+                contentHash: "b".repeat(64),
+                totalRows: 1,
+                createdByUserId: fixture.firstUserId,
+            },
+        ]);
+        await connection.database.insert(registryImportRows).values([
+            {
+                organizationId: fixture.firstOrganizationId,
+                sessionId,
+                rowNumber: 2,
+                kind: "party",
+                status: "valid",
+                payload: { displayName: "Synthetic north" },
+                errors: [],
+                warnings: [],
+                duplicateCandidates: [],
+            },
+            {
+                organizationId: fixture.secondOrganizationId,
+                sessionId,
+                rowNumber: 2,
+                kind: "party",
+                status: "valid",
+                payload: { displayName: "Synthetic south" },
+                errors: [],
+                warnings: [],
+                duplicateCandidates: [],
+            },
+        ]);
+
+        for (const [organizationId, expectedName] of [
+            [fixture.firstOrganizationId, "Synthetic north"],
+            [fixture.secondOrganizationId, "Synthetic south"],
+        ] as const) {
+            await runtimeConnection.withTenantTransaction(
+                { organizationId, userId: fixture.firstUserId },
+                async (transaction) => {
+                    await transaction.execute(
+                        sql`SELECT set_config('ardenfold.permission.parties.write', 'true', true)`,
+                    );
+                    expect(await transaction.select().from(registryImportSessions)).toHaveLength(1);
+                    const rows = await transaction.select().from(registryImportRows);
+                    expect(rows).toHaveLength(1);
+                    expect(rows[0]?.payload).toEqual({ displayName: expectedName });
+                },
+            );
+        }
+        expect(await runtimeConnection.database.select().from(registryImportSessions)).toEqual([]);
+        expect(await runtimeConnection.database.select().from(registryImportRows)).toEqual([]);
+
+        await expectDatabaseError(
+            connection.database
+                .update(registryImportSessions)
+                .set({ kind: "asset" })
+                .where(eq(registryImportSessions.organizationId, fixture.firstOrganizationId)),
+            "23514",
+            undefined,
+        );
+        await connection.database
+            .update(organizationMemberships)
+            .set({ status: "removed", removedAt: new Date() })
+            .where(eq(organizationMemberships.organizationId, fixture.firstOrganizationId));
+        await runtimeConnection.withTenantTransaction(
+            { organizationId: fixture.firstOrganizationId, userId: fixture.firstUserId },
+            async (transaction) => {
+                await transaction.execute(
+                    sql`SELECT set_config('ardenfold.permission.parties.write', 'true', true)`,
+                );
+                expect(await transaction.select().from(registryImportSessions)).toEqual([]);
+                expect(await transaction.select().from(registryImportRows)).toEqual([]);
+            },
         );
     });
 });

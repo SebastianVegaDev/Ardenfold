@@ -128,3 +128,55 @@ jobs:
             - name: Stop isolated PostgreSQL
               if: always()
               run: docker compose -f apps/e2e/compose.yaml down --volumes
+
+    registry-security:
+        name: M2 registry security
+        needs: tests
+        runs-on: ubuntu-latest
+        env:
+            WORKOS_CLIENT_ID: client_e2e
+            WORKOS_API_KEY: sk_test_e2e_local_only
+            WORKOS_API_HOSTNAME: 127.0.0.1
+            WORKOS_API_HTTPS: "false"
+            WORKOS_API_PORT: "4010"
+            WORKOS_COOKIE_PASSWORD: ardenfold-e2e-cookie-password-at-least-32-bytes
+            NEXT_PUBLIC_WORKOS_REDIRECT_URI: http://localhost:3000/auth/callback
+            WORKOS_ISSUER: http://127.0.0.1:4010/
+            WORKOS_JWKS_URL: http://127.0.0.1:4010/sso/jwks/client_e2e
+            ARDENFOLD_API_URL: http://127.0.0.1:3001
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Set up workspace
+              uses: ./.github/actions/setup-workspace
+
+            - name: Start isolated PostgreSQL
+              run: docker compose -f apps/e2e/compose.yaml up -d --wait
+
+            - name: Install Chromium
+              run: pnpm --filter @ardenfold/e2e exec playwright install --with-deps chromium
+
+            - name: Build registry and test dependencies
+              run: pnpm exec turbo run build --filter=@ardenfold/api... --filter=@ardenfold/ui...
+
+            - name: Run M2 registry security suite
+              run: >-
+                  pnpm --filter @ardenfold/e2e exec playwright test
+                  tests/party-api.spec.ts tests/party-web.spec.ts
+                  tests/asset-api.spec.ts tests/asset-relationships.spec.ts
+                  tests/registry-search.spec.ts tests/registry-imports.spec.ts
+                  tests/registry-security.spec.ts
+
+            - name: Upload redacted failure screenshots
+              if: failure()
+              uses: actions/upload-artifact@v6
+              with:
+                  name: registry-security-screenshots
+                  path: apps/e2e/test-results/**/*.png
+                  if-no-files-found: ignore
+                  retention-days: 7
+
+            - name: Stop isolated PostgreSQL
+              if: always()
+              run: docker compose -f apps/e2e/compose.yaml down --volumes
