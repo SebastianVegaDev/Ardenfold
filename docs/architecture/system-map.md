@@ -3,6 +3,9 @@
 This is the canonical navigation map for the implemented Ardenfold system. It
 describes current ownership and dependency direction, not planned modules.
 
+For placement and dependency rules when changing it, read the
+[contribution boundaries](contribution-boundaries.md).
+
 ## System at a glance
 
 ```text
