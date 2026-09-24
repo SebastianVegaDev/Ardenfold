@@ -24,8 +24,8 @@ import { AssetManagementService } from "../assets/management/asset-management.se
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
 import { ContractException } from "../http/contracts";
-import { PartyDetailsService } from "../parties/party-details.service";
-import { PartyManagementService } from "../parties/party-management.service";
+import { PartyManagementService } from "../parties/management/party-management.service";
+import { PartyDetailsService } from "../parties/queries/party-details.service";
 import { normalizeRegistryIdentifier } from "./identifier-normalization";
 import { parseImportCsv, type ParsedImportRow } from "./import-parser";
 

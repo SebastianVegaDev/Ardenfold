@@ -19,13 +19,13 @@ import {
 import { Injectable } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 
-import { recordAuditEvent } from "../audit/audit.service";
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
-import { ContractException } from "../http/contracts";
-import { normalizeRegistryIdentifier } from "../registry/identifier-normalization";
-import { PartyManagementService } from "./party-management.service";
-import { advancePartyVersion } from "./party-transaction";
+import { recordAuditEvent } from "../../audit/audit.service";
+import type { AuthenticatedPrincipal } from "../../auth/auth.types";
+import { OrganizationAuthorizationService } from "../../auth/organization-authorization.service";
+import { ContractException } from "../../http/contracts";
+import { normalizeRegistryIdentifier } from "../../registry/identifier-normalization";
+import { PartyManagementService } from "../management/party-management.service";
+import { advancePartyVersion } from "../shared/party-transaction";
 
 @Injectable()
 export class PartyDetailsService {
