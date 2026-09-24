@@ -7,7 +7,7 @@ import {
     commitImport,
     downloadImportCsv,
     previewImport,
-} from "@/imports/api-client";
+} from "@/features/registry-imports/api-client";
 import { getTechnicalFallbackLocale, isLocale } from "@/i18n/locales";
 
 function value(form: FormData, name: string): string {

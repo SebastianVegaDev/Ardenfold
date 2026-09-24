@@ -17,7 +17,7 @@ import { RelationshipForm } from "@/features/assets/relationship-form";
 import { getActiveOrganization } from "@/auth/api-client";
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import type { Locale } from "@/i18n/locales";
-import { listParties } from "@/parties/api-client";
+import { listParties } from "@/features/parties/api-client";
 
 type Props = Readonly<{
     params: Promise<{ locale: Locale; assetId: string }>;

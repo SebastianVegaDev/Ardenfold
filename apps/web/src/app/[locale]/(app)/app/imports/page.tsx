@@ -10,7 +10,7 @@ import Link from "next/link";
 import { getActiveOrganization } from "@/auth/api-client";
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import type { Locale } from "@/i18n/locales";
-import { getImport, ImportApiError } from "@/imports/api-client";
+import { getImport, ImportApiError } from "@/features/registry-imports/api-client";
 import enMessages from "@/i18n/messages/en.json";
 import esMessages from "@/i18n/messages/es.json";
 

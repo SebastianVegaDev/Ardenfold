@@ -5,7 +5,7 @@ import Link from "next/link";
 import { getActiveOrganization } from "@/auth/api-client";
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import type { Locale } from "@/i18n/locales";
-import { listParties, PartyApiError } from "@/parties/api-client";
+import { listParties, PartyApiError } from "@/features/parties/api-client";
 
 type Props = Readonly<{
     params: Promise<{ locale: Locale }>;
