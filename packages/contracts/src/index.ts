@@ -40,10 +40,19 @@ import {
     updatePartyContactRequestSchema,
     updatePartyRequestSchema,
 } from "./parties";
+import {
+    commitRegistryImportRequestSchema,
+    previewRegistryImportRequestSchema,
+    registryImportCandidateSchema,
+    registryImportIssueSchema,
+    registryImportRowSchema,
+    registryImportSessionResponseSchema,
+} from "./registry-imports";
 
 export * from "./parties";
 export * from "./assets";
 export * from "./asset-history";
+export * from "./registry-imports";
 
 export const identifierSchema = z.uuid();
 
@@ -266,6 +275,7 @@ export const auditActionSchema = z.enum([
     "asset.relationship_started",
     "asset.relationship_ended",
     "asset.relationship_corrected",
+    "registry.import_completed",
 ]);
 
 export const auditMetadataSchema = z.record(
@@ -361,6 +371,12 @@ export const contractSchemas = {
     StartAssetRelationshipRequest: startAssetRelationshipRequestSchema,
     EndAssetRelationshipRequest: endAssetRelationshipRequestSchema,
     CorrectAssetRelationshipRequest: correctAssetRelationshipRequestSchema,
+    PreviewRegistryImportRequest: previewRegistryImportRequestSchema,
+    CommitRegistryImportRequest: commitRegistryImportRequestSchema,
+    RegistryImportIssue: registryImportIssueSchema,
+    RegistryImportCandidate: registryImportCandidateSchema,
+    RegistryImportRow: registryImportRowSchema,
+    RegistryImportSessionResponse: registryImportSessionResponseSchema,
 };
 
 export type ApiError = z.infer<typeof apiErrorSchema>;

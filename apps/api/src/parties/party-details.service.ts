@@ -23,17 +23,9 @@ import { recordAuditEvent } from "../audit/audit.service";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
 import { ContractException } from "../http/contracts";
+import { normalizeRegistryIdentifier } from "../registry/identifier-normalization";
 import { PartyManagementService } from "./party-management.service";
 import { advancePartyVersion } from "./party-transaction";
-
-function normalizeIdentifier(value: string): string {
-    const normalized = value
-        .normalize("NFKC")
-        .toUpperCase()
-        .replace(/[^\p{L}\p{N}]/gu, "");
-    if (!normalized) throw new ContractException("INVALID_IDENTIFIER", 400);
-    return normalized;
-}
 
 @Injectable()
 export class PartyDetailsService {
@@ -76,23 +68,39 @@ export class PartyDetailsService {
         partyId: string,
         input: AddPartyIdentifierRequest,
     ): Promise<PartyDetail> {
-        const normalizedValue = normalizeIdentifier(input.originalValue);
-        return this.mutate(
-            principal,
+        return this.authorization.withAuthorizedTransaction(
+            principal.user.id,
+            organizationId,
+            ["parties.write"],
+            (transaction) => this.addIdentifierInTransaction(transaction, principal, organizationId, partyId, input),
+        );
+    }
+
+    async addIdentifierInTransaction(
+        transaction: ArdenfoldTransaction,
+        principal: AuthenticatedPrincipal,
+        organizationId: string,
+        partyId: string,
+        input: AddPartyIdentifierRequest,
+    ): Promise<PartyDetail> {
+        const normalizedValue = normalizeRegistryIdentifier(input.originalValue);
+        await advancePartyVersion(transaction, organizationId, partyId, input.expectedVersion);
+        await transaction.insert(partyIdentifiers).values({
             organizationId,
             partyId,
-            input.expectedVersion,
-            "identifier_added",
-            async (transaction) => {
-                await transaction.insert(partyIdentifiers).values({
-                    organizationId,
-                    partyId,
-                    type: input.type.toLowerCase(),
-                    originalValue: input.originalValue,
-                    normalizedValue,
-                });
-            },
-        );
+            type: input.type.toLowerCase(),
+            originalValue: input.originalValue,
+            normalizedValue,
+        });
+        await recordAuditEvent(transaction, {
+            organizationId,
+            actorUserId: principal.user.id,
+            action: "party.details_changed",
+            resourceType: "party",
+            resourceId: partyId,
+            metadata: { kind: "identifier_added" },
+        });
+        return this.parties.getInTransaction(transaction, organizationId, partyId);
     }
 
     removeIdentifier(

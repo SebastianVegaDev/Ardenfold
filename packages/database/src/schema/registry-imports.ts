@@ -14,6 +14,9 @@ import {
 
 import { organizations, users } from "./identity";
 
+type ImportIssue = { code: string; field: string | null };
+type ImportCandidate = { id: string; displayName: string; matchedType: string };
+
 export const registryImportSessions = pgTable(
     "registry_import_sessions",
     {
@@ -61,8 +64,11 @@ export const registryImportRows = pgTable(
         kind: varchar("kind", { length: 16 }).notNull(),
         status: varchar("status", { length: 16 }).notNull(),
         payload: jsonb("payload").$type<Record<string, unknown> | null>(),
-        errors: jsonb("errors").$type<string[]>().notNull(),
-        warnings: jsonb("warnings").$type<string[]>().notNull(),
+        errors: jsonb("errors").$type<ImportIssue[]>().notNull(),
+        warnings: jsonb("warnings").$type<ImportIssue[]>().notNull(),
+        duplicateCandidates: jsonb("duplicate_candidates")
+            .$type<ImportCandidate[]>()
+            .notNull(),
         resourceId: uuid("resource_id"),
         updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     },

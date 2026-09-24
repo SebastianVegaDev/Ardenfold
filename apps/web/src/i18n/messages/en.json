@@ -389,6 +389,7 @@
             "assetRelationshipStarted": "Asset relationship started",
             "assetRelationshipEnded": "Asset relationship ended",
             "assetRelationshipCorrected": "Asset relationship corrected"
+            ,"registryImportCompleted": "Registry import completed"
         }
     },
     "states": {

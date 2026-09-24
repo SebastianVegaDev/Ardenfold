@@ -389,6 +389,7 @@
             "assetRelationshipStarted": "Relación del activo iniciada",
             "assetRelationshipEnded": "Relación del activo terminada",
             "assetRelationshipCorrected": "Relación del activo corregida"
+            ,"registryImportCompleted": "Importación del registro completada"
         }
     },
     "states": {

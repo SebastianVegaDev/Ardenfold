@@ -27,4 +27,5 @@ export const auditActionMessageKeys: Readonly<Record<AuditAction, string>> = {
     "asset.relationship_started": "audit.actions.assetRelationshipStarted",
     "asset.relationship_ended": "audit.actions.assetRelationshipEnded",
     "asset.relationship_corrected": "audit.actions.assetRelationshipCorrected",
+    "registry.import_completed": "audit.actions.registryImportCompleted",
 };

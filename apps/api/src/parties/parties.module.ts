@@ -9,5 +9,6 @@ import { PartyManagementService } from "./party-management.service";
     imports: [AuthModule],
     controllers: [PartiesController],
     providers: [PartyManagementService, PartyDetailsService],
+    exports: [PartyManagementService, PartyDetailsService],
 })
 export class PartiesModule {}

@@ -22,6 +22,7 @@ import { recordAuditEvent } from "../audit/audit.service";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
 import { ContractException } from "../http/contracts";
+import { normalizeRegistryIdentifier } from "../registry/identifier-normalization";
 import {
     decodeRegistryCursor,
     encodeRegistryCursor,
@@ -48,15 +49,6 @@ function summary(asset: Asset): AssetSummary {
     });
 }
 
-function normalizeIdentifier(value: string): string {
-    const normalized = value
-        .normalize("NFKC")
-        .toUpperCase()
-        .replace(/[^\p{L}\p{N}]/gu, "");
-    if (!normalized) throw new ContractException("INVALID_IDENTIFIER", 400);
-    return normalized;
-}
-
 function transitionAllowed(current: Asset["lifecycle"], next: Asset["lifecycle"]): boolean {
     if (current === next || current === "retired") return false;
     if (current === "registered") return next !== "registered";
@@ -76,51 +68,58 @@ export class AssetManagementService {
             principal.user.id,
             organizationId,
             ["assets.write"],
-            async (transaction) => {
-                const identifiers = input.identifiers.map((identifier) => ({
-                    type: identifier.type.toLowerCase(),
-                    originalValue: identifier.originalValue,
-                    normalizedValue: normalizeIdentifier(identifier.originalValue),
-                }));
-                const [asset] = await transaction
-                    .insert(assets)
-                    .values({
-                        organizationId,
-                        displayName: input.displayName,
-                        description: input.description ?? null,
-                        manufacturer: input.manufacturer ?? null,
-                        model: input.model ?? null,
-                        classification: input.classification ?? null,
-                        lifecycle: input.lifecycle,
-                    })
-                    .returning();
-                if (identifiers.length) {
-                    await transaction.insert(assetIdentifiers).values(
-                        identifiers.map((identifier) => ({
-                            organizationId,
-                            assetId: asset!.id,
-                            ...identifier,
-                        })),
-                    );
-                }
-                await recordAuditEvent(transaction, {
-                    organizationId,
-                    actorUserId: principal.user.id,
-                    action: "asset.created",
-                    resourceType: "asset",
-                    resourceId: asset!.id,
-                });
-                await recordAssetHistory(transaction, {
+            (transaction) => this.createInTransaction(transaction, principal, organizationId, input),
+        );
+    }
+
+    async createInTransaction(
+        transaction: ArdenfoldTransaction,
+        principal: AuthenticatedPrincipal,
+        organizationId: string,
+        input: CreateAssetRequest,
+    ): Promise<AssetDetail> {
+        const identifiers = input.identifiers.map((identifier) => ({
+            type: identifier.type.toLowerCase(),
+            originalValue: identifier.originalValue,
+            normalizedValue: normalizeRegistryIdentifier(identifier.originalValue),
+        }));
+        const [asset] = await transaction
+            .insert(assets)
+            .values({
+                organizationId,
+                displayName: input.displayName,
+                description: input.description ?? null,
+                manufacturer: input.manufacturer ?? null,
+                model: input.model ?? null,
+                classification: input.classification ?? null,
+                lifecycle: input.lifecycle,
+            })
+            .returning();
+        if (identifiers.length) {
+            await transaction.insert(assetIdentifiers).values(
+                identifiers.map((identifier) => ({
                     organizationId,
                     assetId: asset!.id,
-                    actorUserId: principal.user.id,
-                    aggregateVersion: asset!.version,
-                    event: "asset_created",
-                    payload: { identifierCount: identifiers.length },
-                });
-                return this.getInTransaction(transaction, organizationId, asset!.id);
-            },
-        );
+                    ...identifier,
+                })),
+            );
+        }
+        await recordAuditEvent(transaction, {
+            organizationId,
+            actorUserId: principal.user.id,
+            action: "asset.created",
+            resourceType: "asset",
+            resourceId: asset!.id,
+        });
+        await recordAssetHistory(transaction, {
+            organizationId,
+            assetId: asset!.id,
+            actorUserId: principal.user.id,
+            aggregateVersion: asset!.version,
+            event: "asset_created",
+            payload: { identifierCount: identifiers.length },
+        });
+        return this.getInTransaction(transaction, organizationId, asset!.id);
     }
 
     get(
@@ -443,7 +442,7 @@ export class AssetManagementService {
         assetId: string,
         input: AddAssetIdentifierRequest,
     ): Promise<AssetDetail> {
-        const normalizedValue = normalizeIdentifier(input.originalValue);
+        const normalizedValue = normalizeRegistryIdentifier(input.originalValue);
         return this.mutate(
             principal,
             organizationId,
@@ -473,7 +472,7 @@ export class AssetManagementService {
         identifierId: string,
         input: ChangeAssetIdentifierRequest,
     ): Promise<AssetDetail> {
-        const normalizedValue = normalizeIdentifier(input.originalValue);
+        const normalizedValue = normalizeRegistryIdentifier(input.originalValue);
         return this.mutate(
             principal,
             organizationId,

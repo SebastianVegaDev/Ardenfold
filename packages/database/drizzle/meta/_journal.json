@@ -71,13 +71,6 @@
       "when": 1790270000000,
       "tag": "0009_registry_search_indexes",
       "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1790270001000,
-      "tag": "0010_fearless_molten_man",
-      "breakpoints": true
     }
   ]
 }
