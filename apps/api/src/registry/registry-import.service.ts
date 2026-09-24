@@ -20,7 +20,7 @@ import { Injectable } from "@nestjs/common";
 import { and, asc, eq, sql } from "drizzle-orm";
 
 import { recordAuditEvent } from "../audit/audit.service";
-import { AssetManagementService } from "../assets/asset-management.service";
+import { AssetManagementService } from "../assets/management/asset-management.service";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
 import { ContractException } from "../http/contracts";

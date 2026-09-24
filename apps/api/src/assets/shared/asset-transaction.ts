@@ -2,7 +2,7 @@ import type { ArdenfoldTransaction } from "@ardenfold/database";
 import { assets, type Asset } from "@ardenfold/database/schema";
 import { and, eq, sql } from "drizzle-orm";
 
-import { ContractException } from "../http/contracts";
+import { ContractException } from "../../http/contracts";
 
 export async function getAsset(
     transaction: ArdenfoldTransaction,

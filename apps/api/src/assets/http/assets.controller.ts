@@ -35,17 +35,17 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { CurrentOrganization } from "../auth/current-organization.decorator";
-import { CurrentPrincipal } from "../auth/current-principal.decorator";
+import type { AuthenticatedPrincipal } from "../../auth/auth.types";
+import { CurrentOrganization } from "../../auth/current-organization.decorator";
+import { CurrentPrincipal } from "../../auth/current-principal.decorator";
 import {
     organizationHeader,
     type ActiveOrganizationContext,
-} from "../auth/organization-context.types";
-import { RequirePermissions } from "../auth/require-permissions.decorator";
-import { ContractValidationPipe } from "../http/contracts";
-import { AssetManagementService } from "./asset-management.service";
-import { AssetRelationshipsService } from "./asset-relationships.service";
+} from "../../auth/organization-context.types";
+import { RequirePermissions } from "../../auth/require-permissions.decorator";
+import { ContractValidationPipe } from "../../http/contracts";
+import { AssetManagementService } from "../management/asset-management.service";
+import { AssetRelationshipsService } from "../relationships/asset-relationships.service";
 
 @ApiTags("assets")
 @ApiBearerAuth()
