@@ -200,7 +200,8 @@ function parseRow(kind: "party" | "asset", values: string[], rowNumber: number):
 export function parseImportCsv(kind: "party" | "asset", input: string): ParsedImportRow[] {
     if (Buffer.byteLength(input, "utf8") > 524_288)
         throw new ContractException("IMPORT_FILE_TOO_LARGE", 400);
-    if (/[\u0000\uFFFD]/u.test(input)) throw new ContractException("INVALID_IMPORT_ENCODING", 400);
+    if (input.includes("\0") || input.includes("\uFFFD"))
+        throw new ContractException("INVALID_IMPORT_ENCODING", 400);
     const csv = input.startsWith("\uFEFF") ? input.slice(1) : input;
     const rows = splitCsv(csv);
     const expected = importHeaders[kind];

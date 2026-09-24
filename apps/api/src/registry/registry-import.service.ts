@@ -406,7 +406,7 @@ export class RegistryImportService {
                         resourceId: sessionId,
                         metadata: { kind: preview.kind, ...result.summary },
                     });
-                return { ...result, status: "completed" } as RegistryImportSessionResponse;
+                return { ...result, status: "completed" };
             },
         );
     }
