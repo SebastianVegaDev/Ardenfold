@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 
 import { AuthModule } from "../auth/auth.module";
-import { PartiesController } from "./parties.controller";
-import { PartyDetailsService } from "./party-details.service";
-import { PartyManagementService } from "./party-management.service";
+import { PartiesController } from "./http/parties.controller";
+import { PartyManagementService } from "./management/party-management.service";
+import { PartyDetailsService } from "./queries/party-details.service";
 
 @Module({
     imports: [AuthModule],

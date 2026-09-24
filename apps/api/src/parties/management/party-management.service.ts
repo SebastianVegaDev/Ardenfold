@@ -24,17 +24,17 @@ import {
 import { Injectable } from "@nestjs/common";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
-import { recordAuditEvent } from "../audit/audit.service";
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
-import { ContractException } from "../http/contracts";
+import { recordAuditEvent } from "../../audit/audit.service";
+import type { AuthenticatedPrincipal } from "../../auth/auth.types";
+import { OrganizationAuthorizationService } from "../../auth/organization-authorization.service";
+import { ContractException } from "../../http/contracts";
 import {
     decodeRegistryCursor,
     encodeRegistryCursor,
     registryFilterKey,
     searchPattern,
-} from "../registry/search";
-import { advancePartyVersion, getParty } from "./party-transaction";
+} from "../../registry/search";
+import { advancePartyVersion, getParty } from "../shared/party-transaction";
 
 function summary(party: Party, roles: ("customer" | "provider")[]): PartySummary {
     return partySummarySchema.parse({
