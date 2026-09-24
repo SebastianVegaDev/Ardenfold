@@ -22,16 +22,19 @@ import {
     type Party,
 } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { recordAuditEvent } from "../audit/audit.service";
 import type { AuthenticatedPrincipal } from "../auth/auth.types";
 import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
 import { ContractException } from "../http/contracts";
+import {
+    decodeRegistryCursor,
+    encodeRegistryCursor,
+    registryFilterKey,
+    searchPattern,
+} from "../registry/search";
 import { advancePartyVersion, getParty } from "./party-transaction";
-
-const cursorSchema = z.strictObject({ name: z.string(), id: z.uuid() });
 
 function summary(party: Party, roles: ("customer" | "provider")[]): PartySummary {
     return partySummarySchema.parse({
@@ -165,6 +168,29 @@ export class PartyManagementService {
                   )
                   .orderBy(partyContactChannels.id)
             : [];
+        const duplicates = identifiers.length
+            ? await transaction.execute<{
+                  id: string;
+                  displayName: string;
+                  matchedType: string;
+              }>(sql`
+                  SELECT DISTINCT candidate.id, candidate.display_name AS "displayName",
+                                  matched.type AS "matchedType"
+                  FROM party_identifiers own
+                  JOIN party_identifiers matched
+                    ON matched.organization_id = own.organization_id
+                   AND matched.type = own.type
+                   AND matched.normalized_value = own.normalized_value
+                   AND matched.party_id <> own.party_id
+                  JOIN parties candidate
+                    ON candidate.organization_id = matched.organization_id
+                   AND candidate.id = matched.party_id
+                  WHERE own.organization_id = ${organizationId}::uuid
+                    AND own.party_id = ${partyId}::uuid
+                  ORDER BY candidate.id, matched.type
+                  LIMIT 20
+              `)
+            : { rows: [] };
         return partyDetailSchema.parse({
             ...summary(party, roles.map((row) => row.role).sort()),
             identifiers: identifiers.map(({ id, type, originalValue, normalizedValue }) => ({
@@ -173,6 +199,7 @@ export class PartyManagementService {
                 originalValue,
                 normalizedValue,
             })),
+            duplicateCandidates: duplicates.rows,
             contacts: contacts.map((contact) => ({
                 id: contact.id,
                 displayName: contact.displayName,
@@ -202,16 +229,17 @@ export class PartyManagementService {
         organizationId: string,
         query: PartyListQuery,
     ): Promise<PartyListResponse> {
-        let cursor: z.infer<typeof cursorSchema> | undefined;
-        if (query.cursor) {
-            try {
-                cursor = cursorSchema.parse(
-                    JSON.parse(Buffer.from(query.cursor, "base64url").toString("utf8")),
-                );
-            } catch {
-                throw new ContractException("INVALID_PARTY_CURSOR", 400);
-            }
-        }
+        const filters = registryFilterKey({
+            name: query.name,
+            q: query.q,
+            status: query.status,
+            role: query.role,
+            kind: query.kind,
+            sort: query.sort,
+        });
+        const cursor = query.cursor
+            ? decodeRegistryCursor(query.cursor, filters, "INVALID_PARTY_CURSOR")
+            : undefined;
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,
@@ -220,23 +248,68 @@ export class PartyManagementService {
                 const normalizedName = sql`lower(${parties.displayName})`;
                 const conditions = [eq(parties.organizationId, organizationId)];
                 if (query.status) conditions.push(eq(parties.status, query.status));
+                if (query.kind) conditions.push(eq(parties.kind, query.kind));
                 if (query.name) {
-                    const escaped = query.name.toLowerCase().replace(/[\\%_]/gu, "\\$&");
-                    conditions.push(sql`${normalizedName} LIKE ${`%${escaped}%`} ESCAPE ${"\\"}`);
+                    conditions.push(
+                        sql`${normalizedName} LIKE ${searchPattern(query.name)} ESCAPE ${"\\"}`,
+                    );
+                }
+                if (query.q) {
+                    const pattern = searchPattern(query.q);
+                    conditions.push(sql`(
+                        ${normalizedName} LIKE ${pattern} ESCAPE ${"\\"}
+                        OR lower(coalesce(${parties.legalName}, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                        OR EXISTS (
+                            SELECT 1 FROM party_identifiers identifier
+                            WHERE identifier.organization_id = ${organizationId}::uuid
+                              AND identifier.party_id = ${parties.id}
+                              AND (lower(identifier.original_value) LIKE ${pattern} ESCAPE ${"\\"}
+                                   OR lower(identifier.normalized_value) LIKE ${pattern} ESCAPE ${"\\"})
+                        )
+                        OR EXISTS (
+                            SELECT 1 FROM party_contacts contact
+                            WHERE contact.organization_id = ${organizationId}::uuid
+                              AND contact.party_id = ${parties.id}
+                              AND lower(contact.display_name) LIKE ${pattern} ESCAPE ${"\\"}
+                        )
+                        OR EXISTS (
+                            SELECT 1 FROM party_contacts contact
+                            JOIN party_contact_channels channel
+                              ON channel.organization_id = contact.organization_id
+                             AND channel.contact_id = contact.id
+                            WHERE contact.organization_id = ${organizationId}::uuid
+                              AND contact.party_id = ${parties.id}
+                              AND lower(channel.value) LIKE ${pattern} ESCAPE ${"\\"}
+                        )
+                    )`);
                 }
                 if (query.role)
                     conditions.push(
                         sql`EXISTS (SELECT 1 FROM party_roles role WHERE role.organization_id = ${parties.organizationId} AND role.party_id = ${parties.id} AND role.role = ${query.role})`,
                     );
-                if (cursor)
+                if (cursor) {
+                    if (cursor.sort !== query.sort)
+                        throw new ContractException("INVALID_PARTY_CURSOR", 400);
                     conditions.push(
-                        sql`(${normalizedName}, ${parties.id}) > (${cursor.name}, ${cursor.id}::uuid)`,
+                        query.sort === "updated_desc"
+                            ? sql`(${parties.updatedAt}, ${parties.id}) < (${new Date(cursor.key)}, ${cursor.id}::uuid)`
+                            : query.sort === "name_desc"
+                              ? sql`(${normalizedName}, ${parties.id}) < (${cursor.key}, ${cursor.id}::uuid)`
+                              : sql`(${normalizedName}, ${parties.id}) > (${cursor.key}, ${cursor.id}::uuid)`,
                     );
+                }
                 const rows = await transaction
                     .select()
                     .from(parties)
                     .where(and(...conditions))
-                    .orderBy(asc(normalizedName), asc(parties.id))
+                    .orderBy(
+                        query.sort === "updated_desc"
+                            ? desc(parties.updatedAt)
+                            : query.sort === "name_desc"
+                              ? desc(normalizedName)
+                              : asc(normalizedName),
+                        query.sort === "name_asc" ? asc(parties.id) : desc(parties.id),
+                    )
                     .limit(query.limit + 1);
                 const page = rows.slice(0, query.limit);
                 const roles = page.length
@@ -266,13 +339,15 @@ export class PartyManagementService {
                     ),
                     nextCursor:
                         rows.length > query.limit && last
-                            ? Buffer.from(
-                                  JSON.stringify({
-                                      name: last.displayName.toLowerCase(),
-                                      id: last.id,
-                                  }),
-                                  "utf8",
-                              ).toString("base64url")
+                            ? encodeRegistryCursor({
+                                  key:
+                                      query.sort === "updated_desc"
+                                          ? last.updatedAt.toISOString()
+                                          : last.displayName.toLowerCase(),
+                                  id: last.id,
+                                  sort: query.sort,
+                                  filters,
+                              })
                             : null,
                 });
             },

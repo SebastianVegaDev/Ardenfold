@@ -260,6 +260,35 @@ export default async function PartyDetailPage({ params, searchParams }: Props) {
                 ) : null}
             </section>
 
+            <section
+                className="rounded-card border border-border bg-surface p-5 sm:p-6"
+                aria-labelledby="party-duplicates-title"
+            >
+                <h2 id="party-duplicates-title" className="font-display text-xl font-semibold">
+                    {t("duplicates.title")}
+                </h2>
+                {party.duplicateCandidates.length ? (
+                    <>
+                        <p className="mt-2 text-sm text-muted-foreground">{t("duplicates.hint")}</p>
+                        <ul className="mt-3 list-inside list-disc">
+                            {party.duplicateCandidates.map((candidate) => (
+                                <li key={`${candidate.id}-${candidate.matchedType}`}>
+                                    <Link
+                                        href={`/${locale}/app/parties/${candidate.id}`}
+                                        className="text-primary underline focus-visible:outline-2 focus-visible:outline-ring"
+                                    >
+                                        {candidate.displayName}
+                                    </Link>{" "}
+                                    · {candidate.matchedType}
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">{t("duplicates.none")}</p>
+                )}
+            </section>
+
             <ContactsSection locale={locale} party={party} canWrite={canWrite} />
             <AddressesSection locale={locale} party={party} canWrite={canWrite} />
 

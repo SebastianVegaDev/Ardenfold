@@ -60,6 +60,9 @@ export const partyDetailSchema = partySummarySchema.extend({
     identifiers: z.array(partyIdentifierSchema),
     contacts: z.array(partyContactSchema),
     addresses: z.array(partyAddressSchema),
+    duplicateCandidates: z.array(
+        z.strictObject({ id, displayName: name, matchedType: z.string().min(1).max(64) }),
+    ),
 });
 
 export const partyListQuerySchema = z.strictObject({
@@ -67,7 +70,10 @@ export const partyListQuerySchema = z.strictObject({
     cursor: z.string().min(1).max(512).optional(),
     status: partyStatusSchema.optional(),
     role: partyRoleSchema.optional(),
+    kind: partyKindSchema.optional(),
     name: z.string().trim().min(1).max(100).optional(),
+    q: z.string().trim().min(2).max(100).optional(),
+    sort: z.enum(["name_asc", "name_desc", "updated_desc"]).default("name_asc"),
 });
 
 export const partyListResponseSchema = z.strictObject({

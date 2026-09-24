@@ -137,10 +137,18 @@
         "error": "No pudimos completar el cambio. Revisa la información e inténtalo de nuevo.",
         "conflict": "Este registro cambió desde que lo abriste. Revisa los valores actuales e inténtalo de nuevo.",
         "back": "Volver a contrapartes",
-        "search": "Buscar por nombre",
+        "search": "Buscar nombres, identificadores y contactos",
+        "sort": "Ordenar por",
+        "sorts": {
+            "name_asc": "Nombre A–Z",
+            "name_desc": "Nombre Z–A",
+            "updated_desc": "Actualizados recientemente"
+        },
+        "invalidFilters": "Estos filtros de búsqueda no son válidos. Revísalos e inténtalo de nuevo.",
         "role": "Rol comercial",
         "status": "Estado",
         "allRoles": "Todos los roles",
+        "allKinds": "Todos los tipos de contraparte",
         "allStatuses": "Todos los estados",
         "applyFilters": "Aplicar filtros",
         "clearFilters": "Limpiar filtros",
@@ -174,6 +182,11 @@
             "value": "Valor del identificador",
             "add": "Agregar identificador",
             "remove": "Quitar identificador"
+        },
+        "duplicates": {
+            "title": "Posibles duplicados",
+            "hint": "Estos registros de la organización comparten un identificador. Revísalos antes de decidir; no se fusionan automáticamente.",
+            "none": "No se encontraron posibles duplicados."
         },
         "contacts": {
             "title": "Contactos",
@@ -228,7 +241,14 @@
         "error": "No pudimos completar el cambio. Revisa la información e inténtalo de nuevo.",
         "conflict": "Este activo cambió desde que lo abriste. Revisa los valores actuales e inténtalo de nuevo.",
         "back": "Volver a activos",
-        "search": "Buscar por nombre",
+        "search": "Buscar activos, identificadores y relaciones",
+        "sort": "Ordenar por",
+        "sorts": {
+            "name_asc": "Nombre A–Z",
+            "name_desc": "Nombre Z–A",
+            "updated_desc": "Actualizados recientemente"
+        },
+        "invalidFilters": "Estos filtros de búsqueda no son válidos. Revísalos e inténtalo de nuevo.",
         "status": "Estado",
         "lifecycleLabel": "Ciclo de vida",
         "allStatuses": "Todos los estados",

@@ -11,8 +11,13 @@ type Props = Readonly<{
     params: Promise<{ locale: Locale }>;
     searchParams: Promise<{
         name?: string;
+        q?: string;
+        sort?: string;
         status?: string;
         lifecycle?: string;
+        manufacturer?: string;
+        model?: string;
+        classification?: string;
         cursor?: string;
         notice?: string;
     }>;
@@ -42,8 +47,13 @@ export default async function AssetsPage({ params, searchParams }: Props) {
     const canWrite = active.permissions.includes("assets.write");
     const paramsForApi = new URLSearchParams();
     if (query.name) paramsForApi.set("name", query.name);
+    if (query.q) paramsForApi.set("q", query.q);
+    if (query.sort) paramsForApi.set("sort", query.sort);
     if (query.status) paramsForApi.set("status", query.status);
     if (query.lifecycle) paramsForApi.set("lifecycle", query.lifecycle);
+    if (query.manufacturer) paramsForApi.set("manufacturer", query.manufacturer);
+    if (query.model) paramsForApi.set("model", query.model);
+    if (query.classification) paramsForApi.set("classification", query.classification);
     if (query.cursor) paramsForApi.set("cursor", query.cursor);
     let result;
     try {
@@ -59,14 +69,24 @@ export default async function AssetsPage({ params, searchParams }: Props) {
                 <p role="alert" className="mt-4">
                     {error instanceof AssetApiError && error.status === 403
                         ? t("forbidden")
-                        : t("loadError")}
+                        : error instanceof AssetApiError && error.status === 400
+                          ? t("invalidFilters")
+                          : t("loadError")}
                 </p>
             </div>
         );
     }
     const nextParams = new URLSearchParams(paramsForApi);
     if (result.nextCursor) nextParams.set("cursor", result.nextCursor);
-    const filtered = Boolean(query.name || query.status || query.lifecycle);
+    const filtered = Boolean(
+        query.name ||
+        query.q ||
+        query.status ||
+        query.lifecycle ||
+        query.manufacturer ||
+        query.model ||
+        query.classification,
+    );
 
     return (
         <div className="mx-auto max-w-6xl space-y-8 p-6 sm:p-8">
@@ -90,7 +110,13 @@ export default async function AssetsPage({ params, searchParams }: Props) {
             >
                 <div className="sm:col-span-2">
                     <Label htmlFor="asset-search">{t("search")}</Label>
-                    <Input id="asset-search" name="name" defaultValue={query.name ?? ""} />
+                    <Input
+                        id="asset-search"
+                        name="q"
+                        defaultValue={query.q ?? query.name ?? ""}
+                        minLength={2}
+                        maxLength={100}
+                    />
                 </div>
                 <div>
                     <Label htmlFor="asset-status-filter">{t("status")}</Label>
@@ -119,6 +145,46 @@ export default async function AssetsPage({ params, searchParams }: Props) {
                         <option value="out_of_service">{t("lifecycles.out_of_service")}</option>
                         <option value="retired">{t("lifecycles.retired")}</option>
                     </select>
+                </div>
+                <div>
+                    <Label htmlFor="asset-sort">{t("sort")}</Label>
+                    <select
+                        id="asset-sort"
+                        name="sort"
+                        defaultValue={query.sort ?? "name_asc"}
+                        className="mt-2 h-10 w-full rounded-control border border-border bg-surface px-3"
+                    >
+                        <option value="name_asc">{t("sorts.name_asc")}</option>
+                        <option value="name_desc">{t("sorts.name_desc")}</option>
+                        <option value="updated_desc">{t("sorts.updated_desc")}</option>
+                    </select>
+                </div>
+                <div>
+                    <Label htmlFor="asset-manufacturer-filter">{t("manufacturer")}</Label>
+                    <Input
+                        id="asset-manufacturer-filter"
+                        name="manufacturer"
+                        defaultValue={query.manufacturer ?? ""}
+                        maxLength={100}
+                    />
+                </div>
+                <div>
+                    <Label htmlFor="asset-model-filter">{t("model")}</Label>
+                    <Input
+                        id="asset-model-filter"
+                        name="model"
+                        defaultValue={query.model ?? ""}
+                        maxLength={100}
+                    />
+                </div>
+                <div>
+                    <Label htmlFor="asset-classification-filter">{t("classification")}</Label>
+                    <Input
+                        id="asset-classification-filter"
+                        name="classification"
+                        defaultValue={query.classification ?? ""}
+                        maxLength={100}
+                    />
                 </div>
                 <div className="flex gap-3 sm:col-span-4">
                     <Button type="submit">{t("applyFilters")}</Button>

@@ -137,10 +137,18 @@
         "error": "The change could not be completed. Review the information and try again.",
         "conflict": "This record changed since you opened it. Review the current values and try again.",
         "back": "Back to parties",
-        "search": "Search by name",
+        "search": "Search names, identifiers and contacts",
+        "sort": "Sort by",
+        "sorts": {
+            "name_asc": "Name A–Z",
+            "name_desc": "Name Z–A",
+            "updated_desc": "Recently updated"
+        },
+        "invalidFilters": "These search filters are invalid. Review them and try again.",
         "role": "Business role",
         "status": "Status",
         "allRoles": "All roles",
+        "allKinds": "All party types",
         "allStatuses": "All statuses",
         "applyFilters": "Apply filters",
         "clearFilters": "Clear filters",
@@ -174,6 +182,11 @@
             "value": "Identifier value",
             "add": "Add identifier",
             "remove": "Remove identifier"
+        },
+        "duplicates": {
+            "title": "Possible duplicates",
+            "hint": "These organization records share an identifier. Review them before deciding; no records are merged automatically.",
+            "none": "No possible duplicates found."
         },
         "contacts": {
             "title": "Contacts",
@@ -228,7 +241,14 @@
         "error": "The change could not be completed. Review the information and try again.",
         "conflict": "This asset changed since you opened it. Review the current values and try again.",
         "back": "Back to assets",
-        "search": "Search by name",
+        "search": "Search assets, identifiers and relationships",
+        "sort": "Sort by",
+        "sorts": {
+            "name_asc": "Name A–Z",
+            "name_desc": "Name Z–A",
+            "updated_desc": "Recently updated"
+        },
+        "invalidFilters": "These search filters are invalid. Review them and try again.",
         "status": "Status",
         "lifecycleLabel": "Lifecycle",
         "allStatuses": "All statuses",
