@@ -1,143 +1,80 @@
 # Ardenfold
 
-Multi-tenant platform for technical asset traceability, service operations, and verifiable certificates.
+Ardenfold is a multi-tenant platform for technical asset traceability. Its
+implemented product surface is an organization-aware registry for parties and
+assets, including temporal custody relationships and safe CSV imports.
 
-## Project status
+## Current product stage
 
-Ardenfold is currently in its engineering foundation stage. The architecture, development workflow and technical foundations are being established before implementing the first product workflow.
+The completed M2 foundation provides:
 
-## Product vision
+- **Identity & Access:** authenticated users, organizations, sites,
+  memberships, invitations, roles, and permissions.
+- **Parties:** organization-local customers and providers, identifiers,
+  contacts, channels, and addresses.
+- **Asset Registry:** asset identity, typed identifiers, lifecycle and archive
+  state, and independent ownership, custody, and location histories.
+- **Registry Import:** bounded CSV preview, validation, explicit confirmation,
+  resumable commit, and error export.
 
-Ardenfold connects organizations, technical service providers, physical assets, service operations, evidence and verifiable certificates.
+Service requests, quotations, work orders, technical execution, certificates,
+documents, notifications, integrations, and a mobile application are future
+concepts. They are not implemented modules or public product behavior today.
 
-The initial market is calibration, testing and technical inspection in Latin America. The long-term vision is to provide a persistent and trustworthy digital history for technical assets and the organizations that work with them.
+## Start here
 
-## Architecture
+[The living system map](docs/architecture/system-map.md) is the canonical
+starting point for navigating the repository. It maps current ownership,
+request flows, public contracts, database boundaries, and the tests that prove
+important guarantees.
 
-Ardenfold begins as a modular multi-tenant monolith with an API-first and event-ready architecture.
+Supporting references:
 
-The system is organized into three deployable processes:
+- [Domain boundaries](docs/domain/boundaries.md)
+- [Parties and Asset Registry model](docs/domain/parties-and-asset-registry.md)
+- [Tenant isolation](docs/development/tenant-isolation.md)
+- [Database and migration workflow](docs/development/migrations.md)
+- [Architecture decisions](docs/adr/README.md)
 
-- `web`: public experience, operational platform, customer portal and public verification.
-- `api`: synchronous operations, authorization and business use cases.
-- `worker`: documents, notifications, integrations and asynchronous processing.
-
-PostgreSQL is the primary source of truth. Files and evidence will be stored in object storage.
-
-Read the complete architecture document:
-
-- [Architecture and technical stack](docs/architecture/overview.md)
-- [Architecture Decision Records](docs/adr/README.md)
-
-## Planned repository structure
+## Repository
 
 ```text
-ardenfold/
-├── apps/
-│   ├── web/
-│   ├── api/
-│   ├── worker/
-│   └── mobile/
-├── packages/
-│   ├── core/
-│   ├── database/
-│   ├── contracts/
-│   ├── ui/
-│   ├── observability/
-│   ├── config/
-│   └── test-utils/
-├── infrastructure/
-│   ├── terraform/
-│   └── docker/
-└── docs/
-    ├── architecture/
-    └── adr/
+apps/
+  api/          NestJS API, authorization, domain application services
+  web/          Next.js operational experience and server-side API adapters
+  worker/       Worker process scaffold; no product jobs are implemented yet
+packages/
+  contracts/    API schemas, inferred types, and OpenAPI registration
+  database/     Drizzle schema, reviewed migrations, RLS, and test factories
+  observability/ Structured logging and correlation utilities
+  test-utils/   Reusable test infrastructure
+  ui/           Reusable presentational primitives
+docs/           Architecture, domain, development, operations, and test guides
 ```
-
-The `mobile` application is planned for a later stage and will only be implemented when field work and offline operation justify it.
-
-## Technical stack
-
-- TypeScript
-- Node.js
-- Next.js
-- React
-- NestJS
-- Fastify
-- PostgreSQL
-- Drizzle ORM
-- Amazon S3
-- Amazon SQS
-- Docker
-- Terraform
-- GitHub Actions
-
-## Internationalization
-
-Ardenfold is designed as a multilingual product.
-
-The application will not hardcode user-facing text or treat one language as the permanent product language. Locale selection will be resolved from the user's preference, organization configuration or browser preference.
-
-Translation catalogs will be loaded dynamically and validated to prevent incomplete releases.
 
 ## Local development
 
-Create the local environment file:
-
 ```powershell
 Copy-Item .env.example .env
-```
-
-Start PostgreSQL:
-
-```powershell
 pnpm db:up
-```
-
-Start the applications:
-
-```powershell
 pnpm dev
 ```
 
-Verify the API and PostgreSQL connection:
+Verify the API and PostgreSQL connection with:
 
 ```powershell
 Invoke-RestMethod http://localhost:3001/health/ready
 ```
 
-See [Local PostgreSQL environment](docs/development/database.md) for troubleshooting and operational commands.
-
-## Development workflow
-
-All implementation follows this workflow:
-
-1. Select a defined GitHub issue.
-2. Move the issue to `In Progress`.
-3. Create a branch from `main`.
-4. Implement and verify the change.
-5. Open a pull request linked to the issue.
-6. Review the diff and automated checks.
-7. Squash and merge into `main`.
-8. Delete the completed branch.
-
-See [CONTRIBUTING.md](/CONTRIBUTING.md) for the complete conventions.
-
-## Database migrations
-
-Database schema and migration tooling live in `packages/database`.
-
-See [Database migrations](docs/development/migrations.md) for the complete
-workflow and rules.
+See [the local database guide](docs/development/database.md) for configuration
+and troubleshooting.
 
 ## Security
 
-Never commit passwords, API keys, access tokens, private certificates or production environment files.
-
-Only documented example variables without real credentials may be committed.
+Never commit passwords, API keys, tokens, private certificates, or production
+environment files. Commit only documented example values in `.env.example`.
 
 ## License
 
-Copyright © 2026 Ardenfold. All rights reserved.
-
-This repository contains proprietary software and is not licensed for public use, modification or distribution.
+Copyright © 2026 Ardenfold. All rights reserved. This proprietary repository is
+not licensed for public use, modification, or distribution.
