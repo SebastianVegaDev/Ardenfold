@@ -25,12 +25,12 @@ import { Injectable } from "@nestjs/common";
 import { and, desc, eq, isNull, lt, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { recordAuditEvent } from "../audit/audit.service";
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
-import { ContractException } from "../http/contracts";
-import { recordAssetHistory } from "./asset-history.writer";
-import { advanceAssetVersion, getAsset } from "./asset-transaction";
+import { recordAuditEvent } from "../../audit/audit.service";
+import type { AuthenticatedPrincipal } from "../../auth/auth.types";
+import { OrganizationAuthorizationService } from "../../auth/organization-authorization.service";
+import { ContractException } from "../../http/contracts";
+import { recordAssetHistory } from "../history/asset-history.writer";
+import { advanceAssetVersion, getAsset } from "../shared/asset-transaction";
 
 type Target = Pick<
     NewAssetRelationship,

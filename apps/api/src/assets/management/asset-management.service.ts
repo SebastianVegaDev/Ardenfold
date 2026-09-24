@@ -18,19 +18,19 @@ import { assetIdentifiers, assets, type Asset } from "@ardenfold/database/schema
 import { Injectable } from "@nestjs/common";
 import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 
-import { recordAuditEvent } from "../audit/audit.service";
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
-import { ContractException } from "../http/contracts";
-import { normalizeRegistryIdentifier } from "../registry/identifier-normalization";
+import { recordAuditEvent } from "../../audit/audit.service";
+import type { AuthenticatedPrincipal } from "../../auth/auth.types";
+import { OrganizationAuthorizationService } from "../../auth/organization-authorization.service";
+import { ContractException } from "../../http/contracts";
+import { normalizeRegistryIdentifier } from "../../registry/identifier-normalization";
 import {
     decodeRegistryCursor,
     encodeRegistryCursor,
     registryFilterKey,
     searchPattern,
-} from "../registry/search";
-import { recordAssetHistory, type AssetHistoryEventType } from "./asset-history.writer";
-import { advanceAssetVersion, getAsset } from "./asset-transaction";
+} from "../../registry/search";
+import { recordAssetHistory, type AssetHistoryEventType } from "../history/asset-history.writer";
+import { advanceAssetVersion, getAsset } from "../shared/asset-transaction";
 
 function summary(asset: Asset): AssetSummary {
     return assetSummarySchema.parse({
