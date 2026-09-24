@@ -32,6 +32,6 @@ CREATE INDEX asset_relationships_location_trgm_idx ON asset_relationships USING 
 --> statement-breakpoint
 CREATE INDEX organization_sites_name_trgm_idx ON organization_sites USING gin (lower(name) gin_trgm_ops);
 --> statement-breakpoint
-CREATE INDEX party_addresses_line1_trgm_idx ON party_addresses USING gin (lower(line1) gin_trgm_ops);
+CREATE INDEX party_addresses_line1_trgm_idx ON party_addresses USING gin (lower(line_1) gin_trgm_ops);
 --> statement-breakpoint
 CREATE INDEX party_addresses_locality_trgm_idx ON party_addresses USING gin (lower(locality) gin_trgm_ops);

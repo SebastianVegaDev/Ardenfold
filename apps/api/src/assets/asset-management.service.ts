@@ -274,7 +274,7 @@ export class AssetManagementService {
                               AND relationship.superseded_at IS NULL
                               AND (lower(coalesce(target_party.display_name, '')) LIKE ${pattern} ESCAPE ${"\\"}
                                    OR lower(coalesce(target_site.name, '')) LIKE ${pattern} ESCAPE ${"\\"}
-                                   OR lower(coalesce(target_address.line1, '')) LIKE ${pattern} ESCAPE ${"\\"}
+                                   OR lower(coalesce(target_address.line_1, '')) LIKE ${pattern} ESCAPE ${"\\"}
                                    OR lower(coalesce(target_address.locality, '')) LIKE ${pattern} ESCAPE ${"\\"}
                                    OR lower(coalesce(relationship.location_description, '')) LIKE ${pattern} ESCAPE ${"\\"})
                         )
