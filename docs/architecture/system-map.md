@@ -1,0 +1,153 @@
+# Ardenfold living system map
+
+This is the canonical navigation map for the implemented Ardenfold system. It
+describes current ownership and dependency direction, not planned modules.
+
+## System at a glance
+
+```text
+Browser
+  -> apps/web (Next.js routes and authenticated server adapters)
+  -> apps/api (NestJS HTTP, authentication, authorization, applications)
+  -> packages/database (authorized transaction, tenant context, PostgreSQL RLS)
+  -> PostgreSQL (tenant-scoped domain state, audit, business history)
+
+Shared foundations
+  packages/contracts       schemas, types, OpenAPI registration
+  packages/ui              reusable presentational primitives
+  packages/observability  correlation and structured observability
+  packages/test-utils      common test infrastructure
+```
+
+`apps/web` improves presentation and forwards authenticated requests; it is not
+an authorization boundary. `apps/api` owns authorization and protected use
+cases. `packages/database` owns persistence definitions, migrations, tenant
+context, and RLS. PostgreSQL is the authoritative data owner.
+
+## Runtime flows
+
+### Authenticated read
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant W as Next.js web
+  participant A as NestJS API
+  participant I as Identity & authorization
+  participant D as Authorized DB transaction
+  participant P as PostgreSQL with RLS
+  B->>W: Navigate to protected screen
+  W->>A: Authenticated request with active organization
+  A->>I: Verify principal, membership, permission
+  I->>D: Open organization-scoped transaction
+  D->>P: Set local tenant context and query
+  P-->>D: RLS-filtered rows
+  D-->>A: Authorized result
+  A-->>W: Contract response
+  W-->>B: Localized presentation
+```
+
+### Protected mutation
+
+```mermaid
+sequenceDiagram
+  participant W as Next.js web
+  participant A as NestJS API
+  participant Z as Authorization
+  participant D as Transaction
+  participant P as PostgreSQL RLS
+  participant U as Audit
+  W->>A: Mutation request and aggregate version
+  A->>Z: Require active organization permission
+  Z->>D: Revalidate in protected transaction
+  D->>P: Set tenant context and write domain state
+  D->>U: Write audit event in same transaction
+  D-->>A: Commit or fail atomically
+  A-->>W: Stable success or error response
+```
+
+### Registry import commit
+
+```mermaid
+sequenceDiagram
+  participant W as Next.js web
+  participant A as Registry Import API
+  participant I as Import session and rows
+  participant S as Parties / Assets services
+  participant P as PostgreSQL RLS
+  W->>A: Confirm approved preview rows
+  A->>I: Authorize and claim resumable session work
+  I->>P: Read tenant-scoped session and row state
+  loop each claimed row
+    I->>S: Execute existing authorized domain mutation
+    S->>P: Persist record, history/audit, checkpoint atomically
+  end
+  A-->>W: Current progress, completion, or retryable failure
+```
+
+Preview never writes party or asset aggregates. Commit routes each approved row
+through the existing application services, preserving their validation,
+authorization, audit, concurrency, and RLS guarantees.
+
+## Product domains
+
+| Domain | Owner and entry points | Authoritative data and public surface | Read next |
+| --- | --- | --- | --- |
+| Identity & Access | `apps/api/src/auth`; `AuthController`, `OrganizationsController`, organization-management services | organizations, sites, memberships, invitations, local roles and permissions; auth/organization contracts | [boundaries](../domain/boundaries.md), [tenant isolation](../development/tenant-isolation.md) |
+| Parties | `apps/api/src/parties`; `PartiesController`, management and details services | tenant-scoped parties, roles, identifiers, contacts, channels and addresses; party contracts | [registry model](../domain/parties-and-asset-registry.md) |
+| Asset Registry | `apps/api/src/assets`; `AssetsController`, asset management and relationships services | tenant-scoped assets, typed identifiers, lifecycle, archival state, temporal relationships and business history; asset contracts | [registry model](../domain/parties-and-asset-registry.md) |
+| Registry Import | `apps/api/src/registry`; `RegistryImportsController`, `RegistryImportService` | tenant-scoped import sessions, parsed rows, validation, progress and error output; registry-import contracts | [import testing](../testing/registry-imports.md) |
+
+The web route and adapter entry points are under `apps/web/src/app` and the
+domain folders `apps/web/src/assets`, `parties`, and `imports`. They consume
+the public contracts; they do not own domain rules.
+
+## Platform and shared foundations
+
+| Area | Owner | Responsibility |
+| --- | --- | --- |
+| Authentication and authorization | `apps/api/src/auth` | verifies identity, resolves active organization, requires permissions, and revalidates protected operations |
+| Audit | `apps/api/src/audit` and database audit schema | append-only security and operational accountability, distinct from asset business history |
+| Database and tenant isolation | `packages/database/src/schema`, migrations, API database module | schemas, constraints, composite tenant references, transaction-local context, forced RLS, and runtime grants |
+| Contracts | `packages/contracts/src` | Zod request/response schemas, inferred types, and OpenAPI metadata consumed by API and web |
+| Observability | `packages/observability/src`, API observability module | correlation and structured telemetry support |
+| UI | `packages/ui/src` | reusable presentational components; domain behavior remains in owning applications |
+| Tests | `apps/e2e`, source-adjacent tests, database testing | browser, API, PostgreSQL/RLS, factories, and platform security evidence |
+
+Dependencies point toward shared foundations: product modules may consume
+contracts, database, observability, UI, and test utilities. A product module
+must not bypass another module's protected application behavior by writing its
+tables directly when an authoritative service owns that workflow.
+
+## Where do I change X?
+
+| Change | Start here |
+| --- | --- |
+| Asset identifiers, profile, lifecycle, archive | `apps/api/src/assets/asset-management.service.ts`, `packages/contracts/src/assets.ts`, `packages/database/src/schema/assets.ts` |
+| Asset ownership, custody, or location | `apps/api/src/assets/asset-relationships.service.ts`, `asset-history.writer.ts`, `packages/database/src/schema/asset-history.ts` |
+| Asset business history | `apps/api/src/assets/asset-history.writer.ts`; do not use the audit module for domain-history changes |
+| Party contacts or addresses | `apps/api/src/parties/party-management.service.ts`, `packages/contracts/src/parties.ts`, `packages/database/src/schema/parties.ts` |
+| Organization membership or invitations | `apps/api/src/auth/organization-management/` and `organizations.controller.ts` |
+| Permission or organization authorization | `apps/api/src/auth/organization-authorization.service.ts`, guards, permission contracts, and database authorization schema |
+| RLS, tenant context, constraints, or migrations | `packages/database/src/schema/`, `packages/database/drizzle/`, and [tenant isolation](../development/tenant-isolation.md) |
+| API schemas and OpenAPI | owning module in `packages/contracts/src`, then `apps/api/src/http/openapi.ts` |
+| Web presentation | route composition in `apps/web/src/app`; feature UI/adapters in `apps/web/src/assets`, `parties`, or `imports` |
+| CSV import parsing, preview, commit, and recovery | `apps/api/src/registry/registry-import.service.ts`, `import-parser.ts`, `apps/web/src/imports`, and `packages/contracts/src/registry-imports.ts` |
+
+## Finding proof
+
+- API and web behavior tests live next to their owners or in `apps/e2e`.
+- PostgreSQL constraints and RLS are exercised by database integration suites
+  and the platform-security tests described in
+  [platform security](../testing/platform-security.md).
+- Registry import isolation and recovery coverage is described in
+  [registry imports](../testing/registry-imports.md).
+- ADRs record durable decisions; current path ownership belongs in this map.
+
+## Future concepts
+
+Do not create folders or contracts for unimplemented service requests,
+quotations, work orders, technical execution, certificates, documents,
+notifications, integrations, or mobile/offline workflows merely to mirror the
+product vision. Add a bounded module only when a scoped implementation needs
+one.
