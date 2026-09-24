@@ -18,6 +18,7 @@
             "type": "string"
           },
           "name": {
+            "maxLength": 200,
             "minLength": 1,
             "type": "string"
           },
@@ -2385,6 +2386,7 @@
                   "type": "string"
                 },
                 "name": {
+                  "maxLength": 200,
                   "minLength": 1,
                   "type": "string"
                 },
@@ -2646,6 +2648,7 @@
             "type": "string"
           },
           "name": {
+            "maxLength": 200,
             "minLength": 1,
             "type": "string"
           },
