@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-html-link-for-pages -- Registry import CSV links target download route handlers, not Next.js pages. */
+
 import { randomUUID } from "node:crypto";
 
 import { identifierSchema } from "@ardenfold/contracts";
@@ -41,7 +43,7 @@ export default async function RegistryImportsPage({ params, searchParams }: Prop
         );
     }
     const parsedSessionId = identifierSchema.safeParse(query.sessionId);
-    let session;
+    let session: Awaited<ReturnType<typeof getImport>> | undefined;
     let loadError = false;
     if (query.sessionId) {
         if (!parsedSessionId.success) loadError = true;
