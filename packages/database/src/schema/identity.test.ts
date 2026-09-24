@@ -553,14 +553,14 @@ describe("identity, tenancy and row-level security", () => {
             INSERT INTO parties (organization_id, kind, display_name)
             SELECT ${organization!.id}::uuid, 'organization',
                    CASE WHEN n = 1 THEN 'needle-unique-party' ELSE 'Company ' || n::text END
-            FROM generate_series(1, 5000) AS n
+            FROM generate_series(1, 50000) AS n
         `);
         await connection.database.execute(sql`
             INSERT INTO assets (organization_id, display_name, manufacturer)
             SELECT ${organization!.id}::uuid,
                    CASE WHEN n = 1 THEN 'needle-unique-asset' ELSE 'Meter ' || n::text END,
                    CASE WHEN n = 1 THEN 'needle-manufacturer' ELSE 'Generic' END
-            FROM generate_series(1, 5000) AS n
+            FROM generate_series(1, 50000) AS n
         `);
         await connection.database.execute(sql`ANALYZE parties`);
         await connection.database.execute(sql`ANALYZE assets`);
@@ -592,7 +592,7 @@ describe("identity, tenancy and row-level security", () => {
         expect(manufacturerPlan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
             "assets_manufacturer_trgm_idx",
         );
-    });
+    }, 60_000);
 
     it("keeps the runtime role non-owner and unable to bypass row-level security", async () => {
         const roleResult = await connection.database.execute<{
