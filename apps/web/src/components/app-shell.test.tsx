@@ -11,6 +11,7 @@ const copy: AppShellCopy = {
     primaryNavigation: "Primary navigation",
     home: "Home",
     parties: "Parties",
+    assets: "Assets",
     settings: "Settings",
     organization: "Organization",
     organizationPlaceholder: "Select organization",
@@ -39,6 +40,8 @@ describe("AppShell", () => {
                 homeHref="/en/app"
                 partiesHref="/en/app/parties"
                 canReadParties
+                assetsHref="/en/app/assets"
+                canReadAssets
                 locale="en"
                 onboardingHref="/en/app/onboarding"
                 organizations={organizations}
@@ -59,6 +62,10 @@ describe("AppShell", () => {
         expect(screen.getByRole("link", { name: "Parties" })).toHaveAttribute(
             "href",
             "/en/app/parties",
+        );
+        expect(screen.getByRole("link", { name: "Assets" })).toHaveAttribute(
+            "href",
+            "/en/app/assets",
         );
         expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
     });

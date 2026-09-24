@@ -38,6 +38,7 @@
         "primaryNavigation": "Navegación principal",
         "home": "Inicio",
         "parties": "Contrapartes",
+        "assets": "Activos",
         "settings": "Configuración de la organización",
         "organization": "Selector de organización",
         "organizationPlaceholder": "Seleccionar organización",
@@ -216,6 +217,128 @@
             "confirmArchive": "Confirmar archivo",
             "confirmRestore": "Confirmar restauración",
             "archivedHint": "Las contrapartes archivadas siguen disponibles para consultar su historial."
+        }
+    },
+    "assets": {
+        "title": "Activos",
+        "description": "Registra activos, sigue sus relaciones y consulta su historial.",
+        "forbidden": "Tu rol no puede acceder al registro de activos.",
+        "loadError": "No pudimos cargar el registro de activos. Inténtalo de nuevo.",
+        "success": "El registro del activo se actualizó.",
+        "error": "No pudimos completar el cambio. Revisa la información e inténtalo de nuevo.",
+        "conflict": "Este activo cambió desde que lo abriste. Revisa los valores actuales e inténtalo de nuevo.",
+        "back": "Volver a activos",
+        "search": "Buscar por nombre",
+        "status": "Estado",
+        "lifecycleLabel": "Ciclo de vida",
+        "allStatuses": "Todos los estados",
+        "allLifecycles": "Todos los ciclos de vida",
+        "applyFilters": "Aplicar filtros",
+        "clearFilters": "Limpiar filtros",
+        "displayName": "Nombre visible",
+        "descriptionField": "Descripción (opcional)",
+        "manufacturer": "Fabricante (opcional)",
+        "model": "Modelo (opcional)",
+        "classification": "Clasificación (opcional)",
+        "statuses": { "active": "Activo", "archived": "Archivado" },
+        "lifecycles": {
+            "registered": "Registrado",
+            "in_service": "En servicio",
+            "out_of_service": "Fuera de servicio",
+            "retired": "Retirado"
+        },
+        "create": {
+            "title": "Registrar un activo",
+            "submit": "Registrar activo",
+            "identifierHint": "Puedes agregar un identificador inicial ahora o después."
+        },
+        "list": {
+            "title": "Registro",
+            "empty": "Aún no hay activos registrados.",
+            "noResults": "Ningún activo coincide con estos filtros.",
+            "view": "Ver detalles",
+            "next": "Página siguiente"
+        },
+        "detail": {
+            "profile": "Identidad del activo",
+            "save": "Guardar cambios",
+            "created": "Creado",
+            "updated": "Última actualización",
+            "readOnly": "Tu rol solo permite consultar este registro."
+        },
+        "identifiers": {
+            "title": "Identificadores",
+            "empty": "No hay identificadores registrados.",
+            "type": "Tipo de identificador",
+            "value": "Valor del identificador",
+            "add": "Agregar identificador",
+            "change": "Reemplazar identificador",
+            "retire": "Retirar identificador",
+            "active": "Vigente",
+            "retired": "Retirado",
+            "historyHint": "Los valores retirados permanecen en el historial de este activo."
+        },
+        "duplicates": {
+            "title": "Posibles duplicados",
+            "hint": "Estos registros de la organización comparten un identificador. Revísalos antes de decidir; nunca se fusionan automáticamente.",
+            "none": "No se encontraron posibles duplicados."
+        },
+        "relationships": {
+            "title": "Relaciones actuales",
+            "ownership": "Propiedad",
+            "custody": "Custodia",
+            "location": "Ubicación",
+            "none": "Sin registrar",
+            "subject": "Relacionado con",
+            "party": "Contraparte",
+            "recording_organization": "Esta organización",
+            "site": "Sede",
+            "party_address": "Dirección de contraparte",
+            "freeform": "Ubicación descrita",
+            "partyChoice": "Seleccionar contraparte",
+            "siteChoice": "Seleccionar sede",
+            "partyAddressId": "ID de dirección de contraparte",
+            "locationDescription": "Descripción de ubicación",
+            "effectiveAt": "Fecha efectiva (UTC, ISO 8601)",
+            "from": "Desde",
+            "to": "Hasta",
+            "start": "Iniciar o cambiar relación",
+            "end": "Finalizar relación",
+            "correct": "Corregir relación actual",
+            "reason": "Motivo de la corrección",
+            "history": "Revisiones de relaciones",
+            "historyEmpty": "No hay cambios de relaciones registrados.",
+            "changeHint": "Cambiar la custodia o la ubicación no cambia la propiedad.",
+            "targetHelp": "Elige el destino de esta relación. Las contrapartes y sedes se limitan a esta organización."
+        },
+        "history": {
+            "title": "Historial de negocio",
+            "empty": "No hay eventos de negocio registrados.",
+            "auditNote": "Esta línea de tiempo explica cambios de negocio; los registros de auditoría de seguridad son independientes.",
+            "version": "Versión",
+            "viewEarlier": "Ver entradas anteriores",
+            "events": {
+                "asset_created": "Activo registrado",
+                "asset_updated": "Datos del activo actualizados",
+                "lifecycle_changed": "Ciclo de vida modificado",
+                "identifier_added": "Identificador agregado",
+                "identifier_changed": "Identificador reemplazado",
+                "identifier_retired": "Identificador retirado",
+                "asset_archived": "Activo archivado",
+                "asset_restored": "Activo restaurado",
+                "relationship_started": "Relación iniciada",
+                "relationship_ended": "Relación finalizada",
+                "relationship_corrected": "Relación corregida"
+            }
+        },
+        "lifecycle": {
+            "title": "Ciclo de vida y archivo",
+            "set": "Cambiar ciclo de vida",
+            "archive": "Archivar activo",
+            "restore": "Restaurar activo",
+            "confirmArchive": "Confirmar archivo",
+            "confirmRestore": "Confirmar restauración",
+            "archivedHint": "Los activos archivados siguen disponibles para consultar su historial."
         }
     },
     "audit": {

@@ -38,6 +38,7 @@
         "primaryNavigation": "Primary navigation",
         "home": "Home",
         "parties": "Parties",
+        "assets": "Assets",
         "settings": "Organization settings",
         "organization": "Organization selector",
         "organizationPlaceholder": "Select organization",
@@ -216,6 +217,128 @@
             "confirmArchive": "Confirm archival",
             "confirmRestore": "Confirm restoration",
             "archivedHint": "Archived parties stay available for historical review."
+        }
+    },
+    "assets": {
+        "title": "Assets",
+        "description": "Register assets, track their relationships and review their history.",
+        "forbidden": "Your role cannot access the asset registry.",
+        "loadError": "The asset registry could not be loaded. Try again.",
+        "success": "The asset record was updated.",
+        "error": "The change could not be completed. Review the information and try again.",
+        "conflict": "This asset changed since you opened it. Review the current values and try again.",
+        "back": "Back to assets",
+        "search": "Search by name",
+        "status": "Status",
+        "lifecycleLabel": "Lifecycle",
+        "allStatuses": "All statuses",
+        "allLifecycles": "All lifecycles",
+        "applyFilters": "Apply filters",
+        "clearFilters": "Clear filters",
+        "displayName": "Display name",
+        "descriptionField": "Description (optional)",
+        "manufacturer": "Manufacturer (optional)",
+        "model": "Model (optional)",
+        "classification": "Classification (optional)",
+        "statuses": { "active": "Active", "archived": "Archived" },
+        "lifecycles": {
+            "registered": "Registered",
+            "in_service": "In service",
+            "out_of_service": "Out of service",
+            "retired": "Retired"
+        },
+        "create": {
+            "title": "Register an asset",
+            "submit": "Register asset",
+            "identifierHint": "You can add an initial identifier now or later."
+        },
+        "list": {
+            "title": "Registry",
+            "empty": "No assets have been registered yet.",
+            "noResults": "No assets match these filters.",
+            "view": "View details",
+            "next": "Next page"
+        },
+        "detail": {
+            "profile": "Asset identity",
+            "save": "Save changes",
+            "created": "Created",
+            "updated": "Last updated",
+            "readOnly": "Your role allows viewing this record only."
+        },
+        "identifiers": {
+            "title": "Identifiers",
+            "empty": "No identifiers recorded.",
+            "type": "Identifier type",
+            "value": "Identifier value",
+            "add": "Add identifier",
+            "change": "Replace identifier",
+            "retire": "Retire identifier",
+            "active": "Current",
+            "retired": "Retired",
+            "historyHint": "Retired values remain in this asset's history."
+        },
+        "duplicates": {
+            "title": "Possible duplicates",
+            "hint": "These organization records share an identifier. Review them before deciding; no records are merged automatically.",
+            "none": "No possible duplicates found."
+        },
+        "relationships": {
+            "title": "Current relationships",
+            "ownership": "Ownership",
+            "custody": "Custody",
+            "location": "Location",
+            "none": "Not recorded",
+            "subject": "Related to",
+            "party": "Party",
+            "recording_organization": "This organization",
+            "site": "Site",
+            "party_address": "Party address",
+            "freeform": "Described location",
+            "partyChoice": "Select party",
+            "siteChoice": "Select site",
+            "partyAddressId": "Party address ID",
+            "locationDescription": "Placement description",
+            "effectiveAt": "Effective time (UTC, ISO 8601)",
+            "from": "From",
+            "to": "Until",
+            "start": "Start or change relationship",
+            "end": "End relationship",
+            "correct": "Correct current relationship",
+            "reason": "Reason for correction",
+            "history": "Relationship revisions",
+            "historyEmpty": "No relationship changes recorded.",
+            "changeHint": "Changing custody or location does not change ownership.",
+            "targetHelp": "Choose the target that applies to this relationship. Party and site choices are limited to this organization."
+        },
+        "history": {
+            "title": "Business history",
+            "empty": "No business events recorded.",
+            "auditNote": "This timeline explains business changes; security audit records are separate.",
+            "version": "Version",
+            "viewEarlier": "View earlier entries",
+            "events": {
+                "asset_created": "Asset registered",
+                "asset_updated": "Asset details updated",
+                "lifecycle_changed": "Lifecycle changed",
+                "identifier_added": "Identifier added",
+                "identifier_changed": "Identifier replaced",
+                "identifier_retired": "Identifier retired",
+                "asset_archived": "Asset archived",
+                "asset_restored": "Asset restored",
+                "relationship_started": "Relationship started",
+                "relationship_ended": "Relationship ended",
+                "relationship_corrected": "Relationship corrected"
+            }
+        },
+        "lifecycle": {
+            "title": "Lifecycle and archival",
+            "set": "Change lifecycle",
+            "archive": "Archive asset",
+            "restore": "Restore asset",
+            "confirmArchive": "Confirm archival",
+            "confirmRestore": "Confirm restoration",
+            "archivedHint": "Archived assets remain available for historical review."
         }
     },
     "audit": {

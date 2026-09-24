@@ -1,7 +1,17 @@
 "use client";
 
 import { Button } from "@ardenfold/ui";
-import { Building2, House, LogOut, Menu, Settings, UserRound, UsersRound, X } from "lucide-react";
+import {
+    Building2,
+    Boxes,
+    House,
+    LogOut,
+    Menu,
+    Settings,
+    UserRound,
+    UsersRound,
+    X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
@@ -17,6 +27,7 @@ export type AppShellCopy = Readonly<{
     primaryNavigation: string;
     home: string;
     parties: string;
+    assets: string;
     settings: string;
     organization: string;
     organizationPlaceholder: string;
@@ -38,6 +49,8 @@ type AppShellProps = Readonly<{
     settingsHref: string;
     partiesHref?: string;
     canReadParties?: boolean;
+    assetsHref?: string;
+    canReadAssets?: boolean;
 }>;
 
 export function AppShell({
@@ -48,6 +61,8 @@ export function AppShell({
     homeHref,
     partiesHref,
     canReadParties = false,
+    assetsHref,
+    canReadAssets = false,
     locale,
     onboardingHref,
     organizations,
@@ -74,6 +89,16 @@ export function AppShell({
                 >
                     <UsersRound aria-hidden="true" className="size-5 shrink-0" />
                     <span className="md:hidden lg:inline">{copy.parties}</span>
+                </Link>
+            ) : null}
+            {canReadAssets && assetsHref ? (
+                <Link
+                    className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    href={assetsHref}
+                    onClick={() => setMobileNavigationOpen(false)}
+                >
+                    <Boxes aria-hidden="true" className="size-5 shrink-0" />
+                    <span className="md:hidden lg:inline">{copy.assets}</span>
                 </Link>
             ) : null}
             {organizations.length > 0 ? (

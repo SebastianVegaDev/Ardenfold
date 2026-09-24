@@ -48,6 +48,7 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 primaryNavigation: translate("primaryNavigation"),
                 home: translate("home"),
                 parties: translate("parties"),
+                assets: translate("assets"),
                 settings: translate("settings"),
                 organization: translate("organization"),
                 organizationPlaceholder: translate("organizationPlaceholder"),
@@ -60,6 +61,8 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
             homeHref={`/${locale}/app`}
             partiesHref={`/${locale}/app/parties`}
             canReadParties={activeOrganization?.permissions.includes("parties.read") ?? false}
+            assetsHref={`/${locale}/app/assets`}
+            canReadAssets={activeOrganization?.permissions.includes("assets.read") ?? false}
             locale={locale}
             onboardingHref={`/${locale}/app/onboarding`}
             organizations={organizations.data}
