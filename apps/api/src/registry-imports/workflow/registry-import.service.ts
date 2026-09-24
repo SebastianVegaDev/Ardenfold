@@ -19,15 +19,15 @@ import {
 import { Injectable } from "@nestjs/common";
 import { and, asc, eq, sql } from "drizzle-orm";
 
-import { recordAuditEvent } from "../audit/audit.service";
-import { AssetManagementService } from "../assets/management/asset-management.service";
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { OrganizationAuthorizationService } from "../auth/organization-authorization.service";
-import { ContractException } from "../http/contracts";
-import { PartyManagementService } from "../parties/management/party-management.service";
-import { PartyDetailsService } from "../parties/queries/party-details.service";
-import { normalizeRegistryIdentifier } from "./identifier-normalization";
-import { parseImportCsv, type ParsedImportRow } from "./import-parser";
+import { recordAuditEvent } from "../../audit/audit.service";
+import { AssetManagementService } from "../../assets/management/asset-management.service";
+import type { AuthenticatedPrincipal } from "../../auth/auth.types";
+import { OrganizationAuthorizationService } from "../../auth/organization-authorization.service";
+import { ContractException } from "../../http/contracts";
+import { PartyManagementService } from "../../parties/management/party-management.service";
+import { PartyDetailsService } from "../../parties/queries/party-details.service";
+import { normalizeRegistryIdentifier } from "../../registry/identifier-normalization";
+import { parseImportCsv, type ParsedImportRow } from "../parsing/import-parser";
 
 type Kind = "party" | "asset";
 
