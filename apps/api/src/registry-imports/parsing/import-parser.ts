@@ -7,8 +7,8 @@ import {
     type RegistryImportIssue,
 } from "@ardenfold/contracts";
 
-import { ContractException } from "../http/contracts";
-import { normalizeRegistryIdentifier } from "./identifier-normalization";
+import { ContractException } from "../../http/contracts";
+import { normalizeRegistryIdentifier } from "../../registry/identifier-normalization";
 
 export const importHeaders = {
     party: [

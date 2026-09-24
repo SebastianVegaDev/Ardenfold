@@ -18,17 +18,17 @@ import {
 } from "@nestjs/swagger";
 import type { FastifyReply } from "fastify";
 
-import type { AuthenticatedPrincipal } from "../auth/auth.types";
-import { CurrentOrganization } from "../auth/current-organization.decorator";
-import { CurrentPrincipal } from "../auth/current-principal.decorator";
+import type { AuthenticatedPrincipal } from "../../auth/auth.types";
+import { CurrentOrganization } from "../../auth/current-organization.decorator";
+import { CurrentPrincipal } from "../../auth/current-principal.decorator";
 import {
     organizationHeader,
     type ActiveOrganizationContext,
-} from "../auth/organization-context.types";
-import { RequirePermissions } from "../auth/require-permissions.decorator";
-import { ContractValidationPipe } from "../http/contracts";
-import { csvTemplate } from "./import-parser";
-import { RegistryImportService } from "./registry-import.service";
+} from "../../auth/organization-context.types";
+import { RequirePermissions } from "../../auth/require-permissions.decorator";
+import { ContractValidationPipe } from "../../http/contracts";
+import { csvTemplate } from "../parsing/import-parser";
+import { RegistryImportService } from "../workflow/registry-import.service";
 
 @ApiTags("registry imports")
 @ApiBearerAuth()
