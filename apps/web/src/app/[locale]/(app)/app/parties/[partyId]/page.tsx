@@ -7,10 +7,10 @@ import { notFound } from "next/navigation";
 import { getActiveOrganization } from "@/auth/api-client";
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import type { Locale } from "@/i18n/locales";
-import { AddressesSection } from "@/parties/addresses-section";
-import { getParty, PartyApiError } from "@/parties/api-client";
-import { ContactsSection } from "@/parties/contacts-section";
-import { PartyFormFields } from "@/parties/party-form-fields";
+import { AddressesSection } from "@/features/parties/addresses-section";
+import { getParty, PartyApiError } from "@/features/parties/api-client";
+import { ContactsSection } from "@/features/parties/contacts-section";
+import { PartyFormFields } from "@/features/parties/party-form-fields";
 
 type Props = Readonly<{
     params: Promise<{ locale: Locale; partyId: string }>;

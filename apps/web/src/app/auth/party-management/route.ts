@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { getActiveOrganizationSession } from "@/auth/server-organization";
 import { getTechnicalFallbackLocale, isLocale } from "@/i18n/locales";
-import { mutateParty, PartyApiError } from "@/parties/api-client";
+import { mutateParty, PartyApiError } from "@/features/parties/api-client";
 
 function stringValue(form: FormData, name: string): string {
     const value = form.get(name);
