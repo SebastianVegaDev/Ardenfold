@@ -48,7 +48,7 @@ test("party import previews safely, commits approved rows once and isolates sess
     expect(southParty.status).toBe(201);
     const southIdentifier = await request(
         token,
-        `/parties/${southParty.body.id}/identifiers`,
+        `/parties/${southParty.body.id as string}/identifiers`,
         southId,
         {
             expectedVersion: 1,
@@ -64,7 +64,7 @@ test("party import previews safely, commits approved rows once and isolates sess
     });
     const northIdentifier = await request(
         token,
-        `/parties/${northParty.body.id}/identifiers`,
+        `/parties/${northParty.body.id as string}/identifiers`,
         northId,
         {
             expectedVersion: 1,
