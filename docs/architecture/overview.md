@@ -36,6 +36,11 @@ storage, notifications, external integrations, and mobile/offline workflows
 remain product-direction concepts. They must not be represented as current
 runtime modules until a scoped implementation exists.
 
+The [Service Management model](../domain/service-management.md) now defines the
+M4 request-to-work-order design, including optional receipt and readiness for
+technical execution. Its documented capability map does not add runtime modules;
+Technical Operations and Certificates & Trust remain later implementation work.
+
 ## Related references
 
 - [Living system map](system-map.md)

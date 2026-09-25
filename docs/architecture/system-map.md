@@ -149,6 +149,14 @@ tables directly when an authoritative service owns that workflow.
 
 ## Future concepts
 
+The [Service Management implementation model](../domain/service-management.md)
+is the canonical M4 design and intended capability map for requests, quotations,
+acceptance, work orders/items and receipts. It is not an implemented runtime
+module. The target keeps API application capabilities separate from HTTP and
+module composition, web behavior under `apps/web/src/features/service-management`,
+and contracts/persistence under their existing package owners. Its boundary
+ends at readiness for future Technical Operations.
+
 Do not create folders or contracts for unimplemented service requests,
 quotations, work orders, technical execution, certificates, documents,
 notifications, integrations, or mobile/offline workflows merely to mirror the

@@ -67,17 +67,24 @@ global deduplication.
 | Term | Definition | Owning module |
 | --- | --- | --- |
 | Service request | A customer's expressed need for technical work, including the requested scope and relevant assets when known. | Service Management |
-| Quote | A proposed commercial scope, price, and terms for requested work. | Service Management |
-| Quote revision | A distinguishable revision of a quote whose accepted commercial terms remain recoverable. | Service Management |
-| Work order | The operational authorization and coordination record for an agreed scope of work. | Service Management |
-| Work item | An individually tracked unit of work within a work order. | Service Management |
-| Receipt | The operational record of receiving an asset, including its observed condition and supplied accessories where relevant. | Service Management |
+| Quote | The stable commercial identity grouping numbered proposals for one service request. | Service Management |
+| Quote revision | A particular proposal's scope, amounts, currency and terms; editable while draft and immutable once issued. | Service Management |
+| Acceptance | A durable customer-agreement fact identifying one exact issued quote revision, its attribution and time, separate from user authorization. | Service Management |
+| Work order | The distinct operational authorization and coordination record derived from an explicit commercial basis; in M4, one accepted quote revision. | Service Management |
+| Work item | An independently tracked allocation of agreed scope within a work order, forming the readiness boundary for future technical execution. | Service Management |
+| Receipt | A historical physical-intake record with observed condition, accessories, time and actor; it neither establishes asset identity nor owns custody/location. | Service Management |
 | Technical execution | The performance and recording of technical work for a work item. | Technical Operations |
 | Technical result | Structured output from an execution, with the units, precision, and context required to interpret it. | Technical Operations |
 | Technical review | A recorded assessment of an execution and its results by an authorized reviewer. | Technical Operations |
 | Approval | An explicit decision permitting the reviewed result to advance, subject to the applicable policy. | Technical Operations |
 
-A quote is not a work order.
+A service request is not a draft quote. A quote is not its revision, and neither
+is a work order. Acceptance permanently identifies its revision even after
+withdrawal or later proposals.
+
+Receipt does not transfer ownership and is not required for on-site work.
+Detailed lifecycles and commercial-history rules belong in the
+[Service Management model](service-management.md).
 
 A work order is not a certificate.
 
