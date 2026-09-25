@@ -549,7 +549,19 @@
             "serviceRequestCreated": "Solicitud de servicio creada",
             "serviceRequestUpdated": "Solicitud de servicio actualizada",
             "serviceRequestCancelled": "Solicitud de servicio cancelada",
-            "serviceRequestClosed": "Solicitud de servicio cerrada"
+            "serviceRequestClosed": "Solicitud de servicio cerrada",
+            "quoteCreated": "Cotización creada",
+            "quoteRevisionCreated": "Revisión de cotización creada",
+            "quoteRevisionEdited": "Borrador de cotización editado",
+            "quoteRevisionIssued": "Revisión de cotización emitida",
+            "quoteRevisionSuperseded": "Revisión de cotización sustituida",
+            "quoteRevisionDiscarded": "Borrador de cotización descartado",
+            "quoteRevisionWithdrawn": "Oferta de cotización retirada",
+            "quoteRevisionExpired": "Oferta de cotización vencida",
+            "quoteRevisionRejected": "Oferta de cotización rechazada",
+            "quoteAccepted": "Cotización aceptada",
+            "quoteAcceptanceWithdrawn": "Aceptación de cotización retirada",
+            "quoteClosed": "Cotización cerrada"
         }
     },
     "states": {

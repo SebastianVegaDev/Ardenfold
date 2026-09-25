@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
@@ -13,6 +14,8 @@ import {
     organizations,
     parties,
     partyRoles,
+    quoteAcceptances,
+    quoteHistoryEntries,
     quoteLineAdjustments,
     quoteRevisionAdjustments,
     quoteRevisionLines,
@@ -551,6 +554,73 @@ describe("service management quotation persistence", () => {
                 createdByUserId: f.actor.id,
                 updatedByUserId: f.actor.id,
             }),
+        ).rejects.toThrow();
+    });
+
+    it("protects acceptance facts and commercial history with tenant constraints and forced RLS", async () => {
+        const f = await fixture();
+        const quote = await createQuote(f);
+        const revision = await createRevision(f, quote);
+        const context = { organizationId: f.first.id, userId: f.actor.id };
+        const rows = await migrator.database.execute<{
+            relname: string;
+            relrowsecurity: boolean;
+            relforcerowsecurity: boolean;
+        }>(sql`SELECT relname, relrowsecurity, relforcerowsecurity FROM pg_class
+            WHERE relname IN ('quote_acceptances', 'quote_history_entries')`);
+        expect(rows.rows).toHaveLength(2);
+        expect(rows.rows.every((row) => row.relrowsecurity && row.relforcerowsecurity)).toBe(true);
+        await expect(
+            runtime.withTenantTransaction(context, (tx) =>
+                tx.insert(quoteAcceptances).values({
+                    organizationId: f.first.id,
+                    quoteId: quote.id,
+                    revisionId: revision.id,
+                    idempotencyKey: randomUUID(),
+                    payloadHash: "a".repeat(64),
+                    recordedByUserId: f.actor.id,
+                    channel: "phone",
+                }),
+            ),
+        ).rejects.toThrow();
+        await expect(
+            runtime.withTenantTransaction(context, (tx) =>
+                tx.insert(quoteAcceptances).values({
+                    organizationId: f.first.id,
+                    quoteId: quote.id,
+                    revisionId: randomUUID(),
+                    idempotencyKey: randomUUID(),
+                    payloadHash: "a".repeat(64),
+                    recordedByUserId: f.actor.id,
+                    channel: "phone",
+                }),
+            ),
+        ).rejects.toThrow();
+        await runtime.withTenantTransaction(context, (tx) =>
+            tx.insert(quoteHistoryEntries).values({
+                organizationId: f.first.id,
+                quoteId: quote.id,
+                version: 1,
+                kind: "created",
+                recordedByUserId: f.actor.id,
+                context: { reference: quote.reference },
+            }),
+        );
+        expect(await runtime.database.select().from(quoteHistoryEntries)).toEqual([]);
+        expect(await runtime.database.select().from(quoteAcceptances)).toEqual([]);
+        expect(
+            await runtime.withTenantTransaction(
+                { organizationId: f.second.id, userId: f.otherActor.id },
+                (tx) => tx.select().from(quoteHistoryEntries),
+            ),
+        ).toEqual([]);
+        await expect(
+            runtime.withTenantTransaction(context, (tx) =>
+                tx
+                    .update(quoteHistoryEntries)
+                    .set({ reason: "rewrite" })
+                    .where(eq(quoteHistoryEntries.quoteId, quote.id)),
+            ),
         ).rejects.toThrow();
     });
 });

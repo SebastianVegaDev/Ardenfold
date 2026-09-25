@@ -7,6 +7,7 @@ import type {
 } from "@ardenfold/contracts";
 import type { ArdenfoldTransaction } from "@ardenfold/database";
 import {
+    quotes,
     serviceRequestHistoryEntries,
     serviceRequestScopeItems,
     serviceRequests,
@@ -98,6 +99,7 @@ export class RequestManagementService {
     ): Promise<ServiceRequestDetail> {
         const required: PermissionCode[] = ["service_requests.write"];
         if (input.customerPartyId || input.requesterContactId) required.push("parties.read");
+        if (input.customerPartyId) required.push("quotations.read");
         if (input.siteId) required.push("sites.read");
         if (input.scopeItems?.some((item) => item.assetId)) required.push("assets.read");
         return this.authorization.withAuthorizedTransaction(
@@ -105,8 +107,31 @@ export class RequestManagementService {
             organizationId,
             required,
             async (tx) => {
+                await tx
+                    .select({ id: serviceRequests.id })
+                    .from(serviceRequests)
+                    .where(
+                        and(
+                            eq(serviceRequests.organizationId, organizationId),
+                            eq(serviceRequests.id, requestId),
+                        ),
+                    )
+                    .for("update");
                 const existing = await this.queries.getInTransaction(tx, organizationId, requestId);
                 this.requireEditable(existing, input.expectedVersion);
+                if (input.customerPartyId && input.customerPartyId !== existing.customerPartyId) {
+                    const [quote] = await tx
+                        .select({ id: quotes.id })
+                        .from(quotes)
+                        .where(
+                            and(
+                                eq(quotes.organizationId, organizationId),
+                                eq(quotes.requestId, requestId),
+                            ),
+                        )
+                        .limit(1);
+                    if (quote) throw new ContractException("REQUEST_CUSTOMER_LOCKED_BY_QUOTE", 409);
+                }
                 const customerPartyId = input.customerPartyId ?? existing.customerPartyId;
                 const requesterContactId =
                     input.requesterContactId !== undefined
@@ -217,12 +242,43 @@ export class RequestManagementService {
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,
-            ["service_requests.write"],
+            ["service_requests.write", "quotations.read"],
             async (tx) => {
+                await tx
+                    .select({ id: serviceRequests.id })
+                    .from(serviceRequests)
+                    .where(
+                        and(
+                            eq(serviceRequests.organizationId, organizationId),
+                            eq(serviceRequests.id, requestId),
+                        ),
+                    )
+                    .for("update");
                 const existing = await this.queries.getInTransaction(tx, organizationId, requestId);
                 this.requireEditable(existing, input.expectedVersion);
-                // Quote and work-order guards are added by their owning capabilities when
-                // those records are introduced. They do not exist at this stage of M4.
+                const [openQuote] = await tx
+                    .select({ id: quotes.id })
+                    .from(quotes)
+                    .where(
+                        and(
+                            eq(quotes.organizationId, organizationId),
+                            eq(quotes.requestId, requestId),
+                        ),
+                    )
+                    .limit(1);
+                if (openQuote) {
+                    const allQuotes = await tx
+                        .select({ status: quotes.status })
+                        .from(quotes)
+                        .where(
+                            and(
+                                eq(quotes.organizationId, organizationId),
+                                eq(quotes.requestId, requestId),
+                            ),
+                        );
+                    if (allQuotes.some((quote) => quote.status !== "closed"))
+                        throw new ContractException("REQUEST_HAS_ACTIVE_QUOTES", 409);
+                }
                 const [updated] = await tx
                     .update(serviceRequests)
                     .set({

@@ -34,6 +34,18 @@ export const auditActionSchema = z.enum([
     "service_request.updated",
     "service_request.cancelled",
     "service_request.closed",
+    "quote.created",
+    "quote.revision.created",
+    "quote.revision.edited",
+    "quote.revision.issued",
+    "quote.revision.superseded",
+    "quote.revision.discarded",
+    "quote.revision.withdrawn",
+    "quote.revision.expired",
+    "quote.revision.rejected",
+    "quote.accepted",
+    "quote.acceptance.withdrawn",
+    "quote.closed",
 ]);
 export const auditMetadataSchema = z.record(
     z.string().min(1).max(80),
