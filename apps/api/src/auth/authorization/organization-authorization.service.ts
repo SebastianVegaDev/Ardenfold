@@ -135,6 +135,16 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.assets.archive',
                             ${String(context.permissions.includes("assets.archive"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.service_requests.read',
+                            ${String(context.permissions.includes("service_requests.read"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.service_requests.write',
+                            ${String(context.permissions.includes("service_requests.write"))},
+                            true
                         )
                 `);
 

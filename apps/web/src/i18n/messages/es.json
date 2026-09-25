@@ -468,7 +468,11 @@
             "assetRelationshipStarted": "Relación del activo iniciada",
             "assetRelationshipEnded": "Relación del activo terminada",
             "assetRelationshipCorrected": "Relación del activo corregida",
-            "registryImportCompleted": "Importación del registro completada"
+            "registryImportCompleted": "Importación del registro completada",
+            "serviceRequestCreated": "Solicitud de servicio creada",
+            "serviceRequestUpdated": "Solicitud de servicio actualizada",
+            "serviceRequestCancelled": "Solicitud de servicio cancelada",
+            "serviceRequestClosed": "Solicitud de servicio cerrada"
         }
     },
     "states": {

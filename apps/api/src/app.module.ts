@@ -10,6 +10,7 @@ import { DatabaseModule } from "./infrastructure/database/database.module";
 import { ObservabilityModule } from "./observability/observability.module";
 import { PartiesModule } from "./parties/parties.module";
 import { RegistryImportsModule } from "./registry-imports/registry-imports.module";
+import { ServiceManagementModule } from "./service-management/service-management.module";
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { RegistryImportsModule } from "./registry-imports/registry-imports.modul
         PartiesModule,
         AssetsModule,
         RegistryImportsModule,
+        ServiceManagementModule,
     ],
     controllers: [AppController],
 })

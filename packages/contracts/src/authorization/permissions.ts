@@ -18,6 +18,8 @@ export const permissionCodeSchema = z.enum([
     "assets.manage_relationships",
     "assets.archive",
     "registry.import",
+    "service_requests.read",
+    "service_requests.write",
 ]);
 
 export type OrganizationRole = z.infer<typeof organizationRoleSchema>;

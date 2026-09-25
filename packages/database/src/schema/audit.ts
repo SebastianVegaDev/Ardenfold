@@ -43,6 +43,10 @@ export const auditActionValues = [
     "asset.relationship_started",
     "asset.relationship_ended",
     "asset.relationship_corrected",
+    "service_request.created",
+    "service_request.updated",
+    "service_request.cancelled",
+    "service_request.closed",
 ] as const;
 
 export type AuditAction = (typeof auditActionValues)[number];
