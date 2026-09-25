@@ -6,3 +6,4 @@ export * from "./assets";
 export * from "./asset-history";
 export * from "./registry-imports";
 export * from "./service-management/requests";
+export * from "./service-management/quotations";

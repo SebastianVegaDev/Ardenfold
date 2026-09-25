@@ -42,7 +42,9 @@
                 "assets.archive",
                 "registry.import",
                 "service_requests.read",
-                "service_requests.write"
+                "service_requests.write",
+                "quotations.read",
+                "quotations.write"
               ],
               "type": "string"
             },

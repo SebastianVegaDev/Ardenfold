@@ -145,6 +145,16 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.service_requests.write',
                             ${String(context.permissions.includes("service_requests.write"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.quotations.read',
+                            ${String(context.permissions.includes("quotations.read"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.quotations.write',
+                            ${String(context.permissions.includes("quotations.write"))},
+                            true
                         )
                 `);
 
