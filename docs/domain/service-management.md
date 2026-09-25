@@ -2,10 +2,10 @@
 
 This is the authoritative request-to-work-order model for M4, defined by
 [#89](https://github.com/SebastianVegaDev/Ardenfold/issues/89). It specifies
-business behavior for subsequent persistence, API and web issues; it does not
-claim those capabilities are implemented. M4 ends at readiness for technical
-execution. M5 Technical Operations owns execution, results, evidence, review
-and approval.
+business behavior for subsequent persistence, API and web issues. Request
+persistence is implemented in #90; API and web workflows are still planned.
+M4 ends at readiness for technical execution. M5 Technical Operations owns
+execution, results, evidence, review and approval.
 
 Read this with the [glossary](glossary.md), [boundaries](boundaries.md),
 [workflow invariants](workflow-and-invariants.md), and existing
