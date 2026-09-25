@@ -103,8 +103,9 @@ authorization, audit, concurrency, and RLS guarantees.
 | Service Management requests | `apps/api/src/service-management/requests`, `http/service-requests.controller.ts`; `packages/database/src/schema/service-management/requests.ts` | authorized request creation, listing, edits and terminal transitions; tenant-scoped scope and business history | [service model](../domain/service-management.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
-feature folders `apps/web/src/features/assets`, `parties`, and `registry-imports`. They consume
-the public contracts; they do not own domain rules.
+feature folders `apps/web/src/features/assets`, `parties`, `registry-imports`, and
+`service-management/requests`. They consume the public contracts; they do not
+own domain rules.
 
 ## Platform and shared foundations
 
@@ -139,6 +140,7 @@ tables directly when an authoritative service owns that workflow.
 | CSV import parsing, preview, commit, and recovery | `apps/api/src/registry-imports/workflow/registry-import.service.ts`, `parsing/import-parser.ts`, `apps/web/src/features/registry-imports`, and `packages/contracts/src/registry-imports.ts` |
 | Service Request persistence and RLS | `packages/database/src/schema/service-management/requests.ts`, `packages/database/src/service-management/requests/requests.test.ts` |
 | Service Request API and contracts | `apps/api/src/service-management/requests`, `apps/api/src/service-management/http/service-requests.controller.ts`, `packages/contracts/src/service-management/requests/requests.ts` |
+| Service Request web intake and lifecycle | `apps/web/src/features/service-management/requests`; routing under `app/[locale]/(app)/app/service-requests` and `app/auth/service-requests` |
 
 ## Finding proof
 
@@ -155,8 +157,8 @@ tables directly when an authoritative service owns that workflow.
 The [Service Management implementation model](../domain/service-management.md)
 is the canonical M4 design and intended capability map for requests, quotations,
 acceptance, work orders/items and receipts. The request API and persistence are
-implemented; web request workflows are not yet implemented. The target keeps
-API application capabilities separate from HTTP and module composition, web
+implemented, including web request intake, review, editing and terminal
+transitions. The target keeps API application capabilities separate from HTTP and module composition, web
 behavior under `apps/web/src/features/service-management`, and contracts and
 persistence under their existing package owners. Its boundary ends at readiness
 for future Technical Operations.

@@ -8,6 +8,7 @@ import {
     LogOut,
     Menu,
     Settings,
+    ClipboardList,
     UserRound,
     UsersRound,
     X,
@@ -28,6 +29,7 @@ export type AppShellCopy = Readonly<{
     home: string;
     parties: string;
     assets: string;
+    serviceRequests: string;
     settings: string;
     organization: string;
     organizationPlaceholder: string;
@@ -51,6 +53,8 @@ type AppShellProps = Readonly<{
     canReadParties?: boolean;
     assetsHref?: string;
     canReadAssets?: boolean;
+    serviceRequestsHref?: string;
+    canReadServiceRequests?: boolean;
 }>;
 
 export function AppShell({
@@ -63,6 +67,8 @@ export function AppShell({
     canReadParties = false,
     assetsHref,
     canReadAssets = false,
+    serviceRequestsHref,
+    canReadServiceRequests = false,
     locale,
     onboardingHref,
     organizations,
@@ -99,6 +105,16 @@ export function AppShell({
                 >
                     <Boxes aria-hidden="true" className="size-5 shrink-0" />
                     <span className="md:hidden lg:inline">{copy.assets}</span>
+                </Link>
+            ) : null}
+            {canReadServiceRequests && serviceRequestsHref ? (
+                <Link
+                    className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    href={serviceRequestsHref}
+                    onClick={() => setMobileNavigationOpen(false)}
+                >
+                    <ClipboardList aria-hidden="true" className="size-5 shrink-0" />
+                    <span className="md:hidden lg:inline">{copy.serviceRequests}</span>
                 </Link>
             ) : null}
             {organizations.length > 0 ? (
