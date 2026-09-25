@@ -549,7 +549,19 @@
             "serviceRequestCreated": "Service request created",
             "serviceRequestUpdated": "Service request updated",
             "serviceRequestCancelled": "Service request cancelled",
-            "serviceRequestClosed": "Service request closed"
+            "serviceRequestClosed": "Service request closed",
+            "quoteCreated": "Quotation created",
+            "quoteRevisionCreated": "Quotation revision created",
+            "quoteRevisionEdited": "Quotation draft edited",
+            "quoteRevisionIssued": "Quotation revision issued",
+            "quoteRevisionSuperseded": "Quotation revision superseded",
+            "quoteRevisionDiscarded": "Quotation draft discarded",
+            "quoteRevisionWithdrawn": "Quotation offer withdrawn",
+            "quoteRevisionExpired": "Quotation offer expired",
+            "quoteRevisionRejected": "Quotation offer rejected",
+            "quoteAccepted": "Quotation accepted",
+            "quoteAcceptanceWithdrawn": "Quotation acceptance withdrawn",
+            "quoteClosed": "Quotation closed"
         }
     },
     "states": {

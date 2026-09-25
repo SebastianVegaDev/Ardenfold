@@ -1,6 +1,67 @@
 {
   "components": {
     "schemas": {
+      "AcceptQuoteRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "agreementAt": {
+            "format": "date-time",
+            "nullable": true,
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "channel": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "externalReference": {
+            "maxLength": 120,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "revisionId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "suppliedByContactId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "suppliedByName": {
+            "maxLength": 120,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "revisionId",
+          "agreementAt",
+          "suppliedByName",
+          "suppliedByContactId",
+          "channel",
+          "externalReference"
+        ],
+        "type": "object"
+      },
       "ActiveOrganizationResponse": {
         "additionalProperties": false,
         "properties": {
@@ -1508,7 +1569,19 @@
               "service_request.created",
               "service_request.updated",
               "service_request.cancelled",
-              "service_request.closed"
+              "service_request.closed",
+              "quote.created",
+              "quote.revision.created",
+              "quote.revision.edited",
+              "quote.revision.issued",
+              "quote.revision.superseded",
+              "quote.revision.discarded",
+              "quote.revision.withdrawn",
+              "quote.revision.expired",
+              "quote.revision.rejected",
+              "quote.accepted",
+              "quote.acceptance.withdrawn",
+              "quote.closed"
             ],
             "type": "string"
           },
@@ -1642,7 +1715,19 @@
                     "service_request.created",
                     "service_request.updated",
                     "service_request.cancelled",
-                    "service_request.closed"
+                    "service_request.closed",
+                    "quote.created",
+                    "quote.revision.created",
+                    "quote.revision.edited",
+                    "quote.revision.issued",
+                    "quote.revision.superseded",
+                    "quote.revision.discarded",
+                    "quote.revision.withdrawn",
+                    "quote.revision.expired",
+                    "quote.revision.rejected",
+                    "quote.accepted",
+                    "quote.acceptance.withdrawn",
+                    "quote.closed"
                   ],
                   "type": "string"
                 },
@@ -1841,6 +1926,27 @@
         },
         "required": [
           "approvedRows"
+        ],
+        "type": "object"
+      },
+      "CopyQuoteRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourceRevisionId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "sourceRevisionId"
         ],
         "type": "object"
       },
@@ -2151,6 +2257,184 @@
         ],
         "type": "object"
       },
+      "CreateQuote": {
+        "additionalProperties": false,
+        "properties": {
+          "draft": {
+            "additionalProperties": false,
+            "properties": {
+              "adjustments": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amount": {
+                      "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                      "type": "string"
+                    },
+                    "label": {
+                      "maxLength": 120,
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "amount"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              "currencyCode": {
+                "enum": [
+                  "PEN",
+                  "USD",
+                  "EUR",
+                  "JPY",
+                  "KWD"
+                ],
+                "type": "string"
+              },
+              "deliveryTerms": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "exclusions": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "intakeExpectations": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "lines": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adjustments": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "amount": {
+                            "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                            "type": "string"
+                          },
+                          "label": {
+                            "maxLength": 120,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "amount"
+                        ],
+                        "type": "object"
+                      },
+                      "maxItems": 20,
+                      "type": "array"
+                    },
+                    "assetId": {
+                      "format": "uuid",
+                      "nullable": true,
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                      "type": "string"
+                    },
+                    "description": {
+                      "maxLength": 10000,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "partyId": {
+                      "format": "uuid",
+                      "nullable": true,
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                      "type": "string"
+                    },
+                    "unit": {
+                      "maxLength": 40,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "unitPrice": {
+                      "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "description",
+                    "quantity",
+                    "unit",
+                    "unitPrice",
+                    "adjustments"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 100,
+                "type": "array"
+              },
+              "paymentTerms": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "serviceLocation": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "validUntil": {
+                "format": "date-time",
+                "nullable": true,
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "currencyCode",
+              "paymentTerms",
+              "deliveryTerms",
+              "serviceLocation",
+              "intakeExpectations",
+              "exclusions",
+              "validUntil",
+              "lines",
+              "adjustments"
+            ],
+            "type": "object"
+          },
+          "reference": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "reference",
+          "draft"
+        ],
+        "type": "object"
+      },
       "CreateServiceRequest": {
         "additionalProperties": false,
         "properties": {
@@ -2287,6 +2571,185 @@
         "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
         "type": "string"
       },
+      "EditQuoteDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "draft": {
+            "additionalProperties": false,
+            "properties": {
+              "adjustments": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amount": {
+                      "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                      "type": "string"
+                    },
+                    "label": {
+                      "maxLength": 120,
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "amount"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              "currencyCode": {
+                "enum": [
+                  "PEN",
+                  "USD",
+                  "EUR",
+                  "JPY",
+                  "KWD"
+                ],
+                "type": "string"
+              },
+              "deliveryTerms": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "exclusions": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "intakeExpectations": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "lines": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adjustments": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "amount": {
+                            "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                            "type": "string"
+                          },
+                          "label": {
+                            "maxLength": 120,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "amount"
+                        ],
+                        "type": "object"
+                      },
+                      "maxItems": 20,
+                      "type": "array"
+                    },
+                    "assetId": {
+                      "format": "uuid",
+                      "nullable": true,
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                      "type": "string"
+                    },
+                    "description": {
+                      "maxLength": 10000,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "partyId": {
+                      "format": "uuid",
+                      "nullable": true,
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                      "type": "string"
+                    },
+                    "unit": {
+                      "maxLength": 40,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "unitPrice": {
+                      "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "description",
+                    "quantity",
+                    "unit",
+                    "unitPrice",
+                    "adjustments"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 100,
+                "type": "array"
+              },
+              "paymentTerms": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "serviceLocation": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              },
+              "validUntil": {
+                "format": "date-time",
+                "nullable": true,
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "currencyCode",
+              "paymentTerms",
+              "deliveryTerms",
+              "serviceLocation",
+              "intakeExpectations",
+              "exclusions",
+              "validUntil",
+              "lines",
+              "adjustments"
+            ],
+            "type": "object"
+          },
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason",
+          "draft"
+        ],
+        "type": "object"
+      },
       "EndAssetRelationshipRequest": {
         "additionalProperties": false,
         "properties": {
@@ -2326,6 +2789,27 @@
         "format": "date-time",
         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
         "type": "string"
+      },
+      "IssueQuoteRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "channel"
+        ],
+        "type": "object"
       },
       "LivenessResponse": {
         "additionalProperties": false,
@@ -3447,6 +3931,1277 @@
         ],
         "type": "object"
       },
+      "QuoteAcceptance": {
+        "additionalProperties": false,
+        "properties": {
+          "agreementAt": {
+            "format": "date-time",
+            "nullable": true,
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "channel": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "externalReference": {
+            "maxLength": 120,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "quoteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "recordedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "recordedByUserId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "revisionId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "suppliedByContactId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "suppliedByName": {
+            "maxLength": 120,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "withdrawalReason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "withdrawnAt": {
+            "format": "date-time",
+            "nullable": true,
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "quoteId",
+          "revisionId",
+          "agreementAt",
+          "recordedAt",
+          "recordedByUserId",
+          "suppliedByName",
+          "suppliedByContactId",
+          "channel",
+          "externalReference",
+          "withdrawnAt",
+          "withdrawalReason"
+        ],
+        "type": "object"
+      },
+      "QuoteDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptances": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "agreementAt": {
+                  "format": "date-time",
+                  "nullable": true,
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "channel": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "externalReference": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "quoteId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "recordedAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "recordedByUserId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "revisionId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "suppliedByContactId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "suppliedByName": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "withdrawalReason": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "withdrawnAt": {
+                  "format": "date-time",
+                  "nullable": true,
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "quoteId",
+                "revisionId",
+                "agreementAt",
+                "recordedAt",
+                "recordedByUserId",
+                "suppliedByName",
+                "suppliedByContactId",
+                "channel",
+                "externalReference",
+                "withdrawnAt",
+                "withdrawalReason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "activeAcceptanceId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "customerPartyId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "history": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "acceptanceId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "context": {
+                  "additionalProperties": {},
+                  "nullable": true,
+                  "type": "object"
+                },
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "quoteId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "reason": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "recordedAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "recordedByUserId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "revisionId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "version": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "quoteId",
+                "version",
+                "kind",
+                "revisionId",
+                "acceptanceId",
+                "reason",
+                "context",
+                "recordedAt",
+                "recordedByUserId"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "revisions": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "adjustments": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "amount": {
+                        "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                        "type": "string"
+                      },
+                      "label": {
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "amount"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 20,
+                  "type": "array"
+                },
+                "calculationPolicyVersion": {
+                  "enum": [
+                    1
+                  ],
+                  "type": "number"
+                },
+                "createdAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "currencyCode": {
+                  "enum": [
+                    "PEN",
+                    "USD",
+                    "EUR",
+                    "JPY",
+                    "KWD"
+                  ],
+                  "type": "string"
+                },
+                "currencyScale": {
+                  "maximum": 4,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "customerSnapshot": {
+                  "additionalProperties": {},
+                  "nullable": true,
+                  "type": "object"
+                },
+                "deliveryTerms": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "exclusions": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "intakeExpectations": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "issueChannel": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "issuedAt": {
+                  "format": "date-time",
+                  "nullable": true,
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "lines": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "adjustments": {
+                        "default": [],
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "amount": {
+                              "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                              "type": "string"
+                            },
+                            "label": {
+                              "maxLength": 120,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "amount"
+                          ],
+                          "type": "object"
+                        },
+                        "maxItems": 20,
+                        "type": "array"
+                      },
+                      "assetId": {
+                        "format": "uuid",
+                        "nullable": true,
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                        "type": "string"
+                      },
+                      "assetSnapshot": {
+                        "additionalProperties": {},
+                        "nullable": true,
+                        "type": "object"
+                      },
+                      "description": {
+                        "maxLength": 10000,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "id": {
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                        "type": "string"
+                      },
+                      "partyId": {
+                        "format": "uuid",
+                        "nullable": true,
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                        "type": "string"
+                      },
+                      "partySnapshot": {
+                        "additionalProperties": {},
+                        "nullable": true,
+                        "type": "object"
+                      },
+                      "position": {
+                        "exclusiveMinimum": true,
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "quantity": {
+                        "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                        "type": "string"
+                      },
+                      "roundedBaseAmount": {
+                        "nullable": true,
+                        "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                        "type": "string"
+                      },
+                      "totalAmount": {
+                        "nullable": true,
+                        "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                        "type": "string"
+                      },
+                      "unit": {
+                        "maxLength": 40,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "unitPrice": {
+                        "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "description",
+                      "quantity",
+                      "unit",
+                      "unitPrice",
+                      "adjustments",
+                      "id",
+                      "position",
+                      "roundedBaseAmount",
+                      "totalAmount",
+                      "partySnapshot",
+                      "assetSnapshot"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "paymentTerms": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "quoteId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "revisionNumber": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "serviceLocation": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "sourceRequestVersion": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "sourceRevisionId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "draft",
+                    "offered",
+                    "discarded",
+                    "accepted",
+                    "rejected",
+                    "expired",
+                    "superseded",
+                    "withdrawn"
+                  ],
+                  "type": "string"
+                },
+                "subtotal": {
+                  "nullable": true,
+                  "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                  "type": "string"
+                },
+                "supersededByRevisionId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "total": {
+                  "nullable": true,
+                  "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                  "type": "string"
+                },
+                "validUntil": {
+                  "format": "date-time",
+                  "nullable": true,
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "version": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "currencyCode",
+                "paymentTerms",
+                "deliveryTerms",
+                "serviceLocation",
+                "intakeExpectations",
+                "exclusions",
+                "validUntil",
+                "adjustments",
+                "id",
+                "quoteId",
+                "revisionNumber",
+                "sourceRevisionId",
+                "status",
+                "version",
+                "sourceRequestVersion",
+                "currencyScale",
+                "calculationPolicyVersion",
+                "lines",
+                "subtotal",
+                "total",
+                "customerSnapshot",
+                "issuedAt",
+                "issueChannel",
+                "supersededByRevisionId",
+                "createdAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "accepted",
+              "closed"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "requestId",
+          "customerPartyId",
+          "reference",
+          "status",
+          "version",
+          "activeAcceptanceId",
+          "createdAt",
+          "updatedAt",
+          "revisions",
+          "acceptances",
+          "history"
+        ],
+        "type": "object"
+      },
+      "QuoteHistoryEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptanceId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": {},
+            "nullable": true,
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "quoteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "recordedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "recordedByUserId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "revisionId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "quoteId",
+          "version",
+          "kind",
+          "revisionId",
+          "acceptanceId",
+          "reason",
+          "context",
+          "recordedAt",
+          "recordedByUserId"
+        ],
+        "type": "object"
+      },
+      "QuoteLine": {
+        "additionalProperties": false,
+        "properties": {
+          "adjustments": {
+            "default": [],
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount": {
+                  "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                  "type": "string"
+                },
+                "label": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "amount"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "assetId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "assetSnapshot": {
+            "additionalProperties": {},
+            "nullable": true,
+            "type": "object"
+          },
+          "description": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "partyId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "partySnapshot": {
+            "additionalProperties": {},
+            "nullable": true,
+            "type": "object"
+          },
+          "position": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "quantity": {
+            "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+            "type": "string"
+          },
+          "roundedBaseAmount": {
+            "nullable": true,
+            "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+            "type": "string"
+          },
+          "totalAmount": {
+            "nullable": true,
+            "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+            "type": "string"
+          },
+          "unit": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string"
+          },
+          "unitPrice": {
+            "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "quantity",
+          "unit",
+          "unitPrice",
+          "adjustments",
+          "id",
+          "position",
+          "roundedBaseAmount",
+          "totalAmount",
+          "partySnapshot",
+          "assetSnapshot"
+        ],
+        "type": "object"
+      },
+      "QuoteListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "activeAcceptanceId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "customerPartyId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "requestId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "open",
+                    "accepted",
+                    "closed"
+                  ],
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "version": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "requestId",
+                "customerPartyId",
+                "reference",
+                "status",
+                "version",
+                "activeAcceptanceId",
+                "createdAt",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
+      "QuoteRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "adjustments": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount": {
+                  "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                  "type": "string"
+                },
+                "label": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "amount"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "calculationPolicyVersion": {
+            "enum": [
+              1
+            ],
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "currencyCode": {
+            "enum": [
+              "PEN",
+              "USD",
+              "EUR",
+              "JPY",
+              "KWD"
+            ],
+            "type": "string"
+          },
+          "currencyScale": {
+            "maximum": 4,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "customerSnapshot": {
+            "additionalProperties": {},
+            "nullable": true,
+            "type": "object"
+          },
+          "deliveryTerms": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "exclusions": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "intakeExpectations": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "issueChannel": {
+            "maxLength": 120,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "issuedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "adjustments": {
+                  "default": [],
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "amount": {
+                        "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                        "type": "string"
+                      },
+                      "label": {
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "amount"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 20,
+                  "type": "array"
+                },
+                "assetId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "assetSnapshot": {
+                  "additionalProperties": {},
+                  "nullable": true,
+                  "type": "object"
+                },
+                "description": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "partyId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "partySnapshot": {
+                  "additionalProperties": {},
+                  "nullable": true,
+                  "type": "object"
+                },
+                "position": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "quantity": {
+                  "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                  "type": "string"
+                },
+                "roundedBaseAmount": {
+                  "nullable": true,
+                  "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                  "type": "string"
+                },
+                "totalAmount": {
+                  "nullable": true,
+                  "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+                  "type": "string"
+                },
+                "unit": {
+                  "maxLength": 40,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "unitPrice": {
+                  "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unit",
+                "unitPrice",
+                "adjustments",
+                "id",
+                "position",
+                "roundedBaseAmount",
+                "totalAmount",
+                "partySnapshot",
+                "assetSnapshot"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "paymentTerms": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "quoteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "revisionNumber": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "serviceLocation": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "sourceRequestVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourceRevisionId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "offered",
+              "discarded",
+              "accepted",
+              "rejected",
+              "expired",
+              "superseded",
+              "withdrawn"
+            ],
+            "type": "string"
+          },
+          "subtotal": {
+            "nullable": true,
+            "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+            "type": "string"
+          },
+          "supersededByRevisionId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "total": {
+            "nullable": true,
+            "pattern": "^-?(?:0|[1-9]\\d{0,17})(?:\\.\\d{1,4})?$",
+            "type": "string"
+          },
+          "validUntil": {
+            "format": "date-time",
+            "nullable": true,
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "currencyCode",
+          "paymentTerms",
+          "deliveryTerms",
+          "serviceLocation",
+          "intakeExpectations",
+          "exclusions",
+          "validUntil",
+          "adjustments",
+          "id",
+          "quoteId",
+          "revisionNumber",
+          "sourceRevisionId",
+          "status",
+          "version",
+          "sourceRequestVersion",
+          "currencyScale",
+          "calculationPolicyVersion",
+          "lines",
+          "subtotal",
+          "total",
+          "customerSnapshot",
+          "issuedAt",
+          "issueChannel",
+          "supersededByRevisionId",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "QuoteSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "activeAcceptanceId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "customerPartyId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "accepted",
+              "closed"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "requestId",
+          "customerPartyId",
+          "reference",
+          "status",
+          "version",
+          "activeAcceptanceId",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "QuoteVersion": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason"
+        ],
+        "type": "object"
+      },
       "ReadinessResponse": {
         "additionalProperties": false,
         "properties": {
@@ -3840,6 +5595,46 @@
           "approvedRows",
           "summary",
           "rows"
+        ],
+        "type": "object"
+      },
+      "RejectQuoteRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "revisionId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "suppliedByName": {
+            "maxLength": 120,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "revisionId",
+          "reason",
+          "channel",
+          "suppliedByName"
         ],
         "type": "object"
       },
@@ -8611,6 +10406,1119 @@
         "summary": "",
         "tags": [
           "parties"
+        ]
+      }
+    },
+    "/api/v1/quotations": {
+      "get": {
+        "operationId": "listQuotes",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "customerPartyId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "requestId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "open",
+                "accepted",
+                "closed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteListResponse"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      },
+      "post": {
+        "operationId": "createQuote",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}": {
+      "get": {
+        "operationId": "getQuote",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/acceptances": {
+      "post": {
+        "operationId": "acceptQuoteRevision",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptQuoteRevision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteAcceptance"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/acceptances/withdraw": {
+      "post": {
+        "operationId": "withdrawQuoteAcceptance",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteVersion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/close": {
+      "post": {
+        "operationId": "closeQuote",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteVersion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/reject": {
+      "post": {
+        "operationId": "rejectQuoteRevision",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectQuoteRevision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/revisions": {
+      "post": {
+        "operationId": "copyQuoteRevision",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyQuoteRevision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/revisions/{revisionId}": {
+      "patch": {
+        "operationId": "editQuoteDraft",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditQuoteDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/revisions/{revisionId}/discard": {
+      "post": {
+        "operationId": "discardQuoteDraft",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteVersion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/revisions/{revisionId}/expire": {
+      "post": {
+        "operationId": "expireQuoteRevision",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteVersion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/revisions/{revisionId}/issue": {
+      "post": {
+        "operationId": "issueQuoteRevision",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueQuoteRevision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
+        ]
+      }
+    },
+    "/api/v1/quotations/{quoteId}/revisions/{revisionId}/withdraw": {
+      "post": {
+        "operationId": "withdrawQuoteOffer",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "quoteId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteVersion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-quotations"
         ]
       }
     },

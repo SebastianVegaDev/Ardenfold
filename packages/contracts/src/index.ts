@@ -77,6 +77,22 @@ import {
     updateServiceRequestSchema,
 } from "./service-management/requests/requests";
 import {
+    acceptQuoteRevisionSchema,
+    copyQuoteRevisionSchema,
+    createQuoteSchema,
+    editQuoteDraftSchema,
+    issueQuoteRevisionSchema,
+    quoteAcceptanceSchema,
+    quoteDetailSchema,
+    quoteHistoryEntrySchema,
+    quoteLineSchema,
+    quoteListResponseSchema,
+    quoteRevisionSchema,
+    quoteSummarySchema,
+    quoteVersionSchema,
+    rejectQuoteRevisionSchema,
+} from "./service-management/quotations/quotations";
+import {
     dateOnlySchema,
     decimalSchema,
     identifierSchema,
@@ -97,6 +113,7 @@ export * from "./registry-imports/registry-imports";
 export * from "./shared/api";
 export * from "./shared/primitives";
 export * from "./service-management/requests/requests";
+export * from "./service-management/quotations/quotations";
 
 // This is the only package-level composition point. Contract definitions stay
 // in their owning domain modules; OpenAPI consumes this stable public registry.
@@ -171,4 +188,18 @@ export const contractSchemas = {
     CreateServiceRequest: createServiceRequestSchema,
     UpdateServiceRequest: updateServiceRequestSchema,
     TransitionServiceRequest: transitionServiceRequestSchema,
+    QuoteLine: quoteLineSchema,
+    QuoteRevision: quoteRevisionSchema,
+    QuoteAcceptance: quoteAcceptanceSchema,
+    QuoteHistoryEntry: quoteHistoryEntrySchema,
+    QuoteSummary: quoteSummarySchema,
+    QuoteDetail: quoteDetailSchema,
+    QuoteListResponse: quoteListResponseSchema,
+    CreateQuote: createQuoteSchema,
+    EditQuoteDraft: editQuoteDraftSchema,
+    CopyQuoteRevision: copyQuoteRevisionSchema,
+    QuoteVersion: quoteVersionSchema,
+    IssueQuoteRevision: issueQuoteRevisionSchema,
+    AcceptQuoteRevision: acceptQuoteRevisionSchema,
+    RejectQuoteRevision: rejectQuoteRevisionSchema,
 };

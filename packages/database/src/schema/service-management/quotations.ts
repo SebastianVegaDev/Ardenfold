@@ -18,7 +18,7 @@ import {
 
 import { assets } from "../assets";
 import { organizations, users } from "../identity";
-import { parties } from "../parties";
+import { parties, partyContacts } from "../parties";
 import { serviceRequests } from "./requests";
 
 export const quoteStatusValues = ["open", "accepted", "closed"] as const;
@@ -363,3 +363,114 @@ export const quoteRevisionAdjustments = pgTable(
 export type Quote = typeof quotes.$inferSelect;
 export type QuoteRevision = typeof quoteRevisions.$inferSelect;
 export type QuoteRevisionLine = typeof quoteRevisionLines.$inferSelect;
+
+export const quoteAcceptances = pgTable(
+    "quote_acceptances",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        organizationId: uuid("organization_id").notNull(),
+        quoteId: uuid("quote_id").notNull(),
+        revisionId: uuid("revision_id").notNull(),
+        idempotencyKey: uuid("idempotency_key").notNull(),
+        payloadHash: varchar("payload_hash", { length: 64 }).notNull(),
+        agreementAt: timestamp("agreement_at", { withTimezone: true }),
+        recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+        recordedByUserId: uuid("recorded_by_user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "restrict" }),
+        suppliedByName: varchar("supplied_by_name", { length: 120 }),
+        suppliedByContactId: uuid("supplied_by_contact_id"),
+        channel: varchar("channel", { length: 120 }).notNull(),
+        externalReference: varchar("external_reference", { length: 120 }),
+        withdrawnAt: timestamp("withdrawn_at", { withTimezone: true }),
+        withdrawnByUserId: uuid("withdrawn_by_user_id").references(() => users.id, {
+            onDelete: "restrict",
+        }),
+        withdrawalReason: text("withdrawal_reason"),
+    },
+    (table) => [
+        unique("quote_acceptances_org_id_unique").on(table.organizationId, table.id),
+        unique("quote_acceptances_org_quote_id_unique").on(
+            table.organizationId,
+            table.quoteId,
+            table.id,
+        ),
+        unique("quote_acceptances_idempotency_unique").on(
+            table.organizationId,
+            table.idempotencyKey,
+        ),
+        uniqueIndex("quote_acceptances_one_active_idx")
+            .on(table.organizationId, table.quoteId)
+            .where(sql`${table.withdrawnAt} IS NULL`),
+        foreignKey({
+            name: "quote_acceptances_revision_fk",
+            columns: [table.organizationId, table.quoteId, table.revisionId],
+            foreignColumns: [
+                quoteRevisions.organizationId,
+                quoteRevisions.quoteId,
+                quoteRevisions.id,
+            ],
+        }).onDelete("restrict"),
+        foreignKey({
+            name: "quote_acceptances_contact_fk",
+            columns: [table.organizationId, table.suppliedByContactId],
+            foreignColumns: [partyContacts.organizationId, partyContacts.id],
+        }).onDelete("restrict"),
+        check("quote_acceptances_hash", sql`${table.payloadHash} ~ '^[a-f0-9]{64}$'`),
+        check("quote_acceptances_channel", sql`char_length(btrim(${table.channel})) > 0`),
+        check(
+            "quote_acceptances_withdrawal_complete",
+            sql`(${table.withdrawnAt} IS NULL AND ${table.withdrawnByUserId} IS NULL AND ${table.withdrawalReason} IS NULL) OR (${table.withdrawnAt} IS NOT NULL AND ${table.withdrawnByUserId} IS NOT NULL AND char_length(btrim(${table.withdrawalReason})) > 0)`,
+        ),
+    ],
+);
+
+export const quoteHistoryEntries = pgTable(
+    "quote_history_entries",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        organizationId: uuid("organization_id").notNull(),
+        quoteId: uuid("quote_id").notNull(),
+        version: integer("version").notNull(),
+        kind: varchar("kind", { length: 80 }).notNull(),
+        revisionId: uuid("revision_id"),
+        acceptanceId: uuid("acceptance_id"),
+        reason: text("reason"),
+        context: jsonb("context"),
+        recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+        recordedByUserId: uuid("recorded_by_user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "restrict" }),
+    },
+    (table) => [
+        unique("quote_history_entries_org_quote_version_unique").on(
+            table.organizationId,
+            table.quoteId,
+            table.version,
+        ),
+        foreignKey({
+            name: "quote_history_entries_quote_fk",
+            columns: [table.organizationId, table.quoteId],
+            foreignColumns: [quotes.organizationId, quotes.id],
+        }).onDelete("restrict"),
+        foreignKey({
+            name: "quote_history_entries_revision_fk",
+            columns: [table.organizationId, table.quoteId, table.revisionId],
+            foreignColumns: [
+                quoteRevisions.organizationId,
+                quoteRevisions.quoteId,
+                quoteRevisions.id,
+            ],
+        }).onDelete("restrict"),
+        foreignKey({
+            name: "quote_history_entries_acceptance_fk",
+            columns: [table.organizationId, table.quoteId, table.acceptanceId],
+            foreignColumns: [
+                quoteAcceptances.organizationId,
+                quoteAcceptances.quoteId,
+                quoteAcceptances.id,
+            ],
+        }).onDelete("restrict"),
+        check("quote_history_entries_version_positive", sql`${table.version} > 0`),
+    ],
+);

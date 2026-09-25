@@ -99,6 +99,13 @@
       "when": 1790368775950,
       "tag": "0013_windy_green_goblin",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790370104458,
+      "tag": "0014_stale_yellow_claw",
+      "breakpoints": true
     }
   ]
 }
