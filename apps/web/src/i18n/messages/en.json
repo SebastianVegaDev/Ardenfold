@@ -468,7 +468,11 @@
             "assetRelationshipStarted": "Asset relationship started",
             "assetRelationshipEnded": "Asset relationship ended",
             "assetRelationshipCorrected": "Asset relationship corrected",
-            "registryImportCompleted": "Registry import completed"
+            "registryImportCompleted": "Registry import completed",
+            "serviceRequestCreated": "Service request created",
+            "serviceRequestUpdated": "Service request updated",
+            "serviceRequestCancelled": "Service request cancelled",
+            "serviceRequestClosed": "Service request closed"
         }
     },
     "states": {

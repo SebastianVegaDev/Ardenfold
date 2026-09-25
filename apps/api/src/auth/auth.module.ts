@@ -47,6 +47,6 @@ import { SiteManagementService } from "./organizations/site-management.service";
             useClass: OrganizationAuthorizationGuard,
         },
     ],
-    exports: [OrganizationAuthorizationService],
+    exports: [OrganizationAuthorizationService, SiteManagementService],
 })
 export class AuthModule {}

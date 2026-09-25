@@ -100,7 +100,7 @@ authorization, audit, concurrency, and RLS guarantees.
 | Parties | `apps/api/src/parties`; `PartiesController`, management and details services | tenant-scoped parties, roles, identifiers, contacts, channels and addresses; party contracts | [registry model](../domain/parties-and-asset-registry.md) |
 | Asset Registry | `apps/api/src/assets`; `AssetsController`, asset management and relationships services | tenant-scoped assets, typed identifiers, lifecycle, archival state, temporal relationships and business history; asset contracts | [registry model](../domain/parties-and-asset-registry.md) |
 | Registry Import | `apps/api/src/registry-imports`; `RegistryImportsController`, `RegistryImportService` | tenant-scoped import sessions, parsed rows, validation, progress and error output; registry-import contracts | [import testing](../testing/registry-imports.md) |
-| Service Management requests | `packages/database/src/schema/service-management/requests.ts` | tenant-scoped requests, requested scope and request history; persistence only | [service model](../domain/service-management.md) |
+| Service Management requests | `apps/api/src/service-management/requests`, `http/service-requests.controller.ts`; `packages/database/src/schema/service-management/requests.ts` | authorized request creation, listing, edits and terminal transitions; tenant-scoped scope and business history | [service model](../domain/service-management.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
 feature folders `apps/web/src/features/assets`, `parties`, and `registry-imports`. They consume
@@ -138,6 +138,7 @@ tables directly when an authoritative service owns that workflow.
 | Web presentation | route composition in `apps/web/src/app`; feature UI/adapters in `apps/web/src/features/assets`, `parties`, or `registry-imports` |
 | CSV import parsing, preview, commit, and recovery | `apps/api/src/registry-imports/workflow/registry-import.service.ts`, `parsing/import-parser.ts`, `apps/web/src/features/registry-imports`, and `packages/contracts/src/registry-imports.ts` |
 | Service Request persistence and RLS | `packages/database/src/schema/service-management/requests.ts`, `packages/database/src/service-management/requests/requests.test.ts` |
+| Service Request API and contracts | `apps/api/src/service-management/requests`, `apps/api/src/service-management/http/service-requests.controller.ts`, `packages/contracts/src/service-management/requests/requests.ts` |
 
 ## Finding proof
 
@@ -153,15 +154,15 @@ tables directly when an authoritative service owns that workflow.
 
 The [Service Management implementation model](../domain/service-management.md)
 is the canonical M4 design and intended capability map for requests, quotations,
-acceptance, work orders/items and receipts. Request persistence is implemented;
-API and web workflows are not yet implemented. The target keeps API application
-capabilities separate from HTTP and module composition, web behavior under
-`apps/web/src/features/service-management`, and contracts/persistence under
-their existing package owners. Its boundary ends at readiness for future
-Technical Operations.
+acceptance, work orders/items and receipts. The request API and persistence are
+implemented; web request workflows are not yet implemented. The target keeps
+API application capabilities separate from HTTP and module composition, web
+behavior under `apps/web/src/features/service-management`, and contracts and
+persistence under their existing package owners. Its boundary ends at readiness
+for future Technical Operations.
 
-Do not create folders or contracts for unimplemented request workflows,
-quotations, work orders, technical execution, certificates, documents,
-notifications, integrations, or mobile/offline workflows merely to mirror the
-product vision. Add a bounded module only when a scoped implementation needs
+Do not create folders or contracts for unimplemented quotations, work orders,
+technical execution, certificates, documents, notifications, integrations, or
+mobile/offline workflows merely to mirror the product vision. Add a bounded
+module only when a scoped implementation needs
 one.

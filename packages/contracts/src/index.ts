@@ -68,6 +68,15 @@ import {
 } from "./registry-imports/registry-imports";
 import { apiErrorSchema, pageInfoSchema, validationIssueSchema } from "./shared/api";
 import {
+    createServiceRequestSchema,
+    serviceRequestDetailSchema,
+    serviceRequestListResponseSchema,
+    serviceRequestScopeItemSchema,
+    serviceRequestSummarySchema,
+    transitionServiceRequestSchema,
+    updateServiceRequestSchema,
+} from "./service-management/requests/requests";
+import {
     dateOnlySchema,
     decimalSchema,
     identifierSchema,
@@ -87,6 +96,7 @@ export * from "./platform/health";
 export * from "./registry-imports/registry-imports";
 export * from "./shared/api";
 export * from "./shared/primitives";
+export * from "./service-management/requests/requests";
 
 // This is the only package-level composition point. Contract definitions stay
 // in their owning domain modules; OpenAPI consumes this stable public registry.
@@ -154,4 +164,11 @@ export const contractSchemas = {
     RegistryImportCandidate: registryImportCandidateSchema,
     RegistryImportRow: registryImportRowSchema,
     RegistryImportSessionResponse: registryImportSessionResponseSchema,
+    ServiceRequestScopeItem: serviceRequestScopeItemSchema,
+    ServiceRequestSummary: serviceRequestSummarySchema,
+    ServiceRequestDetail: serviceRequestDetailSchema,
+    ServiceRequestListResponse: serviceRequestListResponseSchema,
+    CreateServiceRequest: createServiceRequestSchema,
+    UpdateServiceRequest: updateServiceRequestSchema,
+    TransitionServiceRequest: transitionServiceRequestSchema,
 };

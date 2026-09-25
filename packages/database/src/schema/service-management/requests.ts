@@ -89,6 +89,11 @@ export const serviceRequests = pgTable(
             table.createdAt,
             table.id,
         ),
+        index("service_requests_org_created_id_idx").on(
+            table.organizationId,
+            table.createdAt.desc(),
+            table.id.desc(),
+        ),
         index("service_requests_org_customer_created_idx").on(
             table.organizationId,
             table.customerPartyId,

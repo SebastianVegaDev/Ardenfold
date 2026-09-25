@@ -18,6 +18,8 @@ export const permissionCodes = [
     "assets.manage_relationships",
     "assets.archive",
     "registry.import",
+    "service_requests.read",
+    "service_requests.write",
 ] as const;
 
 export type PermissionCode = (typeof permissionCodes)[number];

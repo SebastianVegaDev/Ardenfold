@@ -25,6 +25,7 @@ import {
 describe("service management request persistence", () => {
     let migrator: DatabaseConnection;
     let runtime: DatabaseConnection;
+    let unpermissionedRuntime: DatabaseConnection;
     let container: StartedPostgreSqlContainer | undefined;
 
     beforeAll(async () => {
@@ -62,7 +63,19 @@ describe("service management request persistence", () => {
         const runtimeUrl = new URL(databaseUrl);
         runtimeUrl.username = "ardenfold_requests_runtime";
         runtimeUrl.password = "ardenfold_requests_password";
-        runtime = connection(runtimeUrl.toString());
+        unpermissionedRuntime = connection(runtimeUrl.toString());
+        runtime = {
+            ...unpermissionedRuntime,
+            withTenantTransaction: (context, operation) =>
+                unpermissionedRuntime.withTenantTransaction(context, async (tx) => {
+                    await tx.execute(sql`
+                        SELECT
+                            set_config('ardenfold.permission.service_requests.read', 'true', true),
+                            set_config('ardenfold.permission.service_requests.write', 'true', true)
+                    `);
+                    return operation(tx);
+                }),
+        };
     });
 
     beforeEach(async () => {
@@ -514,6 +527,11 @@ describe("service management request persistence", () => {
                 history: await tx.select().from(serviceRequestHistoryEntries),
             })),
         ).toEqual({ requests: [], scope: [], history: [] });
+        expect(
+            await unpermissionedRuntime.withTenantTransaction(firstContext, (tx) =>
+                tx.select().from(serviceRequests),
+            ),
+        ).toEqual([]);
         expect(
             await runtime.withTenantTransaction(secondContext, (tx) =>
                 tx

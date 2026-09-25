@@ -30,6 +30,10 @@ export const auditActionSchema = z.enum([
     "asset.relationship_ended",
     "asset.relationship_corrected",
     "registry.import_completed",
+    "service_request.created",
+    "service_request.updated",
+    "service_request.cancelled",
+    "service_request.closed",
 ]);
 export const auditMetadataSchema = z.record(
     z.string().min(1).max(80),

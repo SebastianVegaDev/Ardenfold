@@ -10,7 +10,8 @@ import {
     type OrganizationSite as OrganizationSiteRow,
 } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
-import { sql } from "drizzle-orm";
+import type { ArdenfoldTransaction } from "@ardenfold/database";
+import { and, eq, sql } from "drizzle-orm";
 
 import { recordAuditEvent } from "../../audit/audit.service";
 import { ContractException } from "../../http/contracts";
@@ -39,6 +40,25 @@ function siteSummary(site: OrganizationSiteRow): OrganizationSite {
 @Injectable()
 export class SiteManagementService {
     constructor(private readonly authorization: OrganizationAuthorizationService) {}
+
+    async requireActiveSite(
+        transaction: ArdenfoldTransaction,
+        organizationId: string,
+        siteId: string,
+    ): Promise<void> {
+        const [site] = await transaction
+            .select({ isActive: organizationSites.isActive })
+            .from(organizationSites)
+            .where(
+                and(
+                    eq(organizationSites.organizationId, organizationId),
+                    eq(organizationSites.id, siteId),
+                ),
+            )
+            .for("share");
+        if (!site) throw new ContractException("REQUEST_SITE_NOT_FOUND", 404);
+        if (!site.isActive) throw new ContractException("REQUEST_SITE_INACTIVE", 409);
+    }
 
     async createSite(
         principal: AuthenticatedPrincipal,
