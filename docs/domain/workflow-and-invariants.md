@@ -6,6 +6,11 @@ It does not define a single status field shared by every entity. Requests,
 quotes, work orders, executions, and certificate versions have separate
 lifecycles.
 
+The [Service Management implementation model](service-management.md) defines
+the detailed M4 states, transition guards, decimal rules and transaction
+boundaries for steps 1 through 3. M4 ends when work is ready for technical
+execution; steps 4 onward describe later capabilities.
+
 ## Reference workflow
 
 ### 1. Establish the commercial context
@@ -20,12 +25,16 @@ be incomplete.
 
 ### 2. Agree on the scope
 
-A quote records the proposed scope, amounts, currency, and terms.
+A quote groups numbered revisions of proposed scope, amounts, currency and
+terms. Issuing a revision freezes its content; a new draft does not withdraw
+an existing offer until it is issued.
 
 Acceptance identifies the exact agreed revision. Subsequent changes must not
 silently alter that accepted agreement.
 
-A work order records the authorized operational scope.
+A separately authorized work order references the acceptance and exact revision,
+with work items allocating the agreed scope. Acceptance does not itself create
+an order. M4 does not amend active accepted work through later revisions.
 
 If a later use case permits work without a quote, that path must define its own
 explicit authorization and commercial basis.
@@ -35,9 +44,12 @@ explicit authorization and commercial basis.
 Assets are identified or registered as sufficient information becomes available.
 
 Receipt records observed condition and relevant accessories.
+Unidentified intake remains unresolved until linked to an authoritative asset;
+corrections preserve the original observations.
 
 When physical custody changes, the responsible use case records that change
-through Asset Registry.
+through Asset Registry in the same transaction as the receipt and required
+location changes, history and audit. Receipt is never ownership transfer.
 
 Physical receipt is not mandatory for every service. On-site work may leave
 custody with the customer.
@@ -139,8 +151,20 @@ certificate.
 
 ### Commercial and technical integrity
 
+- Requests, quotes, revisions, acceptances, orders, items and receipts remain
+  distinct durable concepts with separate lifecycle rules.
+- Issued revisions are immutable, including rejected, expired and superseded
+  offers. Acceptance names an exact revision, not mutable quote contents.
 - Accepted commercial terms remain identifiable after later revisions.
+- Withdrawal/correction preserves acceptance history and cannot silently
+  invalidate active authorized work. Quote and order lifecycles are independent.
+- A work order references its accepted basis; operational edits cannot change
+  the agreement. Item allocation does not force one item per commercial line.
+- Work items stop at operational readiness and contain no execution results.
 - Monetary values carry an explicit currency.
+- M4 quotes use exact decimal strings/arithmetic, frozen currency scale,
+  round-half-up line bases and explicit fixed adjustments as defined in the
+  Service Management model. Client totals and display rounding are not authority.
 - Decimal values use representations and arithmetic appropriate to their
   required precision.
 - Uncontrolled binary floating-point rounding must not alter authoritative
@@ -198,6 +222,9 @@ certificate.
   durable audit record.
 - Operational logging is not a substitute for business history.
 - The initial architecture does not require reconstructing all state from events.
+- Mutable commercial/operational aggregates use optimistic versions; stale
+  commands conflict without partial writes. Acceptance, work authorization and
+  intake retries preserve durable replay identity and cannot duplicate facts.
 
 ## Review scenarios
 
@@ -218,3 +245,9 @@ The model must support the following cases without contradicting these rules:
 11. A user changes interface language without changing original technical notes
     or previously issued documents.
 12. A delivery retry sends the existing issued version without issuing another one.
+13. A new quote revision preserves the old offer; an expired or superseded offer
+    cannot be accepted, and a replay cannot create a second acceptance/order.
+14. A receipt plus custody/location change fails atomically if any required
+    registry, business-history or audit write fails.
+15. A customer name change leaves accepted commercial snapshots understandable;
+    an on-site item becomes ready without artificial intake records.

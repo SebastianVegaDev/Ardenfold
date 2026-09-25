@@ -12,7 +12,7 @@ services or create a package for every module immediately.
 | Identity & Access | Users, external identities, sessions, organizations, sites, memberships, invitations, authorization assignments, and organization settings. | Customer records, technical results, or certificate content. |
 | Parties | Organization-scoped counterparts, contacts, addresses, and commercial relationships. | Authentication identities or platform memberships. |
 | Asset Registry | Asset identity records, identifiers, ownership, custody, location, and references used to assemble asset history. | Commercial terms, technical measurements, or certificate snapshots. |
-| Service Management | Requests, quotes, accepted commercial scope, work orders, work items, and receipts. | Asset identity authority, technical approval, or certificate issuance. |
+| Service Management | Requests, pre-execution requested scope, quotes/revisions, acceptance/rejection/expiry, accepted commercial scope, work orders/items, receipts and operational readiness. | Counterpart identity, asset identity/ownership/custody/location authority, technical execution/results/evidence/review/approval, or certificate preparation/issuance. |
 | Technical Operations | Executions, technical results, contextual evidence, reviews, and approval decisions. | Commercial acceptance or issued certificate versions. |
 | Certificates & Trust | Certificate preparation, issuance, immutable issued versions, replacement, revocation, and verification views. | Editing the source execution or granting organization membership. |
 | Audit | Protected records of relevant actions across the platform. | Business authorization decisions or the primary state of other modules. |
@@ -29,7 +29,10 @@ Asset Registry exposes authorized asset references and explicit operations
 for changes such as custody or location updates.
 
 Service Management coordinates agreed work and requests asset-related changes
-through Asset Registry operations.
+through Asset Registry operations. Its [implementation model](service-management.md)
+defines immutable issued revisions, explicit acceptance, operational allocation
+and the M4 boundary at readiness for Technical Operations. Customer agreement
+does not grant an Ardenfold user permission to authorize work.
 
 Technical Operations references work items and assets, and exposes approved
 technical results through explicit contracts.
@@ -55,7 +58,12 @@ querying audit records to reconstruct their normal current state.
 10. Dependencies must not create circular business ownership.
 
 A receipt may coordinate an Asset Registry custody change, but Service
-Management does not become the owner of custody history.
+Management does not become the owner of custody history. Receipt and required
+custody/location changes use one authorized transaction through composable
+Asset Registry operations, including each owner's history and audit effects.
+Receipt never implies ownership transfer. Historical identifying snapshots
+preserve agreements; current Party/Asset reads remain permission-filtered and
+do not create alternate write authorities.
 
 Certificate issuance may read approved technical results, but Certificates &
 Trust cannot modify those results to make issuance succeed.

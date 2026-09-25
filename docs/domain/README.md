@@ -46,6 +46,16 @@ M1 does not implement the complete commercial or technical lifecycle.
 2. [Module boundaries](./boundaries.md)
 3. [Workflow and invariants](./workflow-and-invariants.md)
 4. [Parties and Asset Registry implementation model](./parties-and-asset-registry.md)
+5. [Service Management implementation model](./service-management.md)
+
+## M4 scope
+
+The Service Management model defines the path from a durable customer request
+through immutable commercial revisions and explicit acceptance to authorized
+work orders, work items and optional physical intake. M4 ends at readiness for
+technical execution. The model is documentation for subsequent implementation;
+M5 execution, results, evidence, review and approval remain Technical Operations
+responsibilities.
 
 ## Modeling principles
 
