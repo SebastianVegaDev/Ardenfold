@@ -63,6 +63,11 @@ export const serviceRequests = pgTable(
     },
     (table) => [
         unique("service_requests_organization_id_id_unique").on(table.organizationId, table.id),
+        unique("service_requests_org_id_customer_unique").on(
+            table.organizationId,
+            table.id,
+            table.customerPartyId,
+        ),
         foreignKey({
             name: "service_requests_customer_party_fk",
             columns: [table.organizationId, table.customerPartyId],
