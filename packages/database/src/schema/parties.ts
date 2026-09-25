@@ -138,6 +138,11 @@ export const partyContacts = pgTable(
     },
     (table) => [
         unique("party_contacts_organization_id_id_unique").on(table.organizationId, table.id),
+        unique("party_contacts_organization_party_id_id_unique").on(
+            table.organizationId,
+            table.partyId,
+            table.id,
+        ),
         foreignKey({
             name: "party_contacts_party_fk",
             columns: [table.organizationId, table.partyId],
