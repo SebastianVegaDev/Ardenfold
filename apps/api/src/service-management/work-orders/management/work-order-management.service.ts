@@ -383,7 +383,14 @@ export class WorkOrderManagementService {
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,
-            ["work_orders.write", "work_orders.read", "sites.read", "parties.read", "assets.read"],
+            [
+                "work_orders.write",
+                "work_orders.read",
+                "sites.read",
+                "parties.read",
+                "assets.read",
+                "receipts.read",
+            ],
             async (tx) => {
                 const order = await lockWorkOrder(
                     tx,

@@ -56,6 +56,10 @@ export const auditActionSchema = z.enum([
     "work_item.planned",
     "work_item.cancelled",
     "work_item.restructured",
+    "receipt.recorded",
+    "receipt.corrected",
+    "receipt.reconciled",
+    "receipt.voided",
 ]);
 export const auditMetadataSchema = z.record(
     z.string().min(1).max(80),

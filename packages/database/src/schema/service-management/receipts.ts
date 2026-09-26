@@ -39,6 +39,7 @@ export const receipts = pgTable(
         receivedAt: timestamp("received_at", { withTimezone: true }).notNull(),
         responsibleActorName: varchar("responsible_actor_name", { length: 200 }).notNull(),
         responsiblePartyId: uuid("responsible_party_id"),
+        coordination: jsonb("coordination").default({}).notNull(),
         custodyStatus: receiptCustodyStatus("custody_status").default("not_required").notNull(),
         version: integer("version").default(1).notNull(),
         idempotencyKey: uuid("idempotency_key").notNull(),
@@ -106,6 +107,7 @@ export const receipts = pgTable(
             sql`char_length(btrim(${table.responsibleActorName})) > 0`,
         ),
         check("receipts_accessories_array", sql`jsonb_typeof(${table.accessories}) = 'array'`),
+        check("receipts_coordination_object", sql`jsonb_typeof(${table.coordination}) = 'object'`),
         check(
             "receipts_custody_resolution",
             sql`${table.custodyStatus} <> 'applied' OR ${table.assetId} IS NOT NULL`,

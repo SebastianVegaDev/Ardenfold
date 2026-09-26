@@ -120,6 +120,13 @@
       "when": 1790421871350,
       "tag": "0016_work_order_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790435857325,
+      "tag": "0017_receipt_coordination",
+      "breakpoints": true
     }
   ]
 }

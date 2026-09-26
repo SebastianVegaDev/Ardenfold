@@ -679,7 +679,11 @@
             "workItemReady": "Ítem de trabajo listo",
             "workItemPlanned": "Ítem de trabajo devuelto a planificación",
             "workItemCancelled": "Ítem de trabajo cancelado",
-            "workItemRestructured": "Ítem de trabajo reestructurado"
+            "workItemRestructured": "Ítem de trabajo reestructurado",
+            "receiptRecorded": "Recepción registrada",
+            "receiptCorrected": "Recepción corregida",
+            "receiptReconciled": "Recepción conciliada",
+            "receiptVoided": "Recepción anulada"
         }
     },
     "states": {

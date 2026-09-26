@@ -6,6 +6,9 @@ import { PartiesModule } from "../parties/parties.module";
 import { ServiceRequestsController } from "./http/service-requests.controller";
 import { QuotationsController } from "./http/quotations.controller";
 import { WorkOrdersController } from "./http/work-orders.controller";
+import { ReceiptsController } from "./http/receipts.controller";
+import { CustodyCoordination } from "./receipts/custody-coordination";
+import { ReceiptManagementService } from "./receipts/receipt-management.service";
 import { QuoteAcceptanceService } from "./quotations/acceptance/quote-acceptance.service";
 import { QuoteManagementService } from "./quotations/management/quote-management.service";
 import { QuoteQueriesService } from "./quotations/queries/quote-queries.service";
@@ -18,7 +21,12 @@ import { WorkItemsService } from "./work-orders/work-items/work-items.service";
 
 @Module({
     imports: [AuthModule, PartiesModule, AssetsModule],
-    controllers: [ServiceRequestsController, QuotationsController, WorkOrdersController],
+    controllers: [
+        ServiceRequestsController,
+        QuotationsController,
+        WorkOrdersController,
+        ReceiptsController,
+    ],
     providers: [
         RequestManagementService,
         RequestQueriesService,
@@ -29,6 +37,8 @@ import { WorkItemsService } from "./work-orders/work-items/work-items.service";
         WorkOrderManagementService,
         WorkOrderQueriesService,
         WorkItemsService,
+        CustodyCoordination,
+        ReceiptManagementService,
     ],
 })
 export class ServiceManagementModule {}
