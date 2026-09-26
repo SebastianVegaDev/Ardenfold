@@ -65,6 +65,12 @@ export const quotes = pgTable(
     },
     (table) => [
         unique("quotes_organization_id_id_unique").on(table.organizationId, table.id),
+        unique("quotes_org_basis_unique").on(
+            table.organizationId,
+            table.id,
+            table.requestId,
+            table.customerPartyId,
+        ),
         unique("quotes_org_reference_unique").on(table.organizationId, table.reference),
         foreignKey({
             name: "quotes_request_fk",
@@ -394,6 +400,12 @@ export const quoteAcceptances = pgTable(
             table.organizationId,
             table.quoteId,
             table.id,
+        ),
+        unique("quote_acceptances_org_basis_unique").on(
+            table.organizationId,
+            table.quoteId,
+            table.id,
+            table.revisionId,
         ),
         unique("quote_acceptances_idempotency_unique").on(
             table.organizationId,
