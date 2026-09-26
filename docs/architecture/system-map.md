@@ -101,12 +101,11 @@ authorization, audit, concurrency, and RLS guarantees.
 | Asset Registry | `apps/api/src/assets`; `AssetsController`, asset management and relationships services | tenant-scoped assets, typed identifiers, lifecycle, archival state, temporal relationships and business history; asset contracts | [registry model](../domain/parties-and-asset-registry.md) |
 | Registry Import | `apps/api/src/registry-imports`; `RegistryImportsController`, `RegistryImportService` | tenant-scoped import sessions, parsed rows, validation, progress and error output; registry-import contracts | [import testing](../testing/registry-imports.md) |
 | Service Management requests | `apps/api/src/service-management/requests`, `http/service-requests.controller.ts`; `packages/database/src/schema/service-management/requests.ts` | authorized request creation, listing, edits and terminal transitions; tenant-scoped scope and business history | [service model](../domain/service-management.md) |
-| Service Management quotations | `apps/api/src/service-management/quotations`, `http/quotations.controller.ts`; `packages/database/src/schema/service-management/quotations.ts` | quote identity, numbered draft and immutable issued revisions, exact acceptance and commercial history; tenant-scoped money and audit | [service model](../domain/service-management.md) |
-| Service Management quotation persistence | `packages/database/src/schema/service-management/quotations.ts` | tenant-scoped quotes, numbered draft and immutable issued revisions, exact decimal amounts and historical snapshots; application workflows follow in #94 | [service model](../domain/service-management.md) |
+| Service Management quotations | `apps/api/src/service-management/quotations`, `http/quotations.controller.ts`; `apps/web/src/features/service-management/quotations`; `packages/database/src/schema/service-management/quotations.ts` | quote identity, numbered draft and immutable issued revisions, exact acceptance and commercial history; tenant-scoped money and audit; quotation review, editing and decision UI | [service model](../domain/service-management.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
 feature folders `apps/web/src/features/assets`, `parties`, `registry-imports`, and
-`service-management/requests`. They consume the public contracts; they do not
+`service-management/requests`, and `service-management/quotations`. They consume the public contracts; they do not
 own domain rules.
 
 ## Platform and shared foundations
@@ -161,13 +160,13 @@ The [Service Management implementation model](../domain/service-management.md)
 is the canonical M4 design and intended capability map for requests, quotations,
 acceptance, work orders/items and receipts. The request API and persistence are
 implemented, including web request intake, review, editing and terminal
-transitions. Quotation persistence is implemented; its application and web
-workflows remain future work. The target keeps API application capabilities separate from HTTP and module composition, web
+transitions. Quotation persistence, application workflows and web revision and
+acceptance experiences are implemented. The target keeps API application capabilities separate from HTTP and module composition, web
 behavior under `apps/web/src/features/service-management`, and contracts and
 persistence under their existing package owners. Its boundary ends at readiness
 for future Technical Operations.
 
-Do not create folders or contracts for unimplemented quotations, work orders,
+Do not create folders or contracts for unimplemented work orders,
 technical execution, certificates, documents, notifications, integrations, or
 mobile/offline workflows merely to mirror the product vision. Add a bounded
 module only when a scoped implementation needs

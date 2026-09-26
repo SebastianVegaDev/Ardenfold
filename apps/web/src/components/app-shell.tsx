@@ -9,6 +9,7 @@ import {
     Menu,
     Settings,
     ClipboardList,
+    FileText,
     UserRound,
     UsersRound,
     X,
@@ -30,6 +31,7 @@ export type AppShellCopy = Readonly<{
     parties: string;
     assets: string;
     serviceRequests: string;
+    quotations: string;
     settings: string;
     organization: string;
     organizationPlaceholder: string;
@@ -55,6 +57,8 @@ type AppShellProps = Readonly<{
     canReadAssets?: boolean;
     serviceRequestsHref?: string;
     canReadServiceRequests?: boolean;
+    quotationsHref?: string;
+    canReadQuotations?: boolean;
 }>;
 
 export function AppShell({
@@ -69,6 +73,8 @@ export function AppShell({
     canReadAssets = false,
     serviceRequestsHref,
     canReadServiceRequests = false,
+    quotationsHref,
+    canReadQuotations = false,
     locale,
     onboardingHref,
     organizations,
@@ -115,6 +121,16 @@ export function AppShell({
                 >
                     <ClipboardList aria-hidden="true" className="size-5 shrink-0" />
                     <span className="md:hidden lg:inline">{copy.serviceRequests}</span>
+                </Link>
+            ) : null}
+            {canReadQuotations && quotationsHref ? (
+                <Link
+                    className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    href={quotationsHref}
+                    onClick={() => setMobileNavigationOpen(false)}
+                >
+                    <FileText aria-hidden="true" className="size-5 shrink-0" />
+                    <span className="md:hidden lg:inline">{copy.quotations}</span>
                 </Link>
             ) : null}
             {organizations.length > 0 ? (

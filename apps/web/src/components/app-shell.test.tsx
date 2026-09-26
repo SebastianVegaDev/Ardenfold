@@ -13,6 +13,7 @@ const copy: AppShellCopy = {
     parties: "Parties",
     assets: "Assets",
     serviceRequests: "Service requests",
+    quotations: "Quotations",
     settings: "Settings",
     organization: "Organization",
     organizationPlaceholder: "Select organization",

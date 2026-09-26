@@ -247,6 +247,22 @@ export async function RequestDetailScreen({ locale, requestId, edit = false, not
                     active.permissions.includes("service_requests.write") ? (
                         <RequestActions requestId={detail.id} version={detail.version} />
                     ) : null}
+                    {detail.status === "active" &&
+                    (
+                        [
+                            "quotations.write",
+                            "quotations.read",
+                            "parties.read",
+                            "assets.read",
+                        ] as const
+                    ).every((permission) => active.permissions.includes(permission)) ? (
+                        <Link
+                            className="inline-flex h-10 items-center rounded-control bg-primary px-4 text-primary-foreground"
+                            href={`/${locale}/app/quotations/new?requestId=${detail.id}`}
+                        >
+                            {t("createQuotation")}
+                        </Link>
+                    ) : null}
                 </>
             )}
         </div>
