@@ -110,3 +110,4 @@ export type ReceiptCoordinationState = z.infer<typeof receiptCoordinationStateSc
 export type CreateReceipt = z.infer<typeof createReceiptSchema>;
 export type CorrectReceipt = z.infer<typeof correctReceiptSchema>;
 export type ReceiptDetail = z.infer<typeof receiptDetailSchema>;
+export type ReceiptListResponse = z.infer<typeof receiptListResponseSchema>;

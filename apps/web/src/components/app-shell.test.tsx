@@ -14,6 +14,7 @@ const copy: AppShellCopy = {
     assets: "Assets",
     serviceRequests: "Service requests",
     quotations: "Quotations",
+    workOrders: "Work orders",
     settings: "Settings",
     organization: "Organization",
     organizationPlaceholder: "Select organization",

@@ -254,6 +254,16 @@ test("work authorization preserves the accepted revision and prepares independen
 
     let current = created.body;
     const itemRows = current.items as Array<{ id: string; version: number }>;
+    const readiness = await call(owner, `/work-orders/${orderId}/readiness`, "GET", orgId);
+    expect(readiness.status).toBe(200);
+    expect(readiness.body.data).toEqual([
+        { itemId: itemRows[0]!.id, blocker: null },
+        { itemId: itemRows[1]!.id, blocker: null },
+        { itemId: itemRows[2]!.id, blocker: "WORK_ITEM_ASSET_UNRESOLVED" },
+    ]);
+    expect((await call(owner, `/work-orders/${orderId}/readiness`, "GET", southId)).status).toBe(
+        404,
+    );
     const unresolvedReady = await call(
         owner,
         `/work-orders/${orderId}/items/${itemRows[2]!.id}/ready`,

@@ -148,6 +148,21 @@ export const workOrderListResponseSchema = z.strictObject({
     data: z.array(workOrderSummarySchema),
     nextCursor: z.string().nullable(),
 });
+export const workItemReadinessBlockerSchema = z.enum([
+    "WORK_ITEM_CANCELLED",
+    "WORK_SITE_INACTIVE",
+    "WORK_ITEM_PARTY_UNAVAILABLE",
+    "WORK_ITEM_ASSET_UNRESOLVED",
+    "WORK_ITEM_ASSET_UNAVAILABLE",
+    "WORK_ITEM_INTAKE_REQUIRED",
+    "WORK_ITEM_INTAKE_CUSTODY_PENDING",
+    "WORK_ITEM_INTAKE_CUSTODY_STALE",
+]);
+export const workOrderReadinessResponseSchema = z.strictObject({
+    data: z.array(
+        z.strictObject({ itemId: id, blocker: workItemReadinessBlockerSchema.nullable() }),
+    ),
+});
 
 export type WorkItemAllocation = z.infer<typeof workItemAllocationSchema>;
 export type CreateWorkOrder = z.infer<typeof createWorkOrderSchema>;
@@ -159,3 +174,5 @@ export type RestructureWorkItem = z.infer<typeof restructureWorkItemSchema>;
 export type WorkOrderDetail = z.infer<typeof workOrderDetailSchema>;
 export type WorkOrderListQuery = z.infer<typeof workOrderListQuerySchema>;
 export type WorkOrderListResponse = z.infer<typeof workOrderListResponseSchema>;
+export type WorkOrderReadinessResponse = z.infer<typeof workOrderReadinessResponseSchema>;
+export type WorkItemReadinessBlocker = z.infer<typeof workItemReadinessBlockerSchema>;

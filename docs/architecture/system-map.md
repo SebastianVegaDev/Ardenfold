@@ -102,12 +102,13 @@ authorization, audit, concurrency, and RLS guarantees.
 | Registry Import | `apps/api/src/registry-imports`; `RegistryImportsController`, `RegistryImportService` | tenant-scoped import sessions, parsed rows, validation, progress and error output; registry-import contracts | [import testing](../testing/registry-imports.md) |
 | Service Management requests | `apps/api/src/service-management/requests`, `http/service-requests.controller.ts`; `packages/database/src/schema/service-management/requests.ts` | authorized request creation, listing, edits and terminal transitions; tenant-scoped scope and business history | [service model](../domain/service-management.md) |
 | Service Management quotations | `apps/api/src/service-management/quotations`, `http/quotations.controller.ts`; `apps/web/src/features/service-management/quotations`; `packages/database/src/schema/service-management/quotations.ts` | quote identity, numbered draft and immutable issued revisions, exact acceptance and commercial history; tenant-scoped money and audit; quotation review, editing and decision UI | [service model](../domain/service-management.md) |
-| Service Management work orders | `apps/api/src/service-management/work-orders`, `http/work-orders.controller.ts`; `packages/database/src/schema/service-management/work-orders.ts` | authorization from an exact accepted quote revision, work item allocation, preparation, readiness, cancellation and business history | [service model](../domain/service-management.md) |
-| Service Management receipts | `apps/api/src/service-management/receipts`, `http/receipts.controller.ts`; `packages/database/src/schema/service-management/receipts.ts` | physical intake facts, append-only corrections, reconciliation and atomic custody/location coordination through Asset Registry | [service model](../domain/service-management.md) |
+| Service Management work orders | `apps/api/src/service-management/work-orders`, `http/work-orders.controller.ts`; `apps/web/src/features/service-management/work-orders`; `packages/database/src/schema/service-management/work-orders.ts` | authorization from an exact accepted quote revision, work item allocation, preparation, readiness, cancellation and business history; operational list, authorization and preparation UI | [service model](../domain/service-management.md) |
+| Service Management receipts | `apps/api/src/service-management/receipts`, `http/receipts.controller.ts`; `apps/web/src/features/service-management/receipts`; `packages/database/src/schema/service-management/receipts.ts` | physical intake facts, append-only corrections, reconciliation and atomic custody/location coordination through Asset Registry; intake and correction UI | [service model](../domain/service-management.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
 feature folders `apps/web/src/features/assets`, `parties`, `registry-imports`, and
-`service-management/requests`, and `service-management/quotations`. They consume the public contracts; they do not
+`service-management/requests`, `service-management/quotations`,
+`service-management/work-orders`, and `service-management/receipts`. They consume the public contracts; they do not
 own domain rules.
 
 ## Platform and shared foundations
@@ -147,6 +148,8 @@ tables directly when an authoritative service owns that workflow.
 | Service Request web intake and lifecycle | `apps/web/src/features/service-management/requests`; routing under `app/[locale]/(app)/app/service-requests` and `app/auth/service-requests` |
 | Work Order API and contracts | `apps/api/src/service-management/work-orders`, `apps/api/src/service-management/http/work-orders.controller.ts`, `packages/contracts/src/service-management/work-orders/work-orders.ts` |
 | Receipt API and Asset Registry coordination | `apps/api/src/service-management/receipts`, `apps/api/src/assets/relationships/asset-relationships.service.ts`, `packages/contracts/src/service-management/receipts/receipts.ts` |
+| Work Order and Work Item web operations | `apps/web/src/features/service-management/work-orders`; routing under `app/[locale]/(app)/app/work-orders` and `app/auth/work-orders` |
+| Receipt web intake and corrections | `apps/web/src/features/service-management/receipts`; routing under `app/[locale]/(app)/app/receipts` and `app/auth/receipts` |
 
 ## Finding proof
 
@@ -166,8 +169,9 @@ acceptance, work orders/items and receipts. The request API and persistence are
 implemented, including web request intake, review, editing and terminal
 transitions. Quotation persistence, application workflows and web revision and
 acceptance experiences are implemented. Work Order and Work Item persistence,
-authorization, preparation and readiness APIs are implemented. Receipt recording,
-correction and Asset Registry custody/location coordination APIs are implemented.
+authorization, preparation and readiness APIs and operational UI are implemented.
+Receipt recording, correction and Asset Registry custody/location coordination
+APIs and UI are implemented.
 The target keeps API application capabilities separate from HTTP and module composition, web
 behavior under `apps/web/src/features/service-management`, and contracts and
 persistence under their existing package owners. Its boundary ends at readiness

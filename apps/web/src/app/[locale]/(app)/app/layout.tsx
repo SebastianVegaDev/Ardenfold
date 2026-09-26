@@ -51,6 +51,7 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 assets: translate("assets"),
                 serviceRequests: translate("serviceRequests"),
                 quotations: translate("quotations"),
+                workOrders: translate("workOrders"),
                 settings: translate("settings"),
                 organization: translate("organization"),
                 organizationPlaceholder: translate("organizationPlaceholder"),
@@ -71,6 +72,10 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
             }
             quotationsHref={`/${locale}/app/quotations`}
             canReadQuotations={activeOrganization?.permissions.includes("quotations.read") ?? false}
+            workOrdersHref={`/${locale}/app/work-orders`}
+            canReadWorkOrders={
+                activeOrganization?.permissions.includes("work_orders.read") ?? false
+            }
             locale={locale}
             onboardingHref={`/${locale}/app/onboarding`}
             organizations={organizations.data}
