@@ -669,7 +669,17 @@
             "quoteRevisionRejected": "Quotation offer rejected",
             "quoteAccepted": "Quotation accepted",
             "quoteAcceptanceWithdrawn": "Quotation acceptance withdrawn",
-            "quoteClosed": "Quotation closed"
+            "quoteClosed": "Quotation closed",
+            "workOrderAuthorized": "Work order authorized",
+            "workOrderPrepared": "Work order prepared",
+            "workOrderReady": "Work order ready",
+            "workOrderPlanned": "Work order returned to planned",
+            "workOrderCancelled": "Work order cancelled",
+            "workItemPrepared": "Work item prepared",
+            "workItemReady": "Work item ready",
+            "workItemPlanned": "Work item returned to planned",
+            "workItemCancelled": "Work item cancelled",
+            "workItemRestructured": "Work item restructured"
         }
     },
     "states": {

@@ -5,16 +5,20 @@ import { AuthModule } from "../auth/auth.module";
 import { PartiesModule } from "../parties/parties.module";
 import { ServiceRequestsController } from "./http/service-requests.controller";
 import { QuotationsController } from "./http/quotations.controller";
+import { WorkOrdersController } from "./http/work-orders.controller";
 import { QuoteAcceptanceService } from "./quotations/acceptance/quote-acceptance.service";
 import { QuoteManagementService } from "./quotations/management/quote-management.service";
 import { QuoteQueriesService } from "./quotations/queries/quote-queries.service";
 import { QuoteRevisionsService } from "./quotations/revisions/quote-revisions.service";
 import { RequestManagementService } from "./requests/request-management.service";
 import { RequestQueriesService } from "./requests/request-queries.service";
+import { WorkOrderManagementService } from "./work-orders/management/work-order-management.service";
+import { WorkOrderQueriesService } from "./work-orders/queries/work-order-queries.service";
+import { WorkItemsService } from "./work-orders/work-items/work-items.service";
 
 @Module({
     imports: [AuthModule, PartiesModule, AssetsModule],
-    controllers: [ServiceRequestsController, QuotationsController],
+    controllers: [ServiceRequestsController, QuotationsController, WorkOrdersController],
     providers: [
         RequestManagementService,
         RequestQueriesService,
@@ -22,6 +26,9 @@ import { RequestQueriesService } from "./requests/request-queries.service";
         QuoteRevisionsService,
         QuoteAcceptanceService,
         QuoteQueriesService,
+        WorkOrderManagementService,
+        WorkOrderQueriesService,
+        WorkItemsService,
     ],
 })
 export class ServiceManagementModule {}

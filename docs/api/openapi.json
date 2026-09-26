@@ -105,7 +105,9 @@
                 "service_requests.read",
                 "service_requests.write",
                 "quotations.read",
-                "quotations.write"
+                "quotations.write",
+                "work_orders.read",
+                "work_orders.write"
               ],
               "type": "string"
             },
@@ -1581,7 +1583,17 @@
               "quote.revision.rejected",
               "quote.accepted",
               "quote.acceptance.withdrawn",
-              "quote.closed"
+              "quote.closed",
+              "work_order.authorized",
+              "work_order.prepared",
+              "work_order.ready",
+              "work_order.planned",
+              "work_order.cancelled",
+              "work_item.prepared",
+              "work_item.ready",
+              "work_item.planned",
+              "work_item.cancelled",
+              "work_item.restructured"
             ],
             "type": "string"
           },
@@ -1727,7 +1739,17 @@
                     "quote.revision.rejected",
                     "quote.accepted",
                     "quote.acceptance.withdrawn",
-                    "quote.closed"
+                    "quote.closed",
+                    "work_order.authorized",
+                    "work_order.prepared",
+                    "work_order.ready",
+                    "work_order.planned",
+                    "work_order.cancelled",
+                    "work_item.prepared",
+                    "work_item.ready",
+                    "work_item.planned",
+                    "work_item.cancelled",
+                    "work_item.restructured"
                   ],
                   "type": "string"
                 },
@@ -2508,6 +2530,138 @@
           "customerPartyId",
           "summary",
           "scopeItems"
+        ],
+        "type": "object"
+      },
+      "CreateWorkOrder": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptanceId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "acceptedRevisionId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "expectedQuoteVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRequestVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "idempotencyKey": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "allocatedQuantity": {
+                  "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                  "type": "string"
+                },
+                "allocatedUnit": {
+                  "maxLength": 40,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "assetId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "assetRequirement": {
+                  "enum": [
+                    "required",
+                    "not_applicable"
+                  ],
+                  "type": "string"
+                },
+                "partyId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "scopeDescription": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "serviceMode": {
+                  "enum": [
+                    "physical_intake",
+                    "no_intake"
+                  ],
+                  "type": "string"
+                },
+                "sourceRevisionLineId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "unresolvedAssetDescription": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sourceRevisionLineId",
+                "scopeDescription",
+                "allocatedQuantity",
+                "allocatedUnit",
+                "partyId",
+                "assetRequirement",
+                "assetId",
+                "unresolvedAssetDescription",
+                "serviceMode"
+              ],
+              "type": "object"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "type": "array"
+          },
+          "quoteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "reference": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "siteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quoteId",
+          "acceptanceId",
+          "acceptedRevisionId",
+          "expectedQuoteVersion",
+          "expectedRequestVersion",
+          "siteId",
+          "reference",
+          "idempotencyKey",
+          "items"
         ],
         "type": "object"
       },
@@ -5638,6 +5792,108 @@
         ],
         "type": "object"
       },
+      "RestructureWorkItem": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedItemVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedOrderVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "replacements": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "allocatedQuantity": {
+                  "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                  "type": "string"
+                },
+                "allocatedUnit": {
+                  "maxLength": 40,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "assetId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "assetRequirement": {
+                  "enum": [
+                    "required",
+                    "not_applicable"
+                  ],
+                  "type": "string"
+                },
+                "partyId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "scopeDescription": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "serviceMode": {
+                  "enum": [
+                    "physical_intake",
+                    "no_intake"
+                  ],
+                  "type": "string"
+                },
+                "sourceRevisionLineId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "unresolvedAssetDescription": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sourceRevisionLineId",
+                "scopeDescription",
+                "allocatedQuantity",
+                "allocatedUnit",
+                "partyId",
+                "assetRequirement",
+                "assetId",
+                "unresolvedAssetDescription",
+                "serviceMode"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "expectedOrderVersion",
+          "expectedItemVersion",
+          "reason",
+          "replacements"
+        ],
+        "type": "object"
+      },
       "ServiceRequestDetail": {
         "additionalProperties": false,
         "properties": {
@@ -6397,6 +6653,102 @@
         ],
         "type": "object"
       },
+      "UpdateWorkItem": {
+        "additionalProperties": false,
+        "properties": {
+          "assetId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "expectedItemVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedOrderVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "partyId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "preparationNotes": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "scopeDescription": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "serviceMode": {
+            "enum": [
+              "physical_intake",
+              "no_intake"
+            ],
+            "type": "string"
+          },
+          "unresolvedAssetDescription": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedOrderVersion",
+          "expectedItemVersion",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "UpdateWorkOrder": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "preparationNotes": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "siteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason"
+        ],
+        "type": "object"
+      },
       "ValidationIssue": {
         "additionalProperties": false,
         "properties": {
@@ -6426,6 +6778,850 @@
           "source",
           "path",
           "code"
+        ],
+        "type": "object"
+      },
+      "WorkItem": {
+        "additionalProperties": false,
+        "properties": {
+          "allocatedQuantity": {
+            "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+            "type": "string"
+          },
+          "allocatedUnit": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string"
+          },
+          "assetId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "assetRequirement": {
+            "enum": [
+              "required",
+              "not_applicable"
+            ],
+            "type": "string"
+          },
+          "cancellationReason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "cancelledAt": {
+            "format": "date-time",
+            "nullable": true,
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "itemNumber": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "partyId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "preparationNotes": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "replacesItemId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "scopeDescription": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "serviceMode": {
+            "enum": [
+              "physical_intake",
+              "no_intake"
+            ],
+            "type": "string"
+          },
+          "sourceRevisionLineId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "planned",
+              "ready",
+              "cancelled"
+            ],
+            "type": "string"
+          },
+          "unresolvedAssetDescription": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "workOrderId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceRevisionLineId",
+          "scopeDescription",
+          "allocatedQuantity",
+          "allocatedUnit",
+          "partyId",
+          "assetRequirement",
+          "assetId",
+          "unresolvedAssetDescription",
+          "serviceMode",
+          "id",
+          "workOrderId",
+          "itemNumber",
+          "replacesItemId",
+          "status",
+          "version",
+          "preparationNotes",
+          "cancelledAt",
+          "cancellationReason",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "WorkItemHistoryEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "recordedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "recordedByUserId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "snapshot": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "workItemId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "kind",
+          "snapshot",
+          "reason",
+          "recordedAt",
+          "recordedByUserId",
+          "workItemId"
+        ],
+        "type": "object"
+      },
+      "WorkItemTransition": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedItemVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedOrderVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedOrderVersion",
+          "expectedItemVersion",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "WorkOrderDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptanceId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "acceptedRevisionId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "cancellationReason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "cancelledAt": {
+            "format": "date-time",
+            "nullable": true,
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "customerPartyId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "history": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "reason": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "recordedAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "recordedByUserId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "snapshot": {
+                  "additionalProperties": {},
+                  "type": "object"
+                },
+                "version": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "version",
+                "kind",
+                "snapshot",
+                "reason",
+                "recordedAt",
+                "recordedByUserId"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "initialAllocationSnapshot": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "itemHistory": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "reason": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "recordedAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "recordedByUserId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "snapshot": {
+                  "additionalProperties": {},
+                  "type": "object"
+                },
+                "version": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "workItemId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "version",
+                "kind",
+                "snapshot",
+                "reason",
+                "recordedAt",
+                "recordedByUserId",
+                "workItemId"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "allocatedQuantity": {
+                  "pattern": "^(?:0|[1-9]\\d{0,11})(?:\\.\\d{1,6})?$",
+                  "type": "string"
+                },
+                "allocatedUnit": {
+                  "maxLength": 40,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "assetId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "assetRequirement": {
+                  "enum": [
+                    "required",
+                    "not_applicable"
+                  ],
+                  "type": "string"
+                },
+                "cancellationReason": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "cancelledAt": {
+                  "format": "date-time",
+                  "nullable": true,
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "itemNumber": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "partyId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "preparationNotes": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "replacesItemId": {
+                  "format": "uuid",
+                  "nullable": true,
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "scopeDescription": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "serviceMode": {
+                  "enum": [
+                    "physical_intake",
+                    "no_intake"
+                  ],
+                  "type": "string"
+                },
+                "sourceRevisionLineId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "planned",
+                    "ready",
+                    "cancelled"
+                  ],
+                  "type": "string"
+                },
+                "unresolvedAssetDescription": {
+                  "maxLength": 10000,
+                  "minLength": 1,
+                  "nullable": true,
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "version": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "workOrderId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sourceRevisionLineId",
+                "scopeDescription",
+                "allocatedQuantity",
+                "allocatedUnit",
+                "partyId",
+                "assetRequirement",
+                "assetId",
+                "unresolvedAssetDescription",
+                "serviceMode",
+                "id",
+                "workOrderId",
+                "itemNumber",
+                "replacesItemId",
+                "status",
+                "version",
+                "preparationNotes",
+                "cancelledAt",
+                "cancellationReason",
+                "createdAt",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "preparationNotes": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "quoteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "siteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "planned",
+              "ready",
+              "cancelled"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "requestId",
+          "quoteId",
+          "acceptanceId",
+          "acceptedRevisionId",
+          "customerPartyId",
+          "siteId",
+          "reference",
+          "status",
+          "version",
+          "createdAt",
+          "updatedAt",
+          "initialAllocationSnapshot",
+          "preparationNotes",
+          "cancelledAt",
+          "cancellationReason",
+          "items",
+          "history",
+          "itemHistory"
+        ],
+        "type": "object"
+      },
+      "WorkOrderHistoryEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "recordedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "recordedByUserId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "snapshot": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "kind",
+          "snapshot",
+          "reason",
+          "recordedAt",
+          "recordedByUserId"
+        ],
+        "type": "object"
+      },
+      "WorkOrderListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "acceptanceId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "acceptedRevisionId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "customerPartyId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "quoteId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "requestId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "siteId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "planned",
+                    "ready",
+                    "cancelled"
+                  ],
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+                  "type": "string"
+                },
+                "version": {
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "requestId",
+                "quoteId",
+                "acceptanceId",
+                "acceptedRevisionId",
+                "customerPartyId",
+                "siteId",
+                "reference",
+                "status",
+                "version",
+                "createdAt",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
+      "WorkOrderSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptanceId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "acceptedRevisionId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "customerPartyId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "quoteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "siteId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "planned",
+              "ready",
+              "cancelled"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "requestId",
+          "quoteId",
+          "acceptanceId",
+          "acceptedRevisionId",
+          "customerPartyId",
+          "siteId",
+          "reference",
+          "status",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "WorkOrderTransition": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason"
         ],
         "type": "object"
       }
@@ -12366,6 +13562,1035 @@
         "summary": "",
         "tags": [
           "service-management-requests"
+        ]
+      }
+    },
+    "/api/v1/work-orders": {
+      "get": {
+        "operationId": "listWorkOrders",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "siteId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "requestId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "planned",
+                "ready",
+                "cancelled"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderListResponse"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      },
+      "post": {
+        "operationId": "createWorkOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkOrder"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}": {
+      "get": {
+        "operationId": "getWorkOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      },
+      "patch": {
+        "operationId": "updateWorkOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkOrder"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/cancel": {
+      "post": {
+        "operationId": "cancelWorkOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkOrderTransition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/items/{itemId}": {
+      "patch": {
+        "operationId": "updateWorkItem",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkItem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/items/{itemId}/cancel": {
+      "post": {
+        "operationId": "cancelWorkItem",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkItemTransition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/items/{itemId}/planned": {
+      "post": {
+        "operationId": "planWorkItem",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkItemTransition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/items/{itemId}/ready": {
+      "post": {
+        "operationId": "readyWorkItem",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkItemTransition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/items/{itemId}/restructure": {
+      "post": {
+        "operationId": "restructureWorkItem",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "itemId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestructureWorkItem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/planned": {
+      "post": {
+        "operationId": "planWorkOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkOrderTransition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/ready": {
+      "post": {
+        "operationId": "readyWorkOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkOrderTransition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
         ]
       }
     },

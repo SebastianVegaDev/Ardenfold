@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 import type { AcceptQuoteRevision, QuoteVersion, RejectQuoteRevision } from "@ardenfold/contracts";
-import { quoteAcceptances, quoteRevisions } from "@ardenfold/database/schema";
+import { quoteAcceptances, quoteRevisions, workOrders } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
 import { and, eq, isNull } from "drizzle-orm";
 
@@ -263,7 +263,7 @@ export class QuoteAcceptanceService {
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,
-            ["quotations.write", "service_requests.read"],
+            ["quotations.write", "service_requests.read", "work_orders.read"],
             async (tx) => {
                 const { quote } = await lockQuote(
                     tx,
@@ -273,6 +273,18 @@ export class QuoteAcceptanceService {
                 );
                 if (quote.status !== "accepted")
                     throw new ContractException("QUOTE_NOT_ACCEPTED", 409);
+                const [authorizedOrder] = await tx
+                    .select({ id: workOrders.id })
+                    .from(workOrders)
+                    .where(
+                        and(
+                            eq(workOrders.organizationId, organizationId),
+                            eq(workOrders.quoteId, quoteId),
+                        ),
+                    )
+                    .limit(1);
+                if (authorizedOrder)
+                    throw new ContractException("QUOTE_ACCEPTANCE_AUTHORIZED_WORK", 409);
                 const [acceptance] = await tx
                     .select()
                     .from(quoteAcceptances)
