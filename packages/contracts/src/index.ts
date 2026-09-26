@@ -111,6 +111,7 @@ import {
     workOrderDetailSchema,
     workOrderHistoryEntrySchema,
     workOrderListResponseSchema,
+    workOrderReadinessResponseSchema,
     workOrderSummarySchema,
     workOrderTransitionSchema,
 } from "./service-management/work-orders/work-orders";
@@ -232,6 +233,7 @@ export const contractSchemas = {
     WorkOrderDetail: workOrderDetailSchema,
     WorkOrderHistoryEntry: workOrderHistoryEntrySchema,
     WorkOrderListResponse: workOrderListResponseSchema,
+    WorkOrderReadinessResponse: workOrderReadinessResponseSchema,
     CreateWorkOrder: createWorkOrderSchema,
     UpdateWorkOrder: updateWorkOrderSchema,
     WorkOrderTransition: workOrderTransitionSchema,

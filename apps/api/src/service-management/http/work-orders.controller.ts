@@ -93,6 +93,24 @@ export class WorkOrdersController {
         return this.queries.get(principal, org.id, orderId);
     }
 
+    @Get(":orderId/readiness")
+    @RequirePermissions(
+        "work_orders.read",
+        "sites.read",
+        "parties.read",
+        "assets.read",
+        "receipts.read",
+    )
+    @ApiOperation({ operationId: "getWorkOrderReadiness" })
+    @ApiOkResponse({ schema: { $ref: "#/components/schemas/WorkOrderReadinessResponse" } })
+    readiness(
+        @CurrentPrincipal() principal: AuthenticatedPrincipal,
+        @CurrentOrganization() org: ActiveOrganizationContext,
+        @Param("orderId", new ContractValidationPipe(identifierSchema)) orderId: string,
+    ) {
+        return this.queries.readiness(principal, org.id, orderId);
+    }
+
     @Patch(":orderId")
     @RequirePermissions("work_orders.write")
     @ApiOperation({ operationId: "updateWorkOrder" })

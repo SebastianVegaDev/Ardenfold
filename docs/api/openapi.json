@@ -8644,6 +8644,47 @@
         ],
         "type": "object"
       },
+      "WorkOrderReadinessResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "blocker": {
+                  "enum": [
+                    "WORK_ITEM_CANCELLED",
+                    "WORK_SITE_INACTIVE",
+                    "WORK_ITEM_PARTY_UNAVAILABLE",
+                    "WORK_ITEM_ASSET_UNRESOLVED",
+                    "WORK_ITEM_ASSET_UNAVAILABLE",
+                    "WORK_ITEM_INTAKE_REQUIRED",
+                    "WORK_ITEM_INTAKE_CUSTODY_PENDING",
+                    "WORK_ITEM_INTAKE_CUSTODY_STALE"
+                  ],
+                  "nullable": true,
+                  "type": "string"
+                },
+                "itemId": {
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "itemId",
+                "blocker"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object"
+      },
       "WorkOrderSummary": {
         "additionalProperties": false,
         "properties": {
@@ -15889,6 +15930,78 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WorkOrderDetail"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "service-management-work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{orderId}/readiness": {
+      "get": {
+        "operationId": "getWorkOrderReadiness",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderReadinessResponse"
                 }
               }
             },

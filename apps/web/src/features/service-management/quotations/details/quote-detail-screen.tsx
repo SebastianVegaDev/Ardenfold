@@ -97,6 +97,19 @@ export async function QuoteDetailScreen({ locale, quoteId, editRevisionId, notic
                         locale={locale}
                         timeZone={active.defaultTimeZone}
                     />
+                    {quote.activeAcceptanceId &&
+                    active.permissions.includes("work_orders.write") &&
+                    active.permissions.includes("work_orders.read") &&
+                    active.permissions.includes("service_requests.read") &&
+                    active.permissions.includes("parties.read") &&
+                    active.permissions.includes("sites.read") ? (
+                        <Link
+                            className="inline-block text-primary underline"
+                            href={`/${locale}/app/work-orders/new?quoteId=${quote.id}`}
+                        >
+                            {t("createWorkOrder")}
+                        </Link>
+                    ) : null}
                     <QuoteActions
                         quote={quote}
                         locale={locale}

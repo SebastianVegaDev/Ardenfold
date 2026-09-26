@@ -1,6 +1,8 @@
 import {
+    workItemReadinessBlockerSchema,
     workOrderDetailSchema,
     workOrderListResponseSchema,
+    workOrderReadinessResponseSchema,
     workOrderSummarySchema,
     type WorkOrderDetail,
     type WorkOrderListQuery,
@@ -21,6 +23,7 @@ import { z } from "zod";
 import type { AuthenticatedPrincipal } from "../../../auth/authentication/types";
 import { OrganizationAuthorizationService } from "../../../auth/authorization/organization-authorization.service";
 import { ContractException } from "../../../http/contracts";
+import { requireWorkItemReady } from "../readiness/work-item-readiness";
 
 const cursorSchema = z.strictObject({
     createdAt: z.iso.datetime({ precision: 6 }),
@@ -57,6 +60,52 @@ export class WorkOrderQueriesService {
             organizationId,
             ["work_orders.read"],
             (tx) => this.getInTransaction(tx, organizationId, orderId),
+        );
+    }
+
+    readiness(principal: AuthenticatedPrincipal, organizationId: string, orderId: string) {
+        return this.authorization.withAuthorizedTransaction(
+            principal.user.id,
+            organizationId,
+            ["work_orders.read", "sites.read", "parties.read", "assets.read", "receipts.read"],
+            async (tx) => {
+                const [order] = await tx
+                    .select()
+                    .from(workOrders)
+                    .where(
+                        and(
+                            eq(workOrders.organizationId, organizationId),
+                            eq(workOrders.id, orderId),
+                        ),
+                    );
+                if (!order) throw new ContractException("WORK_ORDER_NOT_FOUND", 404);
+                const items = await tx
+                    .select()
+                    .from(workItems)
+                    .where(
+                        and(
+                            eq(workItems.organizationId, organizationId),
+                            eq(workItems.workOrderId, orderId),
+                        ),
+                    )
+                    .orderBy(workItems.itemNumber);
+                const data = [];
+                for (const item of items) {
+                    let blocker: string | null = null;
+                    try {
+                        await requireWorkItemReady(tx, order, item);
+                    } catch (error) {
+                        if (
+                            !(error instanceof ContractException) ||
+                            !workItemReadinessBlockerSchema.safeParse(error.code).success
+                        )
+                            throw error;
+                        blocker = error.code;
+                    }
+                    data.push({ itemId: item.id, blocker });
+                }
+                return workOrderReadinessResponseSchema.parse({ data });
+            },
         );
     }
 
