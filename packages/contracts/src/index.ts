@@ -93,6 +93,20 @@ import {
     rejectQuoteRevisionSchema,
 } from "./service-management/quotations/quotations";
 import {
+    createWorkOrderSchema,
+    restructureWorkItemSchema,
+    updateWorkItemSchema,
+    updateWorkOrderSchema,
+    workItemHistoryEntrySchema,
+    workItemSchema,
+    workItemTransitionSchema,
+    workOrderDetailSchema,
+    workOrderHistoryEntrySchema,
+    workOrderListResponseSchema,
+    workOrderSummarySchema,
+    workOrderTransitionSchema,
+} from "./service-management/work-orders/work-orders";
+import {
     dateOnlySchema,
     decimalSchema,
     identifierSchema,
@@ -114,6 +128,7 @@ export * from "./shared/api";
 export * from "./shared/primitives";
 export * from "./service-management/requests/requests";
 export * from "./service-management/quotations/quotations";
+export * from "./service-management/work-orders/work-orders";
 
 // This is the only package-level composition point. Contract definitions stay
 // in their owning domain modules; OpenAPI consumes this stable public registry.
@@ -202,4 +217,16 @@ export const contractSchemas = {
     IssueQuoteRevision: issueQuoteRevisionSchema,
     AcceptQuoteRevision: acceptQuoteRevisionSchema,
     RejectQuoteRevision: rejectQuoteRevisionSchema,
+    WorkItem: workItemSchema,
+    WorkItemHistoryEntry: workItemHistoryEntrySchema,
+    WorkOrderSummary: workOrderSummarySchema,
+    WorkOrderDetail: workOrderDetailSchema,
+    WorkOrderHistoryEntry: workOrderHistoryEntrySchema,
+    WorkOrderListResponse: workOrderListResponseSchema,
+    CreateWorkOrder: createWorkOrderSchema,
+    UpdateWorkOrder: updateWorkOrderSchema,
+    WorkOrderTransition: workOrderTransitionSchema,
+    UpdateWorkItem: updateWorkItemSchema,
+    WorkItemTransition: workItemTransitionSchema,
+    RestructureWorkItem: restructureWorkItemSchema,
 };

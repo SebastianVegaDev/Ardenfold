@@ -513,26 +513,22 @@ describe("service management operational persistence", () => {
         expect(unknown.assetId).toBeNull();
         await expect(
             runtime.withTenantTransaction(context, (tx) =>
-                tx
-                    .insert(receipts)
-                    .values({
-                        ...known,
-                        id: randomUUID(),
-                        assetId: f.otherAsset.id,
-                        idempotencyKey: randomUUID(),
-                    }),
+                tx.insert(receipts).values({
+                    ...known,
+                    id: randomUUID(),
+                    assetId: f.otherAsset.id,
+                    idempotencyKey: randomUUID(),
+                }),
             ),
         ).rejects.toThrow();
         await expect(
             runtime.withTenantTransaction(context, (tx) =>
-                tx
-                    .insert(receipts)
-                    .values({
-                        ...known,
-                        id: randomUUID(),
-                        workOrderId: randomUUID(),
-                        idempotencyKey: randomUUID(),
-                    }),
+                tx.insert(receipts).values({
+                    ...known,
+                    id: randomUUID(),
+                    workOrderId: randomUUID(),
+                    idempotencyKey: randomUUID(),
+                }),
             ),
         ).rejects.toThrow();
         await expect(

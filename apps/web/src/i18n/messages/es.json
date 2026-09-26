@@ -669,7 +669,17 @@
             "quoteRevisionRejected": "Oferta de cotización rechazada",
             "quoteAccepted": "Cotización aceptada",
             "quoteAcceptanceWithdrawn": "Aceptación de cotización retirada",
-            "quoteClosed": "Cotización cerrada"
+            "quoteClosed": "Cotización cerrada",
+            "workOrderAuthorized": "Orden de trabajo autorizada",
+            "workOrderPrepared": "Orden de trabajo preparada",
+            "workOrderReady": "Orden de trabajo lista",
+            "workOrderPlanned": "Orden de trabajo devuelta a planificación",
+            "workOrderCancelled": "Orden de trabajo cancelada",
+            "workItemPrepared": "Ítem de trabajo preparado",
+            "workItemReady": "Ítem de trabajo listo",
+            "workItemPlanned": "Ítem de trabajo devuelto a planificación",
+            "workItemCancelled": "Ítem de trabajo cancelado",
+            "workItemRestructured": "Ítem de trabajo reestructurado"
         }
     },
     "states": {
