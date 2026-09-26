@@ -93,6 +93,14 @@ import {
     rejectQuoteRevisionSchema,
 } from "./service-management/quotations/quotations";
 import {
+    correctReceiptSchema,
+    createReceiptSchema,
+    receiptCorrectionSchema,
+    receiptDetailSchema,
+    receiptListResponseSchema,
+    receiptSchema,
+} from "./service-management/receipts/receipts";
+import {
     createWorkOrderSchema,
     restructureWorkItemSchema,
     updateWorkItemSchema,
@@ -128,6 +136,7 @@ export * from "./shared/api";
 export * from "./shared/primitives";
 export * from "./service-management/requests/requests";
 export * from "./service-management/quotations/quotations";
+export * from "./service-management/receipts/receipts";
 export * from "./service-management/work-orders/work-orders";
 
 // This is the only package-level composition point. Contract definitions stay
@@ -229,4 +238,10 @@ export const contractSchemas = {
     UpdateWorkItem: updateWorkItemSchema,
     WorkItemTransition: workItemTransitionSchema,
     RestructureWorkItem: restructureWorkItemSchema,
+    Receipt: receiptSchema,
+    ReceiptCorrection: receiptCorrectionSchema,
+    ReceiptDetail: receiptDetailSchema,
+    ReceiptListResponse: receiptListResponseSchema,
+    CreateReceipt: createReceiptSchema,
+    CorrectReceipt: correctReceiptSchema,
 };

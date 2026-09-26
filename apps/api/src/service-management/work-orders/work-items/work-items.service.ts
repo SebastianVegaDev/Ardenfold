@@ -180,7 +180,8 @@ export class WorkItemsService {
         input: WorkItemTransition,
     ) {
         const required: PermissionCode[] = ["work_orders.write", "work_orders.read"];
-        if (target === "ready") required.push("sites.read", "parties.read", "assets.read");
+        if (target === "ready")
+            required.push("sites.read", "parties.read", "assets.read", "receipts.read");
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,

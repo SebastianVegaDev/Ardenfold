@@ -679,7 +679,11 @@
             "workItemReady": "Work item ready",
             "workItemPlanned": "Work item returned to planned",
             "workItemCancelled": "Work item cancelled",
-            "workItemRestructured": "Work item restructured"
+            "workItemRestructured": "Work item restructured",
+            "receiptRecorded": "Receipt recorded",
+            "receiptCorrected": "Receipt corrected",
+            "receiptReconciled": "Receipt reconciled",
+            "receiptVoided": "Receipt voided"
         }
     },
     "states": {

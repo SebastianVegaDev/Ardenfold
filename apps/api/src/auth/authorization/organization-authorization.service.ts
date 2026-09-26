@@ -165,12 +165,31 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.work_orders.write',
                             ${String(context.permissions.includes("work_orders.write"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.receipts.read',
+                            ${String(context.permissions.includes("receipts.read"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.receipts.write',
+                            ${String(context.permissions.includes("receipts.write"))},
+                            true
                         )
                 `);
 
                 return operation(transaction, context);
             },
         );
+    }
+
+    requireInTransaction(
+        transaction: ArdenfoldTransaction,
+        userId: string,
+        organizationId: string,
+        requiredPermissions: readonly PermissionCode[],
+    ): Promise<ActiveOrganizationContext> {
+        return this.resolveInTransaction(transaction, userId, organizationId, requiredPermissions);
     }
 
     private async resolveInTransaction(

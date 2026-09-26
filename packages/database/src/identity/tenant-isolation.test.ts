@@ -188,12 +188,13 @@ describe("identity, tenancy and row-level security", () => {
             "owner",
             "viewer",
         ]);
-        expect(catalog).toHaveLength(22);
+        expect(catalog).toHaveLength(24);
         expect(viewerPermissions.map((permission) => permission.code)).toEqual([
             "assets.read",
             "organization.read",
             "parties.read",
             "quotations.read",
+            "receipts.read",
             "service_requests.read",
             "sites.read",
             "work_orders.read",

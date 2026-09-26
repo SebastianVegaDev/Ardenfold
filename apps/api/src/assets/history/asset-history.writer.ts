@@ -8,7 +8,7 @@ const payloadSchema = z.record(
     z.string().min(1).max(80),
     z.union([z.string().max(500), z.number().finite(), z.boolean(), z.null()]),
 );
-const sourceSchema = z.enum(["asset_registry", "work_order", "certificate"]);
+const sourceSchema = z.enum(["asset_registry", "work_order", "receipt", "certificate"]);
 
 export type AssetHistoryEventType = AssetHistoryEntry["event"];
 

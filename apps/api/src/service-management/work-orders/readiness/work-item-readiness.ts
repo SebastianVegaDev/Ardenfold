@@ -1,5 +1,7 @@
 import type { ArdenfoldTransaction } from "@ardenfold/database";
+import { receiptCoordinationStateSchema } from "@ardenfold/contracts";
 import {
+    assetRelationships,
     assets,
     organizationSites,
     parties,
@@ -8,7 +10,7 @@ import {
     type WorkItem,
     type WorkOrder,
 } from "@ardenfold/database/schema";
-import { and, eq, isNull, ne } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 
 import { ContractException } from "../../../http/contracts";
 
@@ -55,8 +57,12 @@ export async function requireWorkItemReady(
     }
     if (item.serviceMode === "physical_intake") {
         if (!item.assetId) throw new ContractException("WORK_ITEM_ASSET_UNRESOLVED", 409);
-        const [validIntake] = await tx
-            .select({ id: receipts.id })
+        const intakes = await tx
+            .select({
+                id: receipts.id,
+                coordination: receipts.coordination,
+                custodyStatus: receipts.custodyStatus,
+            })
             .from(receiptItems)
             .innerJoin(
                 receipts,
@@ -73,10 +79,39 @@ export async function requireWorkItemReady(
                     eq(receiptItems.workItemId, item.id),
                     eq(receipts.assetId, item.assetId),
                     isNull(receipts.voidedAt),
-                    ne(receipts.custodyStatus, "pending"),
                 ),
             )
+            .orderBy(desc(receipts.receivedAt), desc(receipts.id))
             .limit(1);
-        if (!validIntake) throw new ContractException("WORK_ITEM_INTAKE_REQUIRED", 409);
+        if (!intakes.length) throw new ContractException("WORK_ITEM_INTAKE_REQUIRED", 409);
+        for (const intake of intakes) {
+            if (intake.custodyStatus === "pending")
+                throw new ContractException("WORK_ITEM_INTAKE_CUSTODY_PENDING", 409);
+            if (intake.custodyStatus === "not_required") return;
+            const state = receiptCoordinationStateSchema.parse(intake.coordination);
+            const current = await tx
+                .select({ id: assetRelationships.id, kind: assetRelationships.kind })
+                .from(assetRelationships)
+                .where(
+                    and(
+                        eq(assetRelationships.organizationId, order.organizationId),
+                        eq(assetRelationships.assetId, item.assetId),
+                        isNull(assetRelationships.effectiveTo),
+                        isNull(assetRelationships.supersededAt),
+                    ),
+                );
+            if (
+                (!state.custody ||
+                    current.some(
+                        (row) => row.kind === "custody" && row.id === state.custodyRelationshipId,
+                    )) &&
+                (!state.location ||
+                    current.some(
+                        (row) => row.kind === "location" && row.id === state.locationRelationshipId,
+                    ))
+            )
+                return;
+        }
+        throw new ContractException("WORK_ITEM_INTAKE_CUSTODY_STALE", 409);
     }
 }

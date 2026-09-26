@@ -237,6 +237,8 @@ export class AssetRelationshipsService {
         organizationId: string,
         assetId: string,
         input: StartAssetRelationshipRequest,
+        transaction?: ArdenfoldTransaction,
+        sourceReferenceId?: string,
     ): Promise<AssetCurrentRelationships> {
         return this.change(
             principal,
@@ -295,6 +297,26 @@ export class AssetRelationshipsService {
                     previousId: current?.id ?? null,
                 };
             },
+            transaction,
+            sourceReferenceId,
+        );
+    }
+
+    startInTransaction(
+        transaction: ArdenfoldTransaction,
+        principal: AuthenticatedPrincipal,
+        organizationId: string,
+        assetId: string,
+        input: StartAssetRelationshipRequest,
+        sourceReferenceId?: string,
+    ): Promise<AssetCurrentRelationships> {
+        return this.start(
+            principal,
+            organizationId,
+            assetId,
+            input,
+            transaction,
+            sourceReferenceId,
         );
     }
 
@@ -303,6 +325,8 @@ export class AssetRelationshipsService {
         organizationId: string,
         assetId: string,
         input: EndAssetRelationshipRequest,
+        transaction?: ArdenfoldTransaction,
+        sourceReferenceId?: string,
     ): Promise<AssetCurrentRelationships> {
         return this.change(
             principal,
@@ -332,7 +356,20 @@ export class AssetRelationshipsService {
                     .returning({ id: assetRelationships.id });
                 return { kind: input.kind, relationshipId: closed!.id, previousId: current.id };
             },
+            transaction,
+            sourceReferenceId,
         );
+    }
+
+    endInTransaction(
+        transaction: ArdenfoldTransaction,
+        principal: AuthenticatedPrincipal,
+        organizationId: string,
+        assetId: string,
+        input: EndAssetRelationshipRequest,
+        sourceReferenceId?: string,
+    ): Promise<AssetCurrentRelationships> {
+        return this.end(principal, organizationId, assetId, input, transaction, sourceReferenceId);
     }
 
     correct(
@@ -340,6 +377,8 @@ export class AssetRelationshipsService {
         organizationId: string,
         assetId: string,
         input: CorrectAssetRelationshipRequest,
+        transaction?: ArdenfoldTransaction,
+        sourceReferenceId?: string,
     ): Promise<AssetCurrentRelationships> {
         return this.change(
             principal,
@@ -392,6 +431,26 @@ export class AssetRelationshipsService {
                     reason: input.reason,
                 };
             },
+            transaction,
+            sourceReferenceId,
+        );
+    }
+
+    correctInTransaction(
+        transaction: ArdenfoldTransaction,
+        principal: AuthenticatedPrincipal,
+        organizationId: string,
+        assetId: string,
+        input: CorrectAssetRelationshipRequest,
+        sourceReferenceId?: string,
+    ): Promise<AssetCurrentRelationships> {
+        return this.correct(
+            principal,
+            organizationId,
+            assetId,
+            input,
+            transaction,
+            sourceReferenceId,
         );
     }
 
@@ -405,37 +464,54 @@ export class AssetRelationshipsService {
             transaction: ArdenfoldTransaction,
             version: number,
         ) => Promise<Record<string, string | number | boolean | null>>,
+        existingTransaction?: ArdenfoldTransaction,
+        sourceReferenceId?: string,
     ): Promise<AssetCurrentRelationships> {
+        const apply = async (transaction: ArdenfoldTransaction) => {
+            const updated = await advanceAssetVersion(
+                transaction,
+                organizationId,
+                assetId,
+                expectedVersion,
+            );
+            const payload = await operation(transaction, updated.version);
+            await recordAssetHistory(transaction, {
+                organizationId,
+                assetId,
+                actorUserId: principal.user.id,
+                aggregateVersion: updated.version,
+                event: `relationship_${change}`,
+                payload,
+                source: sourceReferenceId ? "receipt" : "asset_registry",
+                ...(sourceReferenceId ? { sourceReferenceId } : {}),
+            });
+            await recordAuditEvent(transaction, {
+                organizationId,
+                actorUserId: principal.user.id,
+                action: `asset.relationship_${change}`,
+                resourceType: "asset",
+                resourceId: assetId,
+                metadata: {
+                    kind: String(payload.kind),
+                    sourceReferenceId: sourceReferenceId ?? null,
+                },
+            });
+            return this.currentInTransaction(transaction, organizationId, assetId);
+        };
+        if (existingTransaction) {
+            await this.authorization.requireInTransaction(
+                existingTransaction,
+                principal.user.id,
+                organizationId,
+                ["assets.manage_relationships"],
+            );
+            return apply(existingTransaction);
+        }
         return this.authorization.withAuthorizedTransaction(
             principal.user.id,
             organizationId,
             ["assets.manage_relationships"],
-            async (transaction) => {
-                const updated = await advanceAssetVersion(
-                    transaction,
-                    organizationId,
-                    assetId,
-                    expectedVersion,
-                );
-                const payload = await operation(transaction, updated.version);
-                await recordAssetHistory(transaction, {
-                    organizationId,
-                    assetId,
-                    actorUserId: principal.user.id,
-                    aggregateVersion: updated.version,
-                    event: `relationship_${change}`,
-                    payload,
-                });
-                await recordAuditEvent(transaction, {
-                    organizationId,
-                    actorUserId: principal.user.id,
-                    action: `asset.relationship_${change}`,
-                    resourceType: "asset",
-                    resourceId: assetId,
-                    metadata: { kind: String(payload.kind) },
-                });
-                return this.currentInTransaction(transaction, organizationId, assetId);
-            },
+            apply,
         );
     }
 

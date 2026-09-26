@@ -54,4 +54,8 @@ export const auditActionMessageKeys: Readonly<Record<AuditAction, string>> = {
     "work_item.planned": "audit.actions.workItemPlanned",
     "work_item.cancelled": "audit.actions.workItemCancelled",
     "work_item.restructured": "audit.actions.workItemRestructured",
+    "receipt.recorded": "audit.actions.receiptRecorded",
+    "receipt.corrected": "audit.actions.receiptCorrected",
+    "receipt.reconciled": "audit.actions.receiptReconciled",
+    "receipt.voided": "audit.actions.receiptVoided",
 };

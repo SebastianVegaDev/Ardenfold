@@ -10,6 +10,6 @@ import { AssetReferenceService } from "./queries/asset-reference.service";
     imports: [AuthModule],
     controllers: [AssetsController],
     providers: [AssetManagementService, AssetRelationshipsService, AssetReferenceService],
-    exports: [AssetManagementService, AssetReferenceService],
+    exports: [AssetManagementService, AssetReferenceService, AssetRelationshipsService],
 })
 export class AssetsModule {}
