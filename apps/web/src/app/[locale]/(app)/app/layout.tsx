@@ -50,6 +50,7 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 parties: translate("parties"),
                 assets: translate("assets"),
                 serviceRequests: translate("serviceRequests"),
+                quotations: translate("quotations"),
                 settings: translate("settings"),
                 organization: translate("organization"),
                 organizationPlaceholder: translate("organizationPlaceholder"),
@@ -68,6 +69,8 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
             canReadServiceRequests={
                 activeOrganization?.permissions.includes("service_requests.read") ?? false
             }
+            quotationsHref={`/${locale}/app/quotations`}
+            canReadQuotations={activeOrganization?.permissions.includes("quotations.read") ?? false}
             locale={locale}
             onboardingHref={`/${locale}/app/onboarding`}
             organizations={organizations.data}
