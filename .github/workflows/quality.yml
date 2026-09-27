@@ -114,17 +114,6 @@ jobs:
             - name: Run platform security suite
               run: pnpm test:security
 
-            - name: Upload failure diagnostics
-              if: failure()
-              uses: actions/upload-artifact@v6
-              with:
-                  name: platform-security-diagnostics
-                  path: |
-                      apps/e2e/playwright-report
-                      apps/e2e/test-results
-                  if-no-files-found: ignore
-                  retention-days: 7
-
             - name: Stop isolated PostgreSQL
               if: always()
               run: docker compose -f apps/e2e/compose.yaml down --volumes
