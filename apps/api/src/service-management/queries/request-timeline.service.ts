@@ -21,7 +21,7 @@ type TimelineRow = {
     event_key: string;
     source: "request" | "quote" | "work_order" | "work_item" | "receipt" | "asset_registry";
     kind: string;
-    occurred_at: Date;
+    occurred_at: string | Date;
     occurred_at_exact: string;
     actor_user_id: string;
     request_id: string;
@@ -199,7 +199,7 @@ export class RequestTimelineService {
                         key: event.event_key,
                         source: event.source,
                         kind: event.kind,
-                        occurredAt: event.occurred_at.toISOString(),
+                        occurredAt: new Date(event.occurred_at).toISOString(),
                         actorUserId: event.actor_user_id,
                         requestId: event.request_id,
                         quoteId: event.quote_id,

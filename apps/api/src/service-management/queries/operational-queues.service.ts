@@ -31,7 +31,7 @@ type QueueRow = {
     reference: string;
     title: string;
     status: string;
-    occurred_at: Date;
+    occurred_at: string | Date;
     occurred_at_exact: string;
     customer_party_id: string;
     customer_name: string;
@@ -211,7 +211,7 @@ export class OperationalQueuesService {
                         reference: row.reference,
                         title: row.title,
                         status: row.status,
-                        occurredAt: row.occurred_at.toISOString(),
+                        occurredAt: new Date(row.occurred_at).toISOString(),
                         customer: {
                             id: row.customer_party_id,
                             currentName: row.customer_name,

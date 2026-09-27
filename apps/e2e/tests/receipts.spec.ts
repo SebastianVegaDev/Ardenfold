@@ -162,6 +162,18 @@ test("receipt coordinates custody atomically and retains corrections and unknown
     expect(order.status, JSON.stringify(order.body)).toBe(201);
     const orderId = order.body.id as string;
     const items = order.body.items as Array<{ id: string; version: number }>;
+    const intakeQueue = await call(
+        owner,
+        "/service-management/queues?kind=intake_needed",
+        "GET",
+        orgId,
+    );
+    expect(intakeQueue.status, JSON.stringify(intakeQueue.body)).toBe(200);
+    expect(
+        (intakeQueue.body.data as Array<{ workOrderId: string }>).filter(
+            (row) => row.workOrderId === orderId,
+        ),
+    ).toHaveLength(2);
     const receivedAt = new Date().toISOString();
     const knownInput = {
         workOrderId: orderId,
@@ -218,6 +230,18 @@ test("receipt coordinates custody atomically and retains corrections and unknown
         accessories: ["Cable", "Case"],
         version: 1,
     });
+    const afterIntake = await call(
+        owner,
+        "/service-management/queues?kind=intake_needed",
+        "GET",
+        orgId,
+    );
+    expect(afterIntake.status, JSON.stringify(afterIntake.body)).toBe(200);
+    expect(
+        (afterIntake.body.data as Array<{ workItemId: string }>).some(
+            (row) => row.workItemId === items[0]!.id,
+        ),
+    ).toBe(false);
     const relationship = await call(
         owner,
         `/assets/${asset.body.id as string}/relationships/current`,
@@ -260,6 +284,44 @@ test("receipt coordinates custody atomically and retains corrections and unknown
     expect(corrected.status, JSON.stringify(corrected.body)).toBe(200);
     expect(corrected.body.version).toBe(2);
     expect(corrected.body.corrections).toHaveLength(1);
+    const timeline = await call(
+        owner,
+        `/service-management/requests/${request.body.id as string}/timeline`,
+        "GET",
+        orgId,
+    );
+    expect(timeline.status, JSON.stringify(timeline.body)).toBe(200);
+    const events = timeline.body.data as Array<{
+        source: string;
+        kind: string;
+        receiptId: string | null;
+    }>;
+    expect(
+        events.some(
+            (event) =>
+                event.source === "receipt" &&
+                event.kind === "recorded" &&
+                event.receiptId === recorded.body.id,
+        ),
+    ).toBe(true);
+    expect(
+        events.some(
+            (event) =>
+                event.source === "receipt" &&
+                event.kind === "corrected" &&
+                event.receiptId === recorded.body.id,
+        ),
+    ).toBe(true);
+    expect(
+        events.some(
+            (event) => event.source === "asset_registry" && event.receiptId === recorded.body.id,
+        ),
+    ).toBe(true);
+    expect(
+        (timeline.body.currentAssets as Array<{ id: string; name: string }>).some(
+            (row) => row.id === asset.body.id && row.name === "Known unit",
+        ),
+    ).toBe(true);
     const staleCorrection = await call(
         owner,
         `/receipts/${recorded.body.id as string}/correct`,
