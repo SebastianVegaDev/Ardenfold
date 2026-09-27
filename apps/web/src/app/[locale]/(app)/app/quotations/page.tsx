@@ -6,7 +6,7 @@ export default async function QuotationsPage({
     searchParams,
 }: Readonly<{
     params: Promise<{ locale: Locale }>;
-    searchParams: Promise<{ status?: string; cursor?: string }>;
+    searchParams: Promise<{ status?: string; cursor?: string; q?: string; sort?: string }>;
 }>) {
     const [{ locale }, query] = await Promise.all([params, searchParams]);
     return <QuotesListScreen locale={locale} query={query} />;

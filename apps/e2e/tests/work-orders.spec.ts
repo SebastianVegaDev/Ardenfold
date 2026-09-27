@@ -67,6 +67,33 @@ test("work authorization preserves the accepted revision and prepares independen
         scopeItems: [{ description: "Inspect known and unknown pumps" }],
     });
     expect(request.status).toBe(201);
+    const followUp = await call(
+        owner,
+        "/service-management/queues?kind=commercial_follow_up",
+        "GET",
+        orgId,
+    );
+    expect(followUp.status, JSON.stringify(followUp.body)).toBe(200);
+    expect(
+        (followUp.body.data as Array<{ requestId: string }>).some(
+            (row) => row.requestId === request.body.id,
+        ),
+    ).toBe(true);
+    const requestSearch = await call(
+        owner,
+        "/service-requests?q=Inspect%20pumps&sort=oldest",
+        "GET",
+        orgId,
+    );
+    expect(requestSearch.status, JSON.stringify(requestSearch.body)).toBe(200);
+    expect(
+        (requestSearch.body.data as Array<{ id: string }>).some(
+            (row) => row.id === request.body.id,
+        ),
+    ).toBe(true);
+    expect(
+        (await call(owner, `/service-requests?q=${encodeURIComponent("%")}`, "GET", orgId)).status,
+    ).toBe(400);
     const draft = {
         currencyCode: "PEN",
         paymentTerms: null,
@@ -115,6 +142,26 @@ test("work authorization preserves the accepted revision and prepares independen
         { expectedVersion: quote.body.version, channel: "email" },
     );
     expect(offered.status, JSON.stringify(offered.body)).toBe(200);
+    const awaiting = await call(
+        owner,
+        "/service-management/queues?kind=awaiting_customer",
+        "GET",
+        orgId,
+    );
+    expect(awaiting.status, JSON.stringify(awaiting.body)).toBe(200);
+    expect(
+        (awaiting.body.data as Array<{ quoteId: string }>).some((row) => row.quoteId === quoteId),
+    ).toBe(true);
+    const quoteSearch = await call(
+        owner,
+        `/quotations?assetId=${asset.body.id as string}&q=Known%20pump`,
+        "GET",
+        orgId,
+    );
+    expect(quoteSearch.status, JSON.stringify(quoteSearch.body)).toBe(200);
+    expect((quoteSearch.body.data as Array<{ id: string }>).some((row) => row.id === quoteId)).toBe(
+        true,
+    );
     const prematureAuthorization = await call(owner, "/work-orders", "POST", orgId, {
         quoteId,
         acceptanceId: randomUUID(),
@@ -161,6 +208,18 @@ test("work authorization preserves the accepted revision and prepares independen
         externalReference: null,
     });
     expect(acceptance.status, JSON.stringify(acceptance.body)).toBe(200);
+    const authorized = await call(
+        owner,
+        "/service-management/queues?kind=accepted_unoperationalized",
+        "GET",
+        orgId,
+    );
+    expect(authorized.status, JSON.stringify(authorized.body)).toBe(200);
+    expect(
+        (authorized.body.data as Array<{ acceptanceId: string }>).some(
+            (row) => row.acceptanceId === acceptance.body.id,
+        ),
+    ).toBe(true);
     const acceptedQuote = await call(owner, `/quotations/${quoteId}`, "GET", orgId);
     const item = (
         lineId: string,
@@ -218,6 +277,115 @@ test("work authorization preserves the accepted revision and prepares independen
     const created = await call(owner, "/work-orders", "POST", orgId, orderInput);
     expect(created.status, JSON.stringify(created.body)).toBe(201);
     const orderId = created.body.id as string;
+    const activeWork = await call(
+        owner,
+        "/service-management/queues?kind=active_work",
+        "GET",
+        orgId,
+    );
+    expect(activeWork.status, JSON.stringify(activeWork.body)).toBe(200);
+    expect(
+        (activeWork.body.data as Array<{ workOrderId: string }>).some(
+            (row) => row.workOrderId === orderId,
+        ),
+    ).toBe(true);
+    const notReady = await call(
+        owner,
+        "/service-management/queues?kind=items_not_ready",
+        "GET",
+        orgId,
+    );
+    expect(notReady.status, JSON.stringify(notReady.body)).toBe(200);
+    expect(
+        (notReady.body.data as Array<{ workOrderId: string }>).filter(
+            (row) => row.workOrderId === orderId,
+        ),
+    ).toHaveLength(3);
+    const firstQueuePage = await call(
+        owner,
+        "/service-management/queues?kind=items_not_ready&limit=2",
+        "GET",
+        orgId,
+    );
+    expect(firstQueuePage.status, JSON.stringify(firstQueuePage.body)).toBe(200);
+    expect(firstQueuePage.body.nextCursor).toBeTruthy();
+    const secondQueuePage = await call(
+        owner,
+        `/service-management/queues?kind=items_not_ready&limit=2&cursor=${encodeURIComponent(firstQueuePage.body.nextCursor as string)}`,
+        "GET",
+        orgId,
+    );
+    expect(secondQueuePage.status, JSON.stringify(secondQueuePage.body)).toBe(200);
+    const queueIds = [
+        ...(firstQueuePage.body.data as Array<{ subjectId: string }>),
+        ...(secondQueuePage.body.data as Array<{ subjectId: string }>),
+    ].map((row) => row.subjectId);
+    expect(new Set(queueIds).size).toBe(queueIds.length);
+    expect(queueIds).toHaveLength(3);
+    expect(
+        (
+            await call(
+                owner,
+                `/service-management/queues?kind=active_work&cursor=${encodeURIComponent(firstQueuePage.body.nextCursor as string)}`,
+                "GET",
+                orgId,
+            )
+        ).status,
+    ).toBe(400);
+    const orderSearch = await call(
+        owner,
+        `/work-orders?assetId=${asset.body.id as string}&q=physical%20unit`,
+        "GET",
+        orgId,
+    );
+    expect(orderSearch.status, JSON.stringify(orderSearch.body)).toBe(200);
+    expect((orderSearch.body.data as Array<{ id: string }>).some((row) => row.id === orderId)).toBe(
+        true,
+    );
+    const timeline = await call(
+        owner,
+        `/service-management/requests/${request.body.id as string}/timeline?limit=2`,
+        "GET",
+        orgId,
+    );
+    expect(timeline.status, JSON.stringify(timeline.body)).toBe(200);
+    expect(timeline.body.nextCursor).toBeTruthy();
+    expect((timeline.body.currentCustomer as { name: string }).name).toBe("Industrial customer");
+    const olderTimeline = await call(
+        owner,
+        `/service-management/requests/${request.body.id as string}/timeline?limit=2&cursor=${encodeURIComponent(timeline.body.nextCursor as string)}`,
+        "GET",
+        orgId,
+    );
+    expect(olderTimeline.status, JSON.stringify(olderTimeline.body)).toBe(200);
+    expect(
+        (olderTimeline.body.data as Array<{ key: string }>).every(
+            (event) =>
+                !(timeline.body.data as Array<{ key: string }>).some(
+                    (newer) => newer.key === event.key,
+                ),
+        ),
+    ).toBe(true);
+    expect(
+        (
+            await call(
+                owner,
+                `/service-management/requests/${request.body.id as string}/timeline`,
+                "GET",
+                southId,
+            )
+        ).status,
+    ).toBe(404);
+    expect(
+        (
+            await call(
+                owner,
+                `/service-management/queues?kind=active_work&customerPartyId=${customer.body.id as string}`,
+                "GET",
+                southId,
+            )
+        ).body.data,
+    ).toEqual([]);
     expect(created.body.acceptedRevisionId).toBe(revision.id);
     expect(
         (created.body.items as Array<{ assetId: string | null }>).map((row) => row.assetId),
@@ -449,6 +617,19 @@ test("work authorization preserves the accepted revision and prepares independen
         ).status,
     ).toBe(201);
     expect((await call(viewer, `/work-orders/${orderId}`, "GET", orgId)).status).toBe(200);
+    expect(
+        (await call(viewer, "/service-management/queues?kind=active_work", "GET", orgId)).status,
+    ).toBe(200);
+    expect(
+        (
+            await call(
+                viewer,
+                `/service-management/requests/${request.body.id as string}/timeline`,
+                "GET",
+                orgId,
+            )
+        ).status,
+    ).toBe(200);
     expect((await call(viewer, "/work-orders", "POST", orgId, orderInput)).status).toBe(403);
     const members = await call(owner, "/organizations/current/members", "GET", orgId);
     const membershipId = (members.body.data as Array<{ email: string; membershipId: string }>).find(
@@ -461,6 +642,9 @@ test("work authorization preserves the accepted revision and prepares independen
     });
     expect(suspension.status).toBe(204);
     expect((await call(viewer, `/work-orders/${orderId}`, "GET", orgId)).status).toBe(403);
+    expect(
+        (await call(viewer, "/service-management/queues?kind=active_work", "GET", orgId)).status,
+    ).toBe(403);
     const audit = await call(owner, "/audit-events", "GET", orgId);
     expect(audit.status).toBe(200);
     expect(JSON.stringify(audit.body)).toContain("work_order.authorized");

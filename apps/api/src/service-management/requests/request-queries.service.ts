@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import {
     serviceRequestDetailSchema,
     serviceRequestListResponseSchema,
@@ -14,7 +16,21 @@ import {
     type ServiceRequest,
 } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
-import { and, desc, eq, getTableColumns, lt, or, sql } from "drizzle-orm";
+import {
+    and,
+    asc,
+    desc,
+    eq,
+    exists,
+    getTableColumns,
+    gt,
+    gte,
+    ilike,
+    lt,
+    lte,
+    or,
+    sql,
+} from "drizzle-orm";
 import { z } from "zod";
 
 import type { AuthenticatedPrincipal } from "../../auth/authentication/types";
@@ -26,7 +42,23 @@ const cursorSchema = z.strictObject({
     id: z.uuid(),
     status: z.string().nullable(),
     customerPartyId: z.uuid().nullable(),
+    searchFingerprint: z.string().optional(),
 });
+
+function searchFingerprint(query: ServiceRequestListQuery): string {
+    return createHash("sha256")
+        .update(
+            JSON.stringify([
+                query.siteId ?? null,
+                query.assetId ?? null,
+                query.q ?? null,
+                query.createdFrom ?? null,
+                query.createdTo ?? null,
+                query.sort ?? "newest",
+            ]),
+        )
+        .digest("hex");
+}
 
 function summary(row: ServiceRequest): ServiceRequestSummary {
     return serviceRequestSummarySchema.parse({
@@ -105,7 +137,9 @@ export class RequestQueriesService {
         if (
             cursor &&
             (cursor.status !== (query.status ?? null) ||
-                cursor.customerPartyId !== (query.customerPartyId ?? null))
+                cursor.customerPartyId !== (query.customerPartyId ?? null) ||
+                (cursor.searchFingerprint ?? searchFingerprint({ limit: query.limit })) !==
+                    searchFingerprint(query))
         ) {
             throw new ContractException("INVALID_SERVICE_REQUEST_CURSOR", 400);
         }
@@ -114,13 +148,17 @@ export class RequestQueriesService {
             organizationId,
             ["service_requests.read"],
             async (transaction) => {
+                const pattern = query.q ? `%${query.q.replace(/[\\%_]/g, "\\$&")}%` : undefined;
                 const cursorInstant = cursor ? sql`${cursor.createdAt}::timestamptz` : undefined;
                 const cursorCondition = cursorInstant
                     ? or(
-                          lt(serviceRequests.createdAt, cursorInstant),
+                          (query.sort === "oldest" ? gt : lt)(
+                              serviceRequests.createdAt,
+                              cursorInstant,
+                          ),
                           and(
                               eq(serviceRequests.createdAt, cursorInstant),
-                              lt(serviceRequests.id, cursor!.id),
+                              (query.sort === "oldest" ? gt : lt)(serviceRequests.id, cursor!.id),
                           ),
                       )
                     : undefined;
@@ -137,10 +175,44 @@ export class RequestQueriesService {
                             query.customerPartyId
                                 ? eq(serviceRequests.customerPartyId, query.customerPartyId)
                                 : undefined,
+                            query.siteId ? eq(serviceRequests.siteId, query.siteId) : undefined,
+                            query.assetId
+                                ? exists(
+                                      transaction
+                                          .select({ id: serviceRequestScopeItems.id })
+                                          .from(serviceRequestScopeItems)
+                                          .where(
+                                              and(
+                                                  eq(
+                                                      serviceRequestScopeItems.organizationId,
+                                                      organizationId,
+                                                  ),
+                                                  eq(
+                                                      serviceRequestScopeItems.requestId,
+                                                      serviceRequests.id,
+                                                  ),
+                                                  eq(
+                                                      serviceRequestScopeItems.assetId,
+                                                      query.assetId,
+                                                  ),
+                                              ),
+                                          ),
+                                  )
+                                : undefined,
+                            pattern ? ilike(serviceRequests.summary, pattern) : undefined,
+                            query.createdFrom
+                                ? gte(serviceRequests.createdAt, new Date(query.createdFrom))
+                                : undefined,
+                            query.createdTo
+                                ? lte(serviceRequests.createdAt, new Date(query.createdTo))
+                                : undefined,
                             cursorCondition,
                         ),
                     )
-                    .orderBy(desc(serviceRequests.createdAt), desc(serviceRequests.id))
+                    .orderBy(
+                        (query.sort === "oldest" ? asc : desc)(serviceRequests.createdAt),
+                        (query.sort === "oldest" ? asc : desc)(serviceRequests.id),
+                    )
                     .limit(query.limit + 1);
                 const page = rows.slice(0, query.limit);
                 const last = page.at(-1);
@@ -153,6 +225,7 @@ export class RequestQueriesService {
                                   id: last.id,
                                   status: query.status ?? null,
                                   customerPartyId: query.customerPartyId ?? null,
+                                  searchFingerprint: searchFingerprint(query),
                               })
                             : null,
                 });

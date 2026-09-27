@@ -81,6 +81,12 @@ export const serviceRequestListQuerySchema = z.strictObject({
     cursor: z.string().min(1).max(512).optional(),
     status: serviceRequestStatusSchema.optional(),
     customerPartyId: id.optional(),
+    siteId: id.optional(),
+    assetId: id.optional(),
+    q: z.string().trim().min(2).max(100).optional(),
+    createdFrom: instantSchema.optional(),
+    createdTo: instantSchema.optional(),
+    sort: z.enum(["newest", "oldest"]).optional(),
 });
 
 export const serviceRequestListResponseSchema = z.strictObject({

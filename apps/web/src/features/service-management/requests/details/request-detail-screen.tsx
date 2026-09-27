@@ -67,6 +67,16 @@ export async function RequestDetailScreen({ locale, requestId, edit = false, not
         detail.status === "active" &&
         active.permissions.includes("service_requests.write") &&
         active.permissions.includes("parties.read");
+    const canReadTimeline = [
+        "quotations.read",
+        "work_orders.read",
+        "receipts.read",
+        "parties.read",
+        "assets.read",
+    ] as const;
+    const showTimeline = canReadTimeline.every((permission) =>
+        active.permissions.includes(permission),
+    );
     if (edit && !canEdit) {
         return (
             <div className="mx-auto max-w-4xl p-6 sm:p-8">
@@ -137,6 +147,14 @@ export async function RequestDetailScreen({ locale, requestId, edit = false, not
                     </Link>
                 ) : null}
             </header>
+            {!edit && showTimeline ? (
+                <Link
+                    className="text-primary underline"
+                    href={`/${locale}/app/service-requests/${detail.id}/timeline`}
+                >
+                    {t("viewTimeline")}
+                </Link>
+            ) : null}
             {notice === "success" ? (
                 <p role="status" className="rounded-control border border-border bg-surface p-3">
                     {t("saved")}

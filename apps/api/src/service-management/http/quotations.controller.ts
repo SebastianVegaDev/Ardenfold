@@ -76,6 +76,12 @@ export class QuotationsController {
     @ApiQuery({ name: "status", required: false, enum: ["open", "accepted", "closed"] })
     @ApiQuery({ name: "requestId", required: false, type: String })
     @ApiQuery({ name: "customerPartyId", required: false, type: String })
+    @ApiQuery({ name: "siteId", required: false, type: String })
+    @ApiQuery({ name: "assetId", required: false, type: String })
+    @ApiQuery({ name: "q", required: false, type: String })
+    @ApiQuery({ name: "createdFrom", required: false, type: String })
+    @ApiQuery({ name: "createdTo", required: false, type: String })
+    @ApiQuery({ name: "sort", required: false, enum: ["newest", "oldest"] })
     @ApiOkResponse({ schema: { $ref: "#/components/schemas/QuoteListResponse" } })
     list(
         @CurrentPrincipal() principal: AuthenticatedPrincipal,

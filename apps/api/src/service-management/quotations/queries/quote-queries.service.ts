@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import {
     quoteDetailSchema,
     quoteListResponseSchema,
@@ -15,10 +17,26 @@ import {
     quoteRevisionLines,
     quoteRevisions,
     quotes,
+    serviceRequests,
     type Quote,
 } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
-import { and, desc, eq, getTableColumns, inArray, lt, or, sql } from "drizzle-orm";
+import {
+    and,
+    asc,
+    desc,
+    eq,
+    exists,
+    getTableColumns,
+    gt,
+    gte,
+    ilike,
+    inArray,
+    lt,
+    lte,
+    or,
+    sql,
+} from "drizzle-orm";
 import { z } from "zod";
 
 import type { AuthenticatedPrincipal } from "../../../auth/authentication/types";
@@ -31,7 +49,23 @@ const cursorSchema = z.strictObject({
     status: z.string().nullable(),
     requestId: z.uuid().nullable(),
     customerPartyId: z.uuid().nullable(),
+    searchFingerprint: z.string().optional(),
 });
+
+function searchFingerprint(query: QuoteListQuery): string {
+    return createHash("sha256")
+        .update(
+            JSON.stringify([
+                query.siteId ?? null,
+                query.assetId ?? null,
+                query.q ?? null,
+                query.createdFrom ?? null,
+                query.createdTo ?? null,
+                query.sort ?? "newest",
+            ]),
+        )
+        .digest("hex");
+}
 
 function summary(quote: Quote, activeAcceptanceId: string | null) {
     return quoteSummarySchema.parse({
@@ -241,7 +275,9 @@ export class QuoteQueriesService {
             if (
                 cursor.status !== (query.status ?? null) ||
                 cursor.requestId !== (query.requestId ?? null) ||
-                cursor.customerPartyId !== (query.customerPartyId ?? null)
+                cursor.customerPartyId !== (query.customerPartyId ?? null) ||
+                (cursor.searchFingerprint ?? searchFingerprint({ limit: query.limit })) !==
+                    searchFingerprint(query)
             )
                 throw new ContractException("INVALID_QUOTE_CURSOR", 400);
         }
@@ -250,6 +286,33 @@ export class QuoteQueriesService {
             organizationId,
             ["quotations.read"],
             async (tx) => {
+                const pattern = query.q ? `%${query.q.replace(/[\\%_]/g, "\\$&")}%` : undefined;
+                const matchingLine = (assetId?: string, search?: string) =>
+                    exists(
+                        tx
+                            .select({ id: quoteRevisionLines.id })
+                            .from(quoteRevisionLines)
+                            .innerJoin(
+                                quoteRevisions,
+                                and(
+                                    eq(
+                                        quoteRevisions.organizationId,
+                                        quoteRevisionLines.organizationId,
+                                    ),
+                                    eq(quoteRevisions.id, quoteRevisionLines.revisionId),
+                                ),
+                            )
+                            .where(
+                                and(
+                                    eq(quoteRevisionLines.organizationId, organizationId),
+                                    eq(quoteRevisions.quoteId, quotes.id),
+                                    assetId ? eq(quoteRevisionLines.assetId, assetId) : undefined,
+                                    search
+                                        ? ilike(quoteRevisionLines.description, search)
+                                        : undefined,
+                                ),
+                            ),
+                    );
                 const instant = cursor ? sql`${cursor.createdAt}::timestamptz` : undefined;
                 const rows = await tx
                     .select({
@@ -274,15 +337,57 @@ export class QuoteQueriesService {
                             query.customerPartyId
                                 ? eq(quotes.customerPartyId, query.customerPartyId)
                                 : undefined,
+                            query.siteId
+                                ? exists(
+                                      tx
+                                          .select({ id: serviceRequests.id })
+                                          .from(serviceRequests)
+                                          .where(
+                                              and(
+                                                  eq(
+                                                      serviceRequests.organizationId,
+                                                      organizationId,
+                                                  ),
+                                                  eq(serviceRequests.id, quotes.requestId),
+                                                  eq(serviceRequests.siteId, query.siteId),
+                                              ),
+                                          ),
+                                  )
+                                : undefined,
+                            query.assetId ? matchingLine(query.assetId) : undefined,
+                            pattern
+                                ? or(
+                                      ilike(quotes.reference, pattern),
+                                      matchingLine(undefined, pattern),
+                                  )
+                                : undefined,
+                            query.createdFrom
+                                ? gte(quotes.createdAt, new Date(query.createdFrom))
+                                : undefined,
+                            query.createdTo
+                                ? lte(quotes.createdAt, new Date(query.createdTo))
+                                : undefined,
                             instant
                                 ? or(
-                                      lt(quotes.createdAt, instant),
-                                      and(eq(quotes.createdAt, instant), lt(quotes.id, cursor!.id)),
+                                      (query.sort === "oldest" ? gt : lt)(
+                                          quotes.createdAt,
+                                          instant,
+                                      ),
+                                      and(
+                                          eq(quotes.createdAt, instant),
+                                          (query.sort === "oldest" ? gt : lt)(
+                                              quotes.id,
+                                              cursor!.id,
+                                          ),
+                                      ),
                                   )
                                 : undefined,
                         ),
                     )
-                    .orderBy(desc(quotes.createdAt), desc(quotes.id))
+                    .orderBy(
+                        (query.sort === "oldest" ? asc : desc)(quotes.createdAt),
+                        (query.sort === "oldest" ? asc : desc)(quotes.id),
+                    )
                     .limit(query.limit + 1);
                 const page = rows.slice(0, query.limit);
                 const last = page.at(-1);
@@ -297,6 +402,7 @@ export class QuoteQueriesService {
                                       status: query.status ?? null,
                                       requestId: query.requestId ?? null,
                                       customerPartyId: query.customerPartyId ?? null,
+                                      searchFingerprint: searchFingerprint(query),
                                   }),
                               ).toString("base64url")
                             : null,

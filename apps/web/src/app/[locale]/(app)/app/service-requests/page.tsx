@@ -3,7 +3,13 @@ import { RequestsListScreen } from "@/features/service-management/requests/list/
 
 type Props = Readonly<{
     params: Promise<{ locale: Locale }>;
-    searchParams: Promise<{ status?: string; cursor?: string; notice?: string }>;
+    searchParams: Promise<{
+        status?: string;
+        cursor?: string;
+        notice?: string;
+        q?: string;
+        sort?: string;
+    }>;
 }>;
 
 export default async function ServiceRequestsPage({ params, searchParams }: Props) {

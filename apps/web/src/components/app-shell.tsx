@@ -11,6 +11,7 @@ import {
     ClipboardList,
     FileText,
     BriefcaseBusiness,
+    ListChecks,
     UserRound,
     UsersRound,
     X,
@@ -34,6 +35,7 @@ export type AppShellCopy = Readonly<{
     serviceRequests: string;
     quotations: string;
     workOrders: string;
+    operations: string;
     settings: string;
     organization: string;
     organizationPlaceholder: string;
@@ -63,6 +65,8 @@ type AppShellProps = Readonly<{
     canReadQuotations?: boolean;
     workOrdersHref?: string;
     canReadWorkOrders?: boolean;
+    operationsHref?: string;
+    canReadOperations?: boolean;
 }>;
 
 export function AppShell({
@@ -81,6 +85,8 @@ export function AppShell({
     canReadQuotations = false,
     workOrdersHref,
     canReadWorkOrders = false,
+    operationsHref,
+    canReadOperations = false,
     locale,
     onboardingHref,
     organizations,
@@ -147,6 +153,16 @@ export function AppShell({
                 >
                     <BriefcaseBusiness aria-hidden="true" className="size-5 shrink-0" />
                     <span className="md:hidden lg:inline">{copy.workOrders}</span>
+                </Link>
+            ) : null}
+            {canReadOperations && operationsHref ? (
+                <Link
+                    className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    href={operationsHref}
+                    onClick={() => setMobileNavigationOpen(false)}
+                >
+                    <ListChecks aria-hidden="true" className="size-5 shrink-0" />
+                    <span className="md:hidden lg:inline">{copy.operations}</span>
                 </Link>
             ) : null}
             {organizations.length > 0 ? (

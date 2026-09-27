@@ -254,6 +254,9 @@ export const workItems = pgTable(
             table.assetId,
             table.status,
         ),
+        index("work_items_org_planned_created_id_idx")
+            .on(table.organizationId, table.createdAt, table.id)
+            .where(sql`${table.status} = 'planned'`),
         check("work_items_number_positive", sql`${table.itemNumber} > 0`),
         check("work_items_version_positive", sql`${table.version} > 0`),
         check("work_items_scope_not_blank", sql`char_length(btrim(${table.scopeDescription})) > 0`),

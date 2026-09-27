@@ -157,6 +157,12 @@ export const quoteListQuerySchema = z.strictObject({
     status: quoteStatusSchema.optional(),
     requestId: id.optional(),
     customerPartyId: id.optional(),
+    siteId: id.optional(),
+    assetId: id.optional(),
+    q: z.string().trim().min(2).max(100).optional(),
+    createdFrom: instantSchema.optional(),
+    createdTo: instantSchema.optional(),
+    sort: z.enum(["newest", "oldest"]).optional(),
 });
 export const quoteListResponseSchema = z.strictObject({
     data: z.array(quoteSummarySchema),

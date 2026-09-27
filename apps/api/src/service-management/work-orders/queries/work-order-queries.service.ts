@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import {
     workItemReadinessBlockerSchema,
     workOrderDetailSchema,
@@ -17,7 +19,21 @@ import {
     type WorkOrder,
 } from "@ardenfold/database/schema";
 import { Injectable } from "@nestjs/common";
-import { and, desc, eq, getTableColumns, lt, or, sql } from "drizzle-orm";
+import {
+    and,
+    asc,
+    desc,
+    eq,
+    exists,
+    getTableColumns,
+    gt,
+    gte,
+    ilike,
+    lt,
+    lte,
+    or,
+    sql,
+} from "drizzle-orm";
 import { z } from "zod";
 
 import type { AuthenticatedPrincipal } from "../../../auth/authentication/types";
@@ -31,7 +47,23 @@ const cursorSchema = z.strictObject({
     status: z.string().nullable(),
     requestId: z.uuid().nullable(),
     siteId: z.uuid().nullable(),
+    searchFingerprint: z.string().optional(),
 });
+
+function searchFingerprint(query: WorkOrderListQuery): string {
+    return createHash("sha256")
+        .update(
+            JSON.stringify([
+                query.customerPartyId ?? null,
+                query.assetId ?? null,
+                query.q ?? null,
+                query.createdFrom ?? null,
+                query.createdTo ?? null,
+                query.sort ?? "newest",
+            ]),
+        )
+        .digest("hex");
+}
 
 function summary(row: WorkOrder) {
     return workOrderSummarySchema.parse({
@@ -216,7 +248,9 @@ export class WorkOrderQueriesService {
             if (
                 cursor.status !== (query.status ?? null) ||
                 cursor.requestId !== (query.requestId ?? null) ||
-                cursor.siteId !== (query.siteId ?? null)
+                cursor.siteId !== (query.siteId ?? null) ||
+                (cursor.searchFingerprint ?? searchFingerprint({ limit: query.limit })) !==
+                    searchFingerprint(query)
             )
                 throw new ContractException("INVALID_WORK_ORDER_CURSOR", 400);
         }
@@ -225,6 +259,21 @@ export class WorkOrderQueriesService {
             organizationId,
             ["work_orders.read"],
             async (tx) => {
+                const pattern = query.q ? `%${query.q.replace(/[\\%_]/g, "\\$&")}%` : undefined;
+                const matchingItem = (assetId?: string, search?: string) =>
+                    exists(
+                        tx
+                            .select({ id: workItems.id })
+                            .from(workItems)
+                            .where(
+                                and(
+                                    eq(workItems.organizationId, organizationId),
+                                    eq(workItems.workOrderId, workOrders.id),
+                                    assetId ? eq(workItems.assetId, assetId) : undefined,
+                                    search ? ilike(workItems.scopeDescription, search) : undefined,
+                                ),
+                            ),
+                    );
                 const instant = cursor ? sql`${cursor.createdAt}::timestamptz` : undefined;
                 const rows = await tx
                     .select({
@@ -238,18 +287,43 @@ export class WorkOrderQueriesService {
                             query.status ? eq(workOrders.status, query.status) : undefined,
                             query.requestId ? eq(workOrders.requestId, query.requestId) : undefined,
                             query.siteId ? eq(workOrders.siteId, query.siteId) : undefined,
+                            query.customerPartyId
+                                ? eq(workOrders.customerPartyId, query.customerPartyId)
+                                : undefined,
+                            query.assetId ? matchingItem(query.assetId) : undefined,
+                            pattern
+                                ? or(
+                                      ilike(workOrders.reference, pattern),
+                                      matchingItem(undefined, pattern),
+                                  )
+                                : undefined,
+                            query.createdFrom
+                                ? gte(workOrders.createdAt, new Date(query.createdFrom))
+                                : undefined,
+                            query.createdTo
+                                ? lte(workOrders.createdAt, new Date(query.createdTo))
+                                : undefined,
                             instant
                                 ? or(
-                                      lt(workOrders.createdAt, instant),
+                                      (query.sort === "oldest" ? gt : lt)(
+                                          workOrders.createdAt,
+                                          instant,
+                                      ),
                                       and(
                                           eq(workOrders.createdAt, instant),
-                                          lt(workOrders.id, cursor!.id),
+                                          (query.sort === "oldest" ? gt : lt)(
+                                              workOrders.id,
+                                              cursor!.id,
+                                          ),
                                       ),
                                   )
                                 : undefined,
                         ),
                     )
-                    .orderBy(desc(workOrders.createdAt), desc(workOrders.id))
+                    .orderBy(
+                        (query.sort === "oldest" ? asc : desc)(workOrders.createdAt),
+                        (query.sort === "oldest" ? asc : desc)(workOrders.id),
+                    )
                     .limit(query.limit + 1);
                 const page = rows.slice(0, query.limit);
                 const last = page.at(-1);
@@ -264,6 +338,7 @@ export class WorkOrderQueriesService {
                                       status: query.status ?? null,
                                       requestId: query.requestId ?? null,
                                       siteId: query.siteId ?? null,
+                                      searchFingerprint: searchFingerprint(query),
                                   }),
                               ).toString("base64url")
                             : null,

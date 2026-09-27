@@ -587,6 +587,22 @@ describe("service management operational persistence", () => {
         expect(rows.rows).toHaveLength(7);
         expect(rows.rows.every((row) => row.relrowsecurity && row.relforcerowsecurity)).toBe(true);
     });
+
+    it("can use the planned-item queue index for bounded oldest-work lookup", async () => {
+        const plan = await migrator.database.transaction(async (tx) => {
+            await tx.execute(sql`SET LOCAL enable_seqscan = off`);
+            return tx.execute<{ "QUERY PLAN": string }>(sql`
+                EXPLAIN (COSTS OFF)
+                SELECT id FROM work_items
+                WHERE organization_id = ${randomUUID()}::uuid AND status = 'planned'
+                ORDER BY created_at DESC, id DESC
+                LIMIT 25
+            `);
+        });
+        expect(plan.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
+            "work_items_org_planned_created_id_idx",
+        );
+    });
 });
 
 function connection(connectionString: string): DatabaseConnection {

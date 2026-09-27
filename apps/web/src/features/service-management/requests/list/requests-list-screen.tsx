@@ -12,11 +12,12 @@ import { getCustomer, listServiceRequests, ServiceRequestApiError } from "../api
 
 type Props = Readonly<{
     locale: Locale;
-    query: { status?: string; cursor?: string; notice?: string };
+    query: { status?: string; cursor?: string; notice?: string; q?: string; sort?: string };
 }>;
 
 export async function RequestsListScreen({ locale, query }: Props) {
     const t = await getTranslations("serviceRequests");
+    const filtersT = await getTranslations("operations");
     const context = await getActiveOrganizationSession();
     const active = await getActiveOrganization(
         context.session.accessToken,
@@ -34,6 +35,8 @@ export async function RequestsListScreen({ locale, query }: Props) {
     }
     const params = new URLSearchParams();
     if (query.status) params.set("status", query.status);
+    if (query.q) params.set("q", query.q);
+    if (query.sort) params.set("sort", query.sort);
     if (query.cursor) params.set("cursor", query.cursor);
     let result;
     try {
@@ -122,6 +125,30 @@ export async function RequestsListScreen({ locale, query }: Props) {
                         <option value="active">{t("statuses.active")}</option>
                         <option value="cancelled">{t("statuses.cancelled")}</option>
                         <option value="closed">{t("statuses.closed")}</option>
+                    </select>
+                </div>
+                <div>
+                    <Label htmlFor="request-search">{filtersT("search")}</Label>
+                    <input
+                        id="request-search"
+                        name="q"
+                        type="search"
+                        minLength={2}
+                        maxLength={100}
+                        defaultValue={query.q ?? ""}
+                        className="mt-2 h-10 w-full rounded-control border border-border bg-surface px-3 sm:w-56"
+                    />
+                </div>
+                <div>
+                    <Label htmlFor="request-sort">{filtersT("sort")}</Label>
+                    <select
+                        id="request-sort"
+                        name="sort"
+                        defaultValue={query.sort ?? "newest"}
+                        className="mt-2 h-10 rounded-control border border-border bg-surface px-3"
+                    >
+                        <option value="newest">{filtersT("newest")}</option>
+                        <option value="oldest">{filtersT("oldest")}</option>
                     </select>
                 </div>
                 <Button type="submit">{t("applyFilters")}</Button>

@@ -101,6 +101,12 @@ import {
     receiptSchema,
 } from "./service-management/receipts/receipts";
 import {
+    operationalQueueEntrySchema,
+    operationalQueueResponseSchema,
+    requestTimelineEventSchema,
+    requestTimelineResponseSchema,
+} from "./service-management/queries/operational";
+import {
     createWorkOrderSchema,
     restructureWorkItemSchema,
     updateWorkItemSchema,
@@ -137,6 +143,7 @@ export * from "./shared/api";
 export * from "./shared/primitives";
 export * from "./service-management/requests/requests";
 export * from "./service-management/quotations/quotations";
+export * from "./service-management/queries/operational";
 export * from "./service-management/receipts/receipts";
 export * from "./service-management/work-orders/work-orders";
 
@@ -210,6 +217,10 @@ export const contractSchemas = {
     ServiceRequestSummary: serviceRequestSummarySchema,
     ServiceRequestDetail: serviceRequestDetailSchema,
     ServiceRequestListResponse: serviceRequestListResponseSchema,
+    OperationalQueueEntry: operationalQueueEntrySchema,
+    OperationalQueueResponse: operationalQueueResponseSchema,
+    RequestTimelineEvent: requestTimelineEventSchema,
+    RequestTimelineResponse: requestTimelineResponseSchema,
     CreateServiceRequest: createServiceRequestSchema,
     UpdateServiceRequest: updateServiceRequestSchema,
     TransitionServiceRequest: transitionServiceRequestSchema,
