@@ -139,6 +139,18 @@
                 "planned": "Work item returned to planned",
                 "cancelled": "Work item cancelled"
             },
+            "asset_registry": {
+                "custody": {
+                    "started": "Asset custody recorded",
+                    "ended": "Asset custody ended",
+                    "corrected": "Asset custody corrected"
+                },
+                "location": {
+                    "started": "Asset location recorded",
+                    "ended": "Asset location ended",
+                    "corrected": "Asset location corrected"
+                }
+            },
             "receipt": {
                 "recorded": "Physical intake recorded",
                 "corrected": "Receipt corrected",

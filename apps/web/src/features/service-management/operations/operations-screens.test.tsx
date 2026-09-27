@@ -147,4 +147,22 @@ describe("operational read screens", () => {
             `/en/app/service-requests/${requestId}/timeline?cursor=older-page`,
         );
     });
+
+    it("identifies linked Asset Registry custody changes from historical payloads", async () => {
+        vi.mocked(getRequestTimeline).mockResolvedValue({
+            ...timeline,
+            data: [
+                {
+                    ...timeline.data[0]!,
+                    key: "asset_registry:one",
+                    source: "asset_registry",
+                    kind: "relationship_started",
+                    reason: null,
+                    historicalDetails: { kind: "custody" },
+                },
+            ],
+        });
+        render(await RequestTimelineScreen({ locale: "en", requestId }));
+        expect(screen.getByRole("heading", { name: "Asset custody recorded" })).toBeInTheDocument();
+    });
 });

@@ -42,6 +42,19 @@ const eventLabels = {
     "receipt.voided": "events.receipt.voided",
 } as const;
 
+const relationshipLabels = {
+    custody: {
+        relationship_started: "events.asset_registry.custody.started",
+        relationship_ended: "events.asset_registry.custody.ended",
+        relationship_corrected: "events.asset_registry.custody.corrected",
+    },
+    location: {
+        relationship_started: "events.asset_registry.location.started",
+        relationship_ended: "events.asset_registry.location.ended",
+        relationship_corrected: "events.asset_registry.location.corrected",
+    },
+} as const;
+
 export async function RequestTimelineScreen({
     locale,
     requestId,
@@ -140,13 +153,25 @@ export async function RequestTimelineScreen({
                                 eventLabels[
                                     `${event.source}.${event.kind}` as keyof typeof eventLabels
                                 ];
+                            const relationship = event.historicalDetails?.kind;
+                            const relationshipKey =
+                                (relationship === "custody" || relationship === "location") &&
+                                (event.kind === "relationship_started" ||
+                                    event.kind === "relationship_ended" ||
+                                    event.kind === "relationship_corrected")
+                                    ? relationshipLabels[relationship][event.kind]
+                                    : null;
                             return (
                                 <li
                                     key={event.key}
                                     className="rounded-card border border-border bg-surface p-5"
                                 >
                                     <h3 className="font-semibold">
-                                        {kindKey ? t(kindKey) : t(`sources.${event.source}`)}
+                                        {relationshipKey
+                                            ? t(relationshipKey)
+                                            : kindKey
+                                              ? t(kindKey)
+                                              : t(`sources.${event.source}`)}
                                     </h3>
                                     <p className="mt-1 text-sm text-muted-foreground">
                                         {format.format(new Date(event.occurredAt))}

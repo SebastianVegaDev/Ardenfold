@@ -139,6 +139,18 @@
                 "planned": "Ítem de trabajo devuelto a planificación",
                 "cancelled": "Ítem de trabajo cancelado"
             },
+            "asset_registry": {
+                "custody": {
+                    "started": "Custodia del activo registrada",
+                    "ended": "Custodia del activo finalizada",
+                    "corrected": "Custodia del activo corregida"
+                },
+                "location": {
+                    "started": "Ubicación del activo registrada",
+                    "ended": "Ubicación del activo finalizada",
+                    "corrected": "Ubicación del activo corregida"
+                }
+            },
             "receipt": {
                 "recorded": "Recepción física registrada",
                 "corrected": "Recepción corregida",
