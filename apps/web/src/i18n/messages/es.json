@@ -41,6 +41,7 @@
         "assets": "Activos",
         "serviceRequests": "Solicitudes de servicio",
         "quotations": "Cotizaciones",
+        "operations": "Operaciones",
         "workOrders": "Órdenes de trabajo",
         "settings": "Configuración de la organización",
         "organization": "Selector de organización",
@@ -48,6 +49,103 @@
         "noOrganizations": "Aún no tienes organizaciones",
         "account": "Menú de cuenta",
         "signOut": "Cerrar sesión"
+    },
+    "operations": {
+        "title": "Colas operativas",
+        "description": "Da seguimiento comercial, prepara el trabajo y resuelve la recepción física.",
+        "queue": "Cola",
+        "search": "Buscar registros",
+        "sort": "Orden",
+        "newest": "Más recientes primero",
+        "oldest": "Más antiguos primero",
+        "queues": {
+            "commercial_follow_up": "Solicitudes que requieren seguimiento comercial",
+            "awaiting_customer": "Ofertas pendientes de respuesta del cliente",
+            "accepted_unoperationalized": "Alcance aceptado sin orden de trabajo",
+            "active_work": "Órdenes de trabajo activas",
+            "items_not_ready": "Ítems de trabajo aún no listos",
+            "intake_needed": "Recepción física pendiente"
+        },
+        "showQueue": "Mostrar cola",
+        "customerCurrent": "Cliente actual",
+        "assetCurrent": "Activo actual",
+        "receiptStatus": "Coordinación de recepción",
+        "receipt": {
+            "none": "Sin recepción",
+            "pending": "Custodia pendiente",
+            "applied": "Aplicada",
+            "not_required": "No requiere cambio de custodia"
+        },
+        "since": "Desde",
+        "empty": "No hay elementos pendientes en esta cola.",
+        "nextPage": "Página siguiente",
+        "forbidden": "Tu rol no permite ver esta vista operativa combinada.",
+        "invalidFilters": "La cola o el enlace de página no es válido.",
+        "loadError": "No se pudo cargar la vista operativa. Inténtalo de nuevo.",
+        "timelineTitle": "Cronología de negocio de la solicitud",
+        "businessHistoryHint": "Los eventos históricos aparecen abajo. Los nombres del cliente y los activos arriba reflejan los registros actuales.",
+        "currentContext": "Contexto actual",
+        "eventsTitle": "Eventos de negocio",
+        "reason": "Motivo",
+        "noEvents": "No se encontraron eventos de negocio.",
+        "olderEvents": "Eventos anteriores",
+        "backToRequest": "Volver a la solicitud",
+        "viewQuote": "Ver cotización",
+        "viewWorkOrder": "Ver orden de trabajo",
+        "viewReceipt": "Ver recepción",
+        "viewAsset": "Ver activo",
+        "sources": {
+            "request": "Solicitud de servicio modificada",
+            "quote": "Cotización modificada",
+            "work_order": "Orden de trabajo modificada",
+            "work_item": "Ítem de trabajo modificado",
+            "receipt": "Recepción modificada",
+            "asset_registry": "Relación del Registro de Activos modificada"
+        },
+        "events": {
+            "request": {
+                "created": "Solicitud registrada",
+                "updated": "Solicitud actualizada",
+                "cancelled": "Solicitud cancelada",
+                "closed": "Solicitud cerrada"
+            },
+            "quote": {
+                "created": "Cotización creada",
+                "accepted": "Revisión aceptada",
+                "closed": "Cotización cerrada",
+                "revision": {
+                    "created": "Revisión creada",
+                    "edited": "Borrador actualizado",
+                    "issued": "Revisión emitida",
+                    "superseded": "Oferta reemplazada",
+                    "discarded": "Borrador descartado",
+                    "withdrawn": "Oferta retirada",
+                    "expired": "Oferta vencida",
+                    "rejected": "Oferta rechazada"
+                },
+                "acceptance": { "withdrawn": "Aceptación retirada" }
+            },
+            "work_order": {
+                "authorized": "Orden de trabajo autorizada",
+                "prepared": "Orden de trabajo preparada",
+                "ready": "Orden de trabajo lista",
+                "planned": "Orden de trabajo devuelta a planificación",
+                "cancelled": "Orden de trabajo cancelada"
+            },
+            "work_item": {
+                "created": "Ítem de trabajo creado",
+                "updated": "Ítem de trabajo actualizado",
+                "ready": "Ítem de trabajo listo",
+                "planned": "Ítem de trabajo devuelto a planificación",
+                "cancelled": "Ítem de trabajo cancelado"
+            },
+            "receipt": {
+                "recorded": "Recepción física registrada",
+                "corrected": "Recepción corregida",
+                "reconciled": "Identidad del activo conciliada",
+                "voided": "Recepción anulada"
+            }
+        }
     },
     "serviceRequests": {
         "title": "Solicitudes de servicio",
@@ -124,7 +222,8 @@
         "close": "Cerrar solicitud",
         "cancelRequest": "Cancelar solicitud",
         "refresh": "Actualizar solicitud",
-        "createQuotation": "Crear cotización"
+        "createQuotation": "Crear cotización",
+        "viewTimeline": "Ver cronología de negocio"
     },
     "quotations": {
         "createWorkOrder": "Crear orden de trabajo desde esta aceptación",

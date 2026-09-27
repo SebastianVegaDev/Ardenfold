@@ -6,7 +6,7 @@ export default async function WorkOrdersPage({
     searchParams,
 }: Readonly<{
     params: Promise<{ locale: Locale }>;
-    searchParams: Promise<{ status?: string; cursor?: string }>;
+    searchParams: Promise<{ status?: string; cursor?: string; q?: string; sort?: string }>;
 }>) {
     const [{ locale }, query] = await Promise.all([params, searchParams]);
     return <WorkOrdersListScreen locale={locale} query={query} />;

@@ -52,6 +52,7 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 serviceRequests: translate("serviceRequests"),
                 quotations: translate("quotations"),
                 workOrders: translate("workOrders"),
+                operations: translate("operations"),
                 settings: translate("settings"),
                 organization: translate("organization"),
                 organizationPlaceholder: translate("organizationPlaceholder"),
@@ -76,6 +77,17 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
             canReadWorkOrders={
                 activeOrganization?.permissions.includes("work_orders.read") ?? false
             }
+            operationsHref={`/${locale}/app/operations`}
+            canReadOperations={(
+                [
+                    "service_requests.read",
+                    "quotations.read",
+                    "work_orders.read",
+                    "receipts.read",
+                    "parties.read",
+                    "assets.read",
+                ] as const
+            ).every((permission) => activeOrganization?.permissions.includes(permission) ?? false)}
             locale={locale}
             onboardingHref={`/${locale}/app/onboarding`}
             organizations={organizations.data}

@@ -42,12 +42,110 @@
         "serviceRequests": "Service requests",
         "quotations": "Quotations",
         "workOrders": "Work orders",
+        "operations": "Operations",
         "settings": "Organization settings",
         "organization": "Organization selector",
         "organizationPlaceholder": "Select organization",
         "noOrganizations": "No organizations yet",
         "account": "Account menu",
         "signOut": "Sign out"
+    },
+    "operations": {
+        "title": "Operational queues",
+        "description": "Follow up commercial decisions, prepare work and resolve physical intake.",
+        "queue": "Queue",
+        "search": "Search records",
+        "sort": "Order",
+        "newest": "Newest first",
+        "oldest": "Oldest first",
+        "queues": {
+            "commercial_follow_up": "Requests needing commercial follow-up",
+            "awaiting_customer": "Offers awaiting a customer response",
+            "accepted_unoperationalized": "Accepted scope awaiting a work order",
+            "active_work": "Active work orders",
+            "items_not_ready": "Work items not ready",
+            "intake_needed": "Physical intake needed"
+        },
+        "showQueue": "Show queue",
+        "customerCurrent": "Current customer",
+        "assetCurrent": "Current asset",
+        "receiptStatus": "Receipt coordination",
+        "receipt": {
+            "none": "No receipt",
+            "pending": "Custody pending",
+            "applied": "Applied",
+            "not_required": "No custody change required"
+        },
+        "since": "Since",
+        "empty": "Nothing needs attention in this queue.",
+        "nextPage": "Next page",
+        "forbidden": "Your role does not allow this combined operational view.",
+        "invalidFilters": "The selected queue or page link is invalid.",
+        "loadError": "The operational view could not be loaded. Try again.",
+        "timelineTitle": "Request business timeline",
+        "businessHistoryHint": "Historical events are listed below. Customer and asset names above reflect their current records.",
+        "currentContext": "Current context",
+        "eventsTitle": "Business events",
+        "reason": "Reason",
+        "noEvents": "No business events were found.",
+        "olderEvents": "Older events",
+        "backToRequest": "Back to request",
+        "viewQuote": "View quotation",
+        "viewWorkOrder": "View work order",
+        "viewReceipt": "View receipt",
+        "viewAsset": "View asset",
+        "sources": {
+            "request": "Service request changed",
+            "quote": "Quotation changed",
+            "work_order": "Work order changed",
+            "work_item": "Work item changed",
+            "receipt": "Receipt changed",
+            "asset_registry": "Asset Registry relationship changed"
+        },
+        "events": {
+            "request": {
+                "created": "Request recorded",
+                "updated": "Request updated",
+                "cancelled": "Request cancelled",
+                "closed": "Request closed"
+            },
+            "quote": {
+                "created": "Quotation created",
+                "accepted": "Revision accepted",
+                "closed": "Quotation closed",
+                "revision": {
+                    "created": "Revision created",
+                    "edited": "Draft revised",
+                    "issued": "Revision issued",
+                    "superseded": "Offer superseded",
+                    "discarded": "Draft discarded",
+                    "withdrawn": "Offer withdrawn",
+                    "expired": "Offer expired",
+                    "rejected": "Offer rejected"
+                },
+                "acceptance": { "withdrawn": "Acceptance withdrawn" }
+            },
+            "work_order": {
+                "authorized": "Work order authorized",
+                "prepared": "Work order prepared",
+                "ready": "Work order ready",
+                "planned": "Work order returned to planned",
+                "cancelled": "Work order cancelled"
+            },
+            "work_item": {
+                "created": "Work item created",
+                "updated": "Work item updated",
+                "ready": "Work item ready",
+                "planned": "Work item returned to planned",
+                "cancelled": "Work item cancelled"
+            },
+            "receipt": {
+                "recorded": "Physical intake recorded",
+                "corrected": "Receipt corrected",
+                "reconciled": "Asset identity reconciled",
+                "voided": "Receipt voided"
+            }
+        }
     },
     "serviceRequests": {
         "title": "Service requests",
@@ -124,7 +222,8 @@
         "close": "Close request",
         "cancelRequest": "Cancel request",
         "refresh": "Refresh request",
-        "createQuotation": "Create quotation"
+        "createQuotation": "Create quotation",
+        "viewTimeline": "View business timeline"
     },
     "quotations": {
         "createWorkOrder": "Create work order from this acceptance",

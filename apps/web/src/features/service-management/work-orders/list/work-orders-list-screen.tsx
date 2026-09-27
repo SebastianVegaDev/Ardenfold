@@ -8,10 +8,14 @@ import type { Locale } from "@/i18n/locales";
 
 import { listWorkOrders, WorkOrderApiError } from "../api/work-order-api";
 
-type Props = Readonly<{ locale: Locale; query: { status?: string; cursor?: string } }>;
+type Props = Readonly<{
+    locale: Locale;
+    query: { status?: string; cursor?: string; q?: string; sort?: string };
+}>;
 
 export async function WorkOrdersListScreen({ locale, query }: Props) {
     const t = await getTranslations("workOrders");
+    const filtersT = await getTranslations("operations");
     const { session, organization } = await getActiveOrganizationSession();
     const active = await getActiveOrganization(session.accessToken, organization.id);
     if (!active.permissions.includes("work_orders.read"))
@@ -23,6 +27,8 @@ export async function WorkOrdersListScreen({ locale, query }: Props) {
     const parsed = workOrderListQuerySchema.safeParse({
         ...(query.status ? { status: query.status } : {}),
         ...(query.cursor ? { cursor: query.cursor } : {}),
+        ...(query.q ? { q: query.q } : {}),
+        ...(query.sort ? { sort: query.sort } : {}),
     });
     if (!parsed.success)
         return (
@@ -33,6 +39,8 @@ export async function WorkOrdersListScreen({ locale, query }: Props) {
     const params = new URLSearchParams();
     if (parsed.data.status) params.set("status", parsed.data.status);
     if (parsed.data.cursor) params.set("cursor", parsed.data.cursor);
+    if (parsed.data.q) params.set("q", parsed.data.q);
+    if (parsed.data.sort) params.set("sort", parsed.data.sort);
     let result;
     try {
         result = await listWorkOrders(session.accessToken, organization.id, params);
@@ -81,6 +89,34 @@ export async function WorkOrdersListScreen({ locale, query }: Props) {
                                 {t(`statuses.${status}`)}
                             </option>
                         ))}
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="work-order-search" className="block text-sm font-medium">
+                        {filtersT("search")}
+                    </label>
+                    <input
+                        id="work-order-search"
+                        name="q"
+                        type="search"
+                        minLength={2}
+                        maxLength={100}
+                        defaultValue={parsed.data.q ?? ""}
+                        className="mt-2 h-10 w-full rounded-control border border-border bg-surface px-3 sm:w-56"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="work-order-sort" className="block text-sm font-medium">
+                        {filtersT("sort")}
+                    </label>
+                    <select
+                        id="work-order-sort"
+                        name="sort"
+                        defaultValue={parsed.data.sort ?? "newest"}
+                        className="mt-2 h-10 rounded-control border border-border bg-surface px-3"
+                    >
+                        <option value="newest">{filtersT("newest")}</option>
+                        <option value="oldest">{filtersT("oldest")}</option>
                     </select>
                 </div>
                 <button
