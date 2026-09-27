@@ -104,11 +104,13 @@ authorization, audit, concurrency, and RLS guarantees.
 | Service Management quotations | `apps/api/src/service-management/quotations`, `http/quotations.controller.ts`; `apps/web/src/features/service-management/quotations`; `packages/database/src/schema/service-management/quotations.ts` | quote identity, numbered draft and immutable issued revisions, exact acceptance and commercial history; tenant-scoped money and audit; quotation review, editing and decision UI | [service model](../domain/service-management.md) |
 | Service Management work orders | `apps/api/src/service-management/work-orders`, `http/work-orders.controller.ts`; `apps/web/src/features/service-management/work-orders`; `packages/database/src/schema/service-management/work-orders.ts` | authorization from an exact accepted quote revision, work item allocation, preparation, readiness, cancellation and business history; operational list, authorization and preparation UI | [service model](../domain/service-management.md) |
 | Service Management receipts | `apps/api/src/service-management/receipts`, `http/receipts.controller.ts`; `apps/web/src/features/service-management/receipts`; `packages/database/src/schema/service-management/receipts.ts` | physical intake facts, append-only corrections, reconciliation and atomic custody/location coordination through Asset Registry; intake and correction UI | [service model](../domain/service-management.md) |
+| Service Management operational reads | `apps/api/src/service-management/queries`, `http/operational-views.controller.ts`; `apps/web/src/features/service-management/operations`; `packages/contracts/src/service-management/queries/operational.ts` | tenant-scoped operational queues and request business timeline with current Party/Asset context; read-only composition of existing domain records | [service model](../domain/service-management.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
 feature folders `apps/web/src/features/assets`, `parties`, `registry-imports`, and
 `service-management/requests`, `service-management/quotations`,
-`service-management/work-orders`, and `service-management/receipts`. They consume the public contracts; they do not
+`service-management/work-orders`, `service-management/receipts`, and
+`service-management/operations`. They consume the public contracts; they do not
 own domain rules.
 
 ## Platform and shared foundations
@@ -150,6 +152,7 @@ tables directly when an authoritative service owns that workflow.
 | Receipt API and Asset Registry coordination | `apps/api/src/service-management/receipts`, `apps/api/src/assets/relationships/asset-relationships.service.ts`, `packages/contracts/src/service-management/receipts/receipts.ts` |
 | Work Order and Work Item web operations | `apps/web/src/features/service-management/work-orders`; routing under `app/[locale]/(app)/app/work-orders` and `app/auth/work-orders` |
 | Receipt web intake and corrections | `apps/web/src/features/service-management/receipts`; routing under `app/[locale]/(app)/app/receipts` and `app/auth/receipts` |
+| Operational queues and request business timeline | `apps/api/src/service-management/queries`, `apps/api/src/service-management/http/operational-views.controller.ts`, `apps/web/src/features/service-management/operations` |
 
 ## Finding proof
 
