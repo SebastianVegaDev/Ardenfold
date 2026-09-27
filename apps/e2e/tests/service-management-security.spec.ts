@@ -593,6 +593,11 @@ test("M4 commercial basis, operational readiness, tenant isolation and live proj
         (await call(member, `/service-management/requests/${requestId}/timeline`, "GET", north))
             .status,
     ).toBe(403);
+    expect(
+        (await call(owner, `/organizations/current/members/${membershipId}`, "DELETE", north))
+            .status,
+    ).toBe(204);
+    expect((await call(member, `/work-orders/${orderId}`, "GET", north)).status).toBe(403);
 
     await page.goto("/en/sign-in");
     await page.getByRole("link", { name: "Continue to sign in" }).click();
@@ -610,9 +615,7 @@ test("M4 commercial basis, operational readiness, tenant isolation and live proj
     await page.goto(`/en/app/operations?kind=active_work`);
     await expect(page.getByRole("link", { name: orderInput.reference })).toBeVisible();
     await page.goto(`/en/app/service-requests/${requestId}/timeline`);
-    await expect(
-        page.getByRole("heading", { name: "Request business timeline" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Request business timeline" })).toBeVisible();
     await page.goto(`/es/app/service-requests/${requestId}/timeline`);
     await expect(
         page.getByRole("heading", { name: "Cronología de negocio de la solicitud" }),

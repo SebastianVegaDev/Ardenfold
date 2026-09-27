@@ -2,6 +2,10 @@
 
 The platform security suite exercises the M1 browser, API, identity and PostgreSQL boundaries together. It uses the normal WorkOS redirect, PKCE, sealed-session and JWT/JWKS paths against a local deterministic identity provider; the application contains no authentication bypass for tests.
 
+`pnpm test:security` runs the complete Playwright suite, including later product
+scenarios. The dedicated [M4 gate](service-management.md) also runs the Service
+Management PostgreSQL integration tests and its scoped browser/API scenarios.
+
 ## Run locally
 
 Docker, Node.js 24, pnpm 12 and the Playwright Chromium browser are required.
