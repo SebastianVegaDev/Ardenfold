@@ -1,0 +1,1 @@
+CREATE INDEX "work_items_org_planned_created_id_idx" ON "work_items" USING btree ("organization_id","created_at","id") WHERE "work_items"."status" = 'planned';

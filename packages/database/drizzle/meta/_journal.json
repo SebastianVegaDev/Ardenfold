@@ -127,6 +127,13 @@
       "when": 1790435857325,
       "tag": "0017_receipt_coordination",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790504761688,
+      "tag": "0018_big_black_tarantula",
+      "breakpoints": true
     }
   ]
 }
