@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import {
     quoteDetailSchema,
     quoteListResponseSchema,
@@ -409,4 +411,3 @@ export class QuoteQueriesService {
         );
     }
 }
-import { createHash } from "node:crypto";
