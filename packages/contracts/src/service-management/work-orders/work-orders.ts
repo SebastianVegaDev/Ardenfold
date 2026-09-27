@@ -143,6 +143,12 @@ export const workOrderListQuerySchema = z.strictObject({
     status: workOrderStatusSchema.optional(),
     requestId: id.optional(),
     siteId: id.optional(),
+    customerPartyId: id.optional(),
+    assetId: id.optional(),
+    q: z.string().trim().min(2).max(100).optional(),
+    createdFrom: instantSchema.optional(),
+    createdTo: instantSchema.optional(),
+    sort: z.enum(["newest", "oldest"]).optional(),
 });
 export const workOrderListResponseSchema = z.strictObject({
     data: z.array(workOrderSummarySchema),

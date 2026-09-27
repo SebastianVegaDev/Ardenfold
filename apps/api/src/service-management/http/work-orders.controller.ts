@@ -72,6 +72,12 @@ export class WorkOrdersController {
     @ApiQuery({ name: "status", required: false, enum: ["planned", "ready", "cancelled"] })
     @ApiQuery({ name: "requestId", required: false, type: String })
     @ApiQuery({ name: "siteId", required: false, type: String })
+    @ApiQuery({ name: "customerPartyId", required: false, type: String })
+    @ApiQuery({ name: "assetId", required: false, type: String })
+    @ApiQuery({ name: "q", required: false, type: String })
+    @ApiQuery({ name: "createdFrom", required: false, type: String })
+    @ApiQuery({ name: "createdTo", required: false, type: String })
+    @ApiQuery({ name: "sort", required: false, enum: ["newest", "oldest"] })
     @ApiOkResponse({ schema: { $ref: "#/components/schemas/WorkOrderListResponse" } })
     list(
         @CurrentPrincipal() principal: AuthenticatedPrincipal,
