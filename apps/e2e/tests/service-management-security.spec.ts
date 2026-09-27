@@ -260,8 +260,8 @@ test("M4 commercial basis, operational readiness, tenant isolation and live proj
         call(member, `/quotations/${quoteId}/acceptances`, "POST", north, acceptanceInput),
     ]);
     expect(concurrentAcceptance.map((result) => result.status)).toEqual([200, 200]);
-    expect(concurrentAcceptance[0]!.body.id).toBe(concurrentAcceptance[1]!.body.id);
-    const acceptanceId = concurrentAcceptance[0]!.body.id as string;
+    expect(concurrentAcceptance[0].body.id).toBe(concurrentAcceptance[1].body.id);
+    const acceptanceId = concurrentAcceptance[0].body.id as string;
     const acceptedQuote = await call(owner, `/quotations/${quoteId}`, "GET", north);
     expect(
         acceptedQuote.body.revisions as Array<{ id: string; status: string; total: string }>,
