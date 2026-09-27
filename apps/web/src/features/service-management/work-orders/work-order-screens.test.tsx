@@ -16,8 +16,8 @@ import { WorkOrdersListScreen } from "./list/work-orders-list-screen";
 import { acceptedQuote, site, workOrder } from "./test/fixtures";
 
 vi.mock("next-intl/server", () => ({
-    getTranslations: () =>
-        Promise.resolve(createTranslator({ locale: "en", messages: en.workOrders })),
+    getTranslations: (namespace: "operations" | "workOrders") =>
+        Promise.resolve(createTranslator({ locale: "en", messages: en, namespace })),
 }));
 vi.mock("@/auth/server-organization", () => ({
     getActiveOrganizationSession: () =>

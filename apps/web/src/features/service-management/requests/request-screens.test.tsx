@@ -13,8 +13,8 @@ import { RequestLoading } from "./request-loading";
 import type * as RequestApi from "./api/request-api";
 
 vi.mock("next-intl/server", () => ({
-    getTranslations: () =>
-        Promise.resolve(createTranslator({ locale: "en", messages: messages.serviceRequests })),
+    getTranslations: (namespace: "operations" | "serviceRequests") =>
+        Promise.resolve(createTranslator({ locale: "en", messages, namespace })),
 }));
 vi.mock("@/auth/server-organization", () => ({
     getActiveOrganizationSession: () =>
