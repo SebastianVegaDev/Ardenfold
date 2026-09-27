@@ -16,8 +16,8 @@ import { quote, request, revisionId } from "./test/fixtures";
 import type * as QuoteApi from "./api/quote-api";
 
 vi.mock("next-intl/server", () => ({
-    getTranslations: () =>
-        Promise.resolve(createTranslator({ locale: "en", messages: messages.quotations })),
+    getTranslations: (namespace: "operations" | "quotations") =>
+        Promise.resolve(createTranslator({ locale: "en", messages, namespace })),
 }));
 vi.mock("@/auth/server-organization", () => ({
     getActiveOrganizationSession: () =>

@@ -2,6 +2,10 @@
 
 The platform security suite exercises the M1 browser, API, identity and PostgreSQL boundaries together. It uses the normal WorkOS redirect, PKCE, sealed-session and JWT/JWKS paths against a local deterministic identity provider; the application contains no authentication bypass for tests.
 
+`pnpm test:security` runs the complete Playwright suite, including later product
+scenarios. The dedicated [M4 gate](service-management.md) also runs the Service
+Management PostgreSQL integration tests and its scoped browser/API scenarios.
+
 ## Run locally
 
 Docker, Node.js 24, pnpm 12 and the Playwright Chromium browser are required.
@@ -21,4 +25,4 @@ The suite owns fixed identities for an owner, member and short-lived session. Pr
 
 Screenshots and traces are retained only when a test fails; video is disabled. One-time invitation credentials and access tokens are handled by uninstrumented Node requests, are never logged or attached, and do not enter Playwright traces. Failure messages report only status and invariant names.
 
-CI exposes the suite as the independent `Platform security` status check and uploads diagnostics only on failure. Branch protection should require that check before merging the M1 milestone.
+CI exposes the suite as the independent `Platform security` status check. Failure traces stay on the ephemeral runner because this suite now includes M4 commercial journeys. Branch protection should require that check before merging the M1 milestone.

@@ -162,6 +162,8 @@ tables directly when an authoritative service owns that workflow.
   [platform security](../testing/platform-security.md).
 - Registry import isolation and recovery coverage is described in
   [registry imports](../testing/registry-imports.md).
+- The M4 Request-to-Work-Order lifecycle and security gate is described in
+  [Service Management testing](../testing/service-management.md).
 - ADRs record durable decisions; current path ownership belongs in this map.
 
 ## Future concepts
