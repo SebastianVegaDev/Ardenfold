@@ -5,7 +5,8 @@
     "scripts": {
         "lint": "eslint playwright.config.ts scripts tests --max-warnings=0",
         "typecheck": "tsc --noEmit",
-        "test:security": "playwright test"
+        "test:security": "playwright test",
+        "test:m4": "playwright test tests/service-requests.spec.ts tests/service-requests-web.spec.ts tests/quotations.spec.ts tests/quotations-web.spec.ts tests/work-orders.spec.ts tests/work-orders-web.spec.ts tests/receipts.spec.ts tests/service-management-security.spec.ts"
     },
     "devDependencies": {
         "@playwright/test": "^1.55.0",

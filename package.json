@@ -11,6 +11,7 @@
         "typecheck": "turbo run typecheck",
         "test": "turbo run test",
         "test:security": "pnpm exec turbo run build --filter=@ardenfold/api... --filter=@ardenfold/ui... && pnpm --filter @ardenfold/e2e test:security",
+        "test:m4": "pnpm exec turbo run build --filter=@ardenfold/api... --filter=@ardenfold/ui... && pnpm --filter @ardenfold/database exec vitest run src/service-management && pnpm --filter @ardenfold/e2e test:m4",
         "format": "prettier --write **/*.{js,mjs,cjs,ts,tsx,json,css,yml,yaml}",
         "format:check": "prettier --check **/*.{js,mjs,cjs,ts,tsx,json,css,yml,yaml}",
         "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check",

@@ -443,6 +443,44 @@ describe("service management operational persistence", () => {
         await expect(runtime.database.insert(workOrders).values(orderValues(f))).rejects.toThrow();
     });
 
+    it("allows only one concurrent authorization of an acceptance and keeps child writes atomic", async () => {
+        const f = await fixture();
+        const context = { organizationId: f.org.id, userId: f.actor.id };
+        const authorize = (reference: string) =>
+            runtime.withTenantTransaction(context, async (tx) => {
+                const [order] = await tx
+                    .insert(workOrders)
+                    .values({ ...orderValues(f), reference })
+                    .returning();
+                await tx.insert(workItems).values(itemValues(f, order!.id, 1));
+                return order!;
+            });
+        const outcomes = await Promise.allSettled([
+            authorize("WO-CONCURRENT-A"),
+            authorize("WO-CONCURRENT-B"),
+        ]);
+        expect(outcomes.map((outcome) => outcome.status).sort()).toEqual(["fulfilled", "rejected"]);
+        expect(
+            await runtime.withTenantTransaction(context, (tx) => tx.select().from(workOrders)),
+        ).toHaveLength(1);
+        expect(
+            await runtime.withTenantTransaction(context, (tx) => tx.select().from(workItems)),
+        ).toHaveLength(1);
+        expect(
+            await runtime.withTenantTransaction(context, (tx) =>
+                tx.select().from(workOrderHistoryEntries),
+            ),
+        ).toHaveLength(1);
+        expect(
+            await runtime.withTenantTransaction(
+                { organizationId: f.otherOrg.id, userId: f.otherActor.id },
+                (tx) => tx.select().from(workOrders),
+            ),
+        ).toEqual([]);
+        expect(await runtime.database.select().from(workOrders)).toEqual([]);
+        expect(await runtime.database.select().from(quoteAcceptances)).toEqual([]);
+    });
+
     it("records physical intake with or without an asset and retains correction history", async () => {
         const f = await fixture();
         const context = { organizationId: f.org.id, userId: f.actor.id };
