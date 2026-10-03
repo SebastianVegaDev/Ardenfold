@@ -9,7 +9,9 @@ lifecycles.
 The [Service Management implementation model](service-management.md) defines
 the detailed M4 states, transition guards, decimal rules and transaction
 boundaries for steps 1 through 3. M4 ends when work is ready for technical
-execution; steps 4 onward describe later capabilities.
+execution. The [Technical Operations implementation model](technical-operations.md)
+defines the M5 states, exact result/evidence semantics and decision boundaries
+for steps 4 and 5; certificate behavior remains future work.
 
 ## Reference workflow
 
@@ -56,21 +58,29 @@ custody with the customer.
 
 ### 4. Perform technical work
 
-Authorized personnel execute the work items and record results and evidence.
+Authorized personnel start one stable execution from an eligible ready Work
+Item, revalidating readiness and source versions transactionally. They record
+method/performance context, typed results and private contextual evidence in
+its latest draft revision.
 
 Technical records retain the context needed to interpret them, including units,
 methods, and relevant conditions.
 
-Changes remain traceable according to the applicable workflow.
+Submission freezes that exact revision and its technical children. Corrections
+create numbered successors, preserving prior results, evidence and attribution.
+File upload alone is not Evidence and cannot satisfy submission integrity.
 
 ### 5. Review and approve
 
 An authorized reviewer assesses the applicable execution revision and evidence.
 
-Approval identifies what was reviewed and by whom.
+An accepted review and a separate explicit approval identify one exact frozen
+revision, actors, decision times and evaluated policy. Changes requested or
+rejection preserves the target and requires successor correction.
 
-Changes to approved technical content require a new review before certificate
-issuance.
+Changes to approved technical content require a successor revision and a new
+review/approval path. The Approved Technical Package remains tied to its exact
+approval/revision after newer work; it cannot drift to the latest content.
 
 Any required separation between performer and reviewer is enforced by explicit
 policy rather than assumed from a role name.
@@ -176,11 +186,21 @@ certificate.
 
 ### Evidence and approvals
 
+- An execution has at most one actionable latest revision; cancellation never
+  releases its Work Item uniqueness or overwrites historically meaningful work.
+- Submitted revision context, results, performers and evidence associations
+  are immutable; a successor gets new identities and no inherited decisions.
 - Evidence retains its relationship to the action, result, or decision it supports.
+- Only finalized private objects become file Evidence. Domain authorization
+  controls access, and referenced historical objects are excluded from cleanup.
 - File access follows the authorization of the associated domain record.
 - An approval refers to a specific reviewed revision.
 - Editing reviewed content cannot silently preserve an approval for the old content.
 - Authorized corrections retain the history required to explain the change.
+- Permission and performer/reviewer/approver separation-policy eligibility are
+  distinct checks. Concurrent decisions/revocation serialize explicitly.
+- Approval is a separate business fact. A newer unapproved revision does not
+  acquire an older revision's approval or public evidence access.
 
 ### Certificate integrity
 
@@ -251,3 +271,9 @@ The model must support the following cases without contradicting these rules:
     registry, business-history or audit write fails.
 15. A customer name change leaves accepted commercial snapshots understandable;
     an on-site item becomes ready without artificial intake records.
+16. Two starts for one ready item create one execution; operational correction
+    racing start cannot invalidate consumed work silently.
+17. Submission racing a draft result/evidence write freezes one complete exact
+    revision. A changes-requested successor preserves all prior content.
+18. An approved package retains its exact revision after a newer unapproved
+    correction; orphan cleanup cannot delete its private evidence bytes.

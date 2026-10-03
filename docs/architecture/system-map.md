@@ -168,6 +168,14 @@ tables directly when an authoritative service owns that workflow.
 
 ## Future concepts
 
+The [Technical Operations implementation model](../domain/technical-operations.md)
+is the canonical M5 design for the ready Work Item handoff, stable execution,
+immutable submitted revisions, typed exact results, private Evidence and
+explicit review/approval. It defines an Approved Technical Package for future
+Certificates & Trust. This is planned behavior, not a runtime owner in the
+implemented-domain table above. Add entries only as scoped M5 capabilities
+become implemented.
+
 The [Service Management implementation model](../domain/service-management.md)
 is the canonical M4 design and intended capability map for requests, quotations,
 acceptance, work orders/items and receipts. The request API and persistence are

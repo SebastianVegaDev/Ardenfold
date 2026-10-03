@@ -3,8 +3,9 @@
 ## Status
 
 Ardenfold is a modular multi-tenant monolith. The implemented system is an
-asset and party registry with organization-aware authorization, PostgreSQL RLS,
-auditing, and a safe CSV-import workflow. The canonical description of the
+asset and party registry and Service Management workflow with
+organization-aware authorization, PostgreSQL RLS, auditing, and safe CSV imports.
+The canonical description of the
 current code is the [living system map](system-map.md).
 
 ## Architectural direction
@@ -29,17 +30,20 @@ registry capabilities.
 
 The following are implemented: Identity & Access, Parties, Asset Registry,
 Registry Import, authorization, audit, observability, shared contracts,
-database migrations/RLS, UI primitives, and test infrastructure.
+database migrations/RLS, UI primitives, test infrastructure and M4 Service
+Management requests, quotations, work orders/items, receipts and operational reads.
 
-Service operations, quotations, technical execution, certificates, document
+Technical execution, certificates, private file
 storage, notifications, external integrations, and mobile/offline workflows
 remain product-direction concepts. They must not be represented as current
 runtime modules until a scoped implementation exists.
 
 The [Service Management model](../domain/service-management.md) now defines the
 M4 request-to-work-order design, including optional receipt and readiness for
-technical execution. Its documented capability map does not add runtime modules;
-Technical Operations and Certificates & Trust remain later implementation work.
+technical execution. The [Technical Operations model](../domain/technical-operations.md)
+defines M5 execution revisions, results, evidence and exact review/approval.
+That documented capability map adds no runtime modules; Technical Operations,
+file storage and Certificates & Trust remain scoped implementation work.
 
 ## Related references
 

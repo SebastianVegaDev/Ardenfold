@@ -2,7 +2,8 @@
 
 Ardenfold is a multi-tenant platform for technical asset traceability. Its
 implemented product surface is an organization-aware registry for parties and
-assets, including temporal custody relationships and safe CSV imports.
+assets, including temporal custody relationships, safe CSV imports and Service
+Management from customer request through operational readiness.
 
 ## Current product stage
 
@@ -16,8 +17,11 @@ The completed M2 foundation provides:
   state, and independent ownership, custody, and location histories.
 - **Registry Import:** bounded CSV preview, validation, explicit confirmation,
   resumable commit, and error export.
+- **Service Management:** requests, immutable quotation revisions and exact
+  acceptance, work authorization/items, optional receipt and custody coordination,
+  operational readiness, queues and business history.
 
-Service requests, quotations, work orders, technical execution, certificates,
+Technical execution, private file storage, certificates,
 documents, notifications, integrations, and a mobile application are future
 concepts. They are not implemented modules or public product behavior today.
 

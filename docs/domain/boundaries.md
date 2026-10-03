@@ -13,7 +13,7 @@ services or create a package for every module immediately.
 | Parties | Organization-scoped counterparts, contacts, addresses, and commercial relationships. | Authentication identities or platform memberships. |
 | Asset Registry | Asset identity records, identifiers, ownership, custody, location, and references used to assemble asset history. | Commercial terms, technical measurements, or certificate snapshots. |
 | Service Management | Requests, pre-execution requested scope, quotes/revisions, acceptance/rejection/expiry, accepted commercial scope, work orders/items, receipts and operational readiness. | Counterpart identity, asset identity/ownership/custody/location authority, technical execution/results/evidence/review/approval, or certificate preparation/issuance. |
-| Technical Operations | Executions, technical results, contextual evidence, reviews, and approval decisions. | Commercial acceptance or issued certificate versions. |
+| Technical Operations | Stable executions, numbered technical revisions, method/performance context, typed results, contextual evidence, exact-revision reviews/approvals and approved technical packages. | Work Item/readiness authority, asset identity/relationships, membership assignments, commercial acceptance, private storage mechanics or issued certificate versions. |
 | Certificates & Trust | Certificate preparation, issuance, immutable issued versions, replacement, revocation, and verification views. | Editing the source execution or granting organization membership. |
 | Audit | Protected records of relevant actions across the platform. | Business authorization decisions or the primary state of other modules. |
 
@@ -34,8 +34,14 @@ defines immutable issued revisions, explicit acceptance, operational allocation
 and the M4 boundary at readiness for Technical Operations. Customer agreement
 does not grant an Ardenfold user permission to authorize work.
 
-Technical Operations references work items and assets, and exposes approved
-technical results through explicit contracts.
+Technical Operations references work items and assets. Its
+[implementation model](technical-operations.md) defines the M5 handoff from
+eligible ready work, revision immutability, exact decimal/unit semantics,
+private evidence and approval of one explicit revision. Service Management
+owns transaction-composable readiness and consumed-work guards; Technical
+Operations cannot directly edit operational records. Approved packages expose
+one exact approval/revision through explicit read contracts, never whichever
+content happens to be latest.
 
 Certificates & Trust consumes the approved results and identifying information
 needed to prepare an issued snapshot.
@@ -91,6 +97,12 @@ of which client initiates an operation.
 File storage, email delivery, queues, and telemetry support business modules.
 They do not decide who owns an asset, who may approve a result, or whether a
 certificate may be issued.
+
+Private file infrastructure owns finalized byte identity and safe transfer.
+Technical Operations owns Evidence and authorizes its associations/downloads.
+Uploading alone grants no technical meaning or access; immutable historical
+references exclude objects from ordinary orphan cleanup. Public certificate
+verification never implies public technical evidence.
 
 Background jobs carry explicit execution scope and use an authorized execution
 identity. A job payload containing an organization identifier is not sufficient

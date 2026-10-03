@@ -73,10 +73,12 @@ global deduplication.
 | Work order | The distinct operational authorization and coordination record derived from an explicit commercial basis; in M4, one accepted quote revision. | Service Management |
 | Work item | An independently tracked allocation of agreed scope within a work order, forming the readiness boundary for future technical execution. | Service Management |
 | Receipt | A historical physical-intake record with observed condition, accessories, time and actor; it neither establishes asset identity nor owns custody/location. | Service Management |
-| Technical execution | The performance and recording of technical work for a work item. | Technical Operations |
-| Technical result | Structured output from an execution, with the units, precision, and context required to interpret it. | Technical Operations |
-| Technical review | A recorded assessment of an execution and its results by an authorized reviewer. | Technical Operations |
-| Approval | An explicit decision permitting the reviewed result to advance, subject to the applicable policy. | Technical Operations |
+| Technical execution | The stable identity recording technical work for one authorized Work Item; M5 permits at most one per item, including after cancellation. | Technical Operations |
+| Execution revision | One numbered technical content set within an execution; editable as the latest draft and immutable once submitted. Successors preserve predecessor history. | Technical Operations |
+| Technical result | A revision-owned quantitative, qualitative, textual or explicitly missing observation, retaining exact value, unit and interpretation metadata where applicable. | Technical Operations |
+| Technical review | An immutable accepted, changes-requested or rejected assessment naming one exact submitted revision and its reviewer. | Technical Operations |
+| Approval | A separate explicit immutable decision naming one exact accepted review and revision, subject to current permission and separation policy. | Technical Operations |
+| Approved Technical Package | A versioned read contract naming one explicit approval/revision and its frozen source context, results, evidence and decisions for future certificate preparation. | Technical Operations |
 
 A service request is not a draft quote. A quote is not its revision, and neither
 is a work order. Acceptance permanently identifies its revision even after
@@ -90,12 +92,17 @@ A work order is not a certificate.
 
 A technical execution is not itself an approval.
 
+Detailed execution/revision lifecycles, decimal/unit semantics and decision
+policy belong in the [Technical Operations model](technical-operations.md).
+A newer revision never inherits an earlier review or approval.
+
 ## Evidence and certificates
 
 | Term | Definition | Owning module |
 | --- | --- | --- |
 | Evidence | A contextual record supporting a technical action, result, review, or decision. | Technical Operations |
 | Attachment | A stored file linked to a domain record. Its business meaning and access rules come from that record. | The module owning the linked record |
+| Stored object | Opaque organization-scoped private byte identity with finalized size, media classification and content digest; it has no technical meaning without an authorized domain association. | File infrastructure |
 | Certificate | The logical issued document record representing an identified technical scope and its results. | Certificates & Trust |
 | Certificate version | A specific snapshot of certificate content. Once issued, its content cannot be overwritten. | Certificates & Trust |
 | Issuance | The authorized act that turns approved certificate content into an immutable issued version. | Certificates & Trust |
