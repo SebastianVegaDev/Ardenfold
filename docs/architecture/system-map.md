@@ -105,6 +105,7 @@ authorization, audit, concurrency, and RLS guarantees.
 | Service Management work orders | `apps/api/src/service-management/work-orders`, `http/work-orders.controller.ts`; `apps/web/src/features/service-management/work-orders`; `packages/database/src/schema/service-management/work-orders.ts` | authorization from an exact accepted quote revision, work item allocation, preparation, readiness, cancellation and business history; operational list, authorization and preparation UI | [service model](../domain/service-management.md) |
 | Service Management receipts | `apps/api/src/service-management/receipts`, `http/receipts.controller.ts`; `apps/web/src/features/service-management/receipts`; `packages/database/src/schema/service-management/receipts.ts` | physical intake facts, append-only corrections, reconciliation and atomic custody/location coordination through Asset Registry; intake and correction UI | [service model](../domain/service-management.md) |
 | Service Management operational reads | `apps/api/src/service-management/queries`, `http/operational-views.controller.ts`; `apps/web/src/features/service-management/operations`; `packages/contracts/src/service-management/queries/operational.ts` | tenant-scoped operational queues and request business timeline with current Party/Asset context; read-only composition of existing domain records | [service model](../domain/service-management.md) |
+| Technical Operations execution persistence | `packages/database/src/schema/technical-operations/executions.ts`; `packages/database/src/technical-operations/executions` | tenant-scoped execution attempts, numbered revisions, method/context and supporting Asset snapshots; forced RLS and immutable submitted records | [technical model](../domain/technical-operations.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
 feature folders `apps/web/src/features/assets`, `parties`, `registry-imports`, and
@@ -153,6 +154,7 @@ tables directly when an authoritative service owns that workflow.
 | Work Order and Work Item web operations | `apps/web/src/features/service-management/work-orders`; routing under `app/[locale]/(app)/app/work-orders` and `app/auth/work-orders` |
 | Receipt web intake and corrections | `apps/web/src/features/service-management/receipts`; routing under `app/[locale]/(app)/app/receipts` and `app/auth/receipts` |
 | Operational queues and request business timeline | `apps/api/src/service-management/queries`, `apps/api/src/service-management/http/operational-views.controller.ts`, `apps/web/src/features/service-management/operations` |
+| Technical Execution and Revision persistence | `packages/database/src/schema/technical-operations/executions.ts`, `packages/database/src/technical-operations/executions/executions.test.ts` |
 
 ## Finding proof
 
@@ -186,10 +188,11 @@ The [Technical Operations implementation model](../domain/technical-operations.m
 is the canonical M5 design for the eligible Work Item handoff, execution
 attempts and immutable submitted revisions, typed results, private evidence,
 review, approval and the exact approved-package read boundary. Its intended
-API, web, contract and persistence placement is documented there. These M5
-capabilities are design targets until their scoped implementation issues land.
+API, web, contract and persistence placement is documented there. Execution
+and revision persistence now exists; application workflows, result/evidence
+records, review and approval remain scoped implementation work.
 
-Do not create folders or contracts for unimplemented technical execution,
+Do not create folders or contracts for unimplemented technical workflows,
 certificates, documents, notifications, integrations, or
 mobile/offline workflows merely to mirror the product vision. Add a bounded
 module only when a scoped implementation needs
