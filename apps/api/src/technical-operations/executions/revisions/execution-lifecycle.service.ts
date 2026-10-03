@@ -14,6 +14,7 @@ import {
     executionSupportingAssets,
     organizationMemberships,
     organizationSites,
+    organizations,
     technicalApprovals,
     technicalEvidence,
     technicalExecutions,
@@ -375,6 +376,17 @@ export class ExecutionLifecycleService {
                     .limit(1);
                 if (!result && !evidence)
                     throw new ContractException("TECHNICAL_SUBMISSION_EMPTY", 409);
+                const [policy] = await tx
+                    .select({
+                        requirePerformerReviewerSeparation:
+                            organizations.requirePerformerReviewerSeparation,
+                        requireReviewerApproverSeparation:
+                            organizations.requireReviewerApproverSeparation,
+                    })
+                    .from(organizations)
+                    .where(eq(organizations.id, organizationId))
+                    .for("share");
+                if (!policy) throw new ContractException("ORGANIZATION_ACCESS_DENIED", 403);
                 const [submitted] = await tx
                     .update(executionRevisions)
                     .set({
@@ -382,8 +394,7 @@ export class ExecutionLifecycleService {
                         version: revision.version + 1,
                         submittedByUserId: principal.user.id,
                         submittedAt: new Date(),
-                        requirePerformerReviewerSeparation: true,
-                        requireReviewerApproverSeparation: true,
+                        ...policy,
                         updatedByUserId: principal.user.id,
                         updatedAt: new Date(),
                     })
@@ -489,7 +500,7 @@ export class ExecutionLifecycleService {
                 );
                 if (
                     (predecessor.status !== "submitted" && predecessor.status !== "discarded") ||
-                    predecessor.revisionNumber !== execution.nextRevisionNumber - 2
+                    predecessor.revisionNumber !== execution.nextRevisionNumber - 1
                 )
                     throw new ContractException("TECHNICAL_SUCCESSOR_INVALID", 409);
                 const [review] = await tx

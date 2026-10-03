@@ -1,0 +1,2 @@
+ALTER TABLE "organizations" ADD COLUMN "require_performer_reviewer_separation" boolean DEFAULT true NOT NULL;--> statement-breakpoint
+ALTER TABLE "organizations" ADD COLUMN "require_reviewer_approver_separation" boolean DEFAULT false NOT NULL;

@@ -17,6 +17,7 @@ import { recordAuditEvent } from "../../audit/audit.service";
 import { ContractException } from "../../http/contracts";
 import type { AuthenticatedPrincipal } from "../authentication/types";
 import { OrganizationAuthorizationService } from "../authorization/organization-authorization.service";
+import { lockMembershipDecision } from "./membership-decision-lock";
 
 @Injectable()
 export class MembershipManagementService {
@@ -97,7 +98,7 @@ export class MembershipManagementService {
             organizationId,
             ["members.manage"],
             async (transaction, context) => {
-                const [target] = await transaction
+                let [target] = await transaction
                     .select()
                     .from(organizationMemberships)
                     .where(eq(organizationMemberships.id, membershipId))
@@ -106,6 +107,15 @@ export class MembershipManagementService {
                 if (!target || target.status === "removed") {
                     throw new ContractException("MEMBERSHIP_NOT_FOUND", 404);
                 }
+
+                await lockMembershipDecision(transaction, organizationId, target.userId);
+                [target] = await transaction
+                    .select()
+                    .from(organizationMemberships)
+                    .where(eq(organizationMemberships.id, membershipId))
+                    .limit(1);
+                if (!target || target.status === "removed")
+                    throw new ContractException("MEMBERSHIP_NOT_FOUND", 404);
 
                 const targetIsOwner = target.roleId === systemOrganizationRoleIds.owner;
                 const removesOwnership =

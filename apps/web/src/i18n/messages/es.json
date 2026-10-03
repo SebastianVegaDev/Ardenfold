@@ -983,7 +983,9 @@
             "technicalRevisionDiscarded": "Revisión técnica descartada",
             "technicalEvidenceCreated": "Evidencia técnica agregada",
             "technicalEvidenceUpdated": "Evidencia técnica actualizada",
-            "technicalEvidenceRemoved": "Evidencia técnica retirada"
+            "technicalEvidenceRemoved": "Evidencia técnica retirada",
+            "technicalReviewDecided": "Revisión técnica decidida",
+            "technicalApprovalDecided": "Aprobación técnica decidida"
         }
     },
     "states": {

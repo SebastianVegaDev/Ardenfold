@@ -151,6 +151,11 @@ import {
     updateTechnicalEvidenceSchema,
     removeTechnicalEvidenceSchema,
 } from "./technical-operations/evidence/evidence";
+import { technicalDecisionPolicySchema } from "./technical-operations/reviews/decision-policy";
+import {
+    decideTechnicalReviewSchema,
+    decideTechnicalApprovalSchema,
+} from "./technical-operations/reviews/decisions";
 
 export * from "./assets/assets";
 export * from "./assets/history";
@@ -174,6 +179,8 @@ export * from "./service-management/work-orders/work-orders";
 export * from "./technical-operations/executions/executions";
 export * from "./technical-operations/results/results";
 export * from "./technical-operations/evidence/evidence";
+export * from "./technical-operations/reviews/decision-policy";
+export * from "./technical-operations/reviews/decisions";
 
 // This is the only package-level composition point. Contract definitions stay
 // in their owning domain modules; OpenAPI consumes this stable public registry.
@@ -304,4 +311,7 @@ export const contractSchemas = {
     CreateTechnicalEvidence: createTechnicalEvidenceSchema,
     UpdateTechnicalEvidence: updateTechnicalEvidenceSchema,
     RemoveTechnicalEvidence: removeTechnicalEvidenceSchema,
+    TechnicalDecisionPolicy: technicalDecisionPolicySchema,
+    DecideTechnicalReview: decideTechnicalReviewSchema,
+    DecideTechnicalApproval: decideTechnicalApprovalSchema,
 };

@@ -1637,6 +1637,8 @@
               "technical_evidence.created",
               "technical_evidence.updated",
               "technical_evidence.removed",
+              "technical_review.decided",
+              "technical_approval.decided",
               "file.upload_requested",
               "file.uploaded",
               "file.finalized"
@@ -1809,6 +1811,8 @@
                     "technical_evidence.created",
                     "technical_evidence.updated",
                     "technical_evidence.removed",
+                    "technical_review.decided",
+                    "technical_approval.decided",
                     "file.upload_requested",
                     "file.uploaded",
                     "file.finalized"
@@ -3652,6 +3656,113 @@
         "format": "date",
         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
         "type": "string"
+      },
+      "DecideTechnicalApproval": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedExecutionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "idempotencyKey": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "notes": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "approved",
+              "declined"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "reviewId": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "idempotencyKey",
+          "expectedExecutionVersion",
+          "expectedRevisionVersion",
+          "reason",
+          "notes",
+          "reviewId",
+          "outcome"
+        ],
+        "type": "object"
+      },
+      "DecideTechnicalReview": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedExecutionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "idempotencyKey": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "notes": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "accepted",
+              "changes_requested",
+              "rejected"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "idempotencyKey",
+          "expectedExecutionVersion",
+          "expectedRevisionVersion",
+          "reason",
+          "notes",
+          "outcome"
+        ],
+        "type": "object"
       },
       "Decimal": {
         "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -9159,6 +9270,22 @@
         "required": [
           "expectedVersion",
           "idempotencyKey"
+        ],
+        "type": "object"
+      },
+      "TechnicalDecisionPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "requirePerformerReviewerSeparation": {
+            "type": "boolean"
+          },
+          "requireReviewerApproverSeparation": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "requirePerformerReviewerSeparation",
+          "requireReviewerApproverSeparation"
         ],
         "type": "object"
       },
@@ -17748,6 +17875,193 @@
         ]
       }
     },
+    "/api/v1/technical-approvals/{approvalId}/package": {
+      "get": {
+        "operationId": "getApprovedTechnicalPackage",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "approvalId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-decisions"
+        ]
+      }
+    },
+    "/api/v1/technical-decision-policy": {
+      "get": {
+        "operationId": "getTechnicalDecisionPolicy",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-decisions"
+        ]
+      },
+      "patch": {
+        "operationId": "updateTechnicalDecisionPolicy",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechnicalDecisionPolicy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-decisions"
+        ]
+      }
+    },
     "/api/v1/technical-executions": {
       "get": {
         "operationId": "listTechnicalExecutions",
@@ -18165,6 +18479,89 @@
         "summary": "",
         "tags": [
           "technical-operations-executions"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/approval": {
+      "post": {
+        "operationId": "decideTechnicalApproval",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideTechnicalApproval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-decisions"
         ]
       }
     },
@@ -19440,6 +19837,162 @@
         "summary": "",
         "tags": [
           "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/review": {
+      "post": {
+        "operationId": "decideTechnicalReview",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideTechnicalReview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-decisions"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/review-package": {
+      "get": {
+        "operationId": "getTechnicalReviewPackage",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-decisions"
         ]
       }
     },
