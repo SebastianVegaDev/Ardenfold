@@ -175,6 +175,16 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.receipts.write',
                             ${String(context.permissions.includes("receipts.write"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.technical_executions.read',
+                            ${String(context.permissions.includes("technical_executions.read"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.technical_executions.write',
+                            ${String(context.permissions.includes("technical_executions.write"))},
+                            true
                         )
                 `);
 
