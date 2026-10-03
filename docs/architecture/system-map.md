@@ -107,6 +107,7 @@ authorization, audit, concurrency, and RLS guarantees.
 | Service Management operational reads | `apps/api/src/service-management/queries`, `http/operational-views.controller.ts`; `apps/web/src/features/service-management/operations`; `packages/contracts/src/service-management/queries/operational.ts` | tenant-scoped operational queues and request business timeline with current Party/Asset context; read-only composition of existing domain records | [service model](../domain/service-management.md) |
 | Technical Operations execution persistence | `packages/database/src/schema/technical-operations/executions.ts`; `packages/database/src/technical-operations/executions` | tenant-scoped execution attempts, numbered revisions, method/context and supporting Asset snapshots; forced RLS and immutable submitted records | [technical model](../domain/technical-operations.md) |
 | Technical Operations content and decisions | `packages/database/src/schema/technical-operations/results.ts`, `reviews.ts`, `evidence.ts`; `packages/database/src/technical-operations/content` | ordered typed results with exact decimal text, revision/decision Evidence and immutable review/approval facts; tenant-qualified references and forced RLS | [technical model](../domain/technical-operations.md) |
+| Technical Operations execution API | `apps/api/src/technical-operations/executions`, `http/executions.controller.ts`; `packages/contracts/src/technical-operations/executions` | authorized Work Item handoff, execution attempts, draft revision context, submission, successor corrections and abandonment | [technical model](../domain/technical-operations.md) |
 | Private file storage | `apps/api/src/files`; `packages/database/src/schema/files/stored-objects.ts`; `packages/contracts/src/files` | authorized, bounded private object transfer and upload lifecycle; domain records own evidence relationships and retention | [file storage](../development/private-file-storage.md) |
 
 The web route and adapter entry points are under `apps/web/src/app` and the
@@ -192,7 +193,7 @@ attempts and immutable submitted revisions, typed results, private evidence,
 review, approval and the exact approved-package read boundary. Its intended
 API, web, contract and persistence placement is documented there. Execution,
 revision, result, Evidence, review and approval persistence now exists;
-application workflows and user-facing experiences remain scoped work.
+result/evidence mutation, technical decisions and user-facing experiences remain scoped work.
 
 Do not create folders or contracts for unimplemented technical workflows,
 certificates, documents, notifications, integrations, or

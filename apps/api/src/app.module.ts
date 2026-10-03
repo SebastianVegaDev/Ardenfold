@@ -12,6 +12,7 @@ import { ObservabilityModule } from "./observability/observability.module";
 import { PartiesModule } from "./parties/parties.module";
 import { RegistryImportsModule } from "./registry-imports/registry-imports.module";
 import { ServiceManagementModule } from "./service-management/service-management.module";
+import { TechnicalOperationsModule } from "./technical-operations/technical-operations.module";
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import { ServiceManagementModule } from "./service-management/service-management
         RegistryImportsModule,
         ServiceManagementModule,
         FilesModule,
+        TechnicalOperationsModule,
     ],
     controllers: [AppController],
 })

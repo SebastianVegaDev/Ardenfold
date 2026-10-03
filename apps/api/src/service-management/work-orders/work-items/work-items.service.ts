@@ -21,6 +21,7 @@ import { recordAuditEvent } from "../../../audit/audit.service";
 import type { AuthenticatedPrincipal } from "../../../auth/authentication/types";
 import { OrganizationAuthorizationService } from "../../../auth/authorization/organization-authorization.service";
 import { ContractException } from "../../../http/contracts";
+import { requireTechnicalWorkUnconsumed } from "../../../technical-operations/executions/queries/execution-handoff";
 import { WorkOrderQueriesService } from "../queries/work-order-queries.service";
 import { requireWorkItemReady } from "../readiness/work-item-readiness";
 import { advanceWorkOrder, lockWorkOrder, setWorkChangeReason } from "../work-order-transaction";
@@ -47,6 +48,7 @@ async function lockItem(
         .for("update");
     if (!item) throw new ContractException("WORK_ITEM_NOT_FOUND", 404);
     if (item.version !== expectedVersion) throw new ContractException("VERSION_CONFLICT", 409);
+    await requireTechnicalWorkUnconsumed(tx, organizationId, orderId, itemId);
     return item;
 }
 

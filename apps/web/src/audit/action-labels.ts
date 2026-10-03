@@ -61,4 +61,10 @@ export const auditActionMessageKeys: Readonly<Record<AuditAction, string>> = {
     "file.upload_requested": "audit.actions.fileUploadRequested",
     "file.uploaded": "audit.actions.fileUploaded",
     "file.finalized": "audit.actions.fileFinalized",
+    "technical_execution.started": "audit.actions.technicalExecutionStarted",
+    "technical_execution.abandoned": "audit.actions.technicalExecutionAbandoned",
+    "technical_revision.edited": "audit.actions.technicalRevisionEdited",
+    "technical_revision.submitted": "audit.actions.technicalRevisionSubmitted",
+    "technical_revision.successor_created": "audit.actions.technicalRevisionSuccessorCreated",
+    "technical_revision.discarded": "audit.actions.technicalRevisionDiscarded",
 };

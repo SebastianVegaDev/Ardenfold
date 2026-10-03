@@ -582,6 +582,64 @@ test("work authorization preserves the accepted revision and prepares independen
     });
     expect(readyOrder.status, JSON.stringify(readyOrder.body)).toBe(200);
     expect(readyOrder.body.status).toBe("ready");
+    const technicalItem = (
+        readyOrder.body.items as Array<{ id: string; version: number; status: string }>
+    ).find((item) => item.status === "ready")!;
+    const technicalStart = {
+        workOrderId: orderId,
+        workItemId: technicalItem.id,
+        expectedOrderVersion: readyOrder.body.version,
+        expectedItemVersion: technicalItem.version,
+        idempotencyKey: randomUUID(),
+    };
+    const started = await call(owner, "/technical-executions", "POST", orgId, technicalStart);
+    expect(started.status, JSON.stringify(started.body)).toBe(201);
+    const startedExecution = started.body.execution as { id: string; version: number };
+    const initialTechnicalRevision = started.body.initialRevision as {
+        id: string;
+        version: number;
+    };
+    const technicalReplay = await call(owner, "/technical-executions", "POST", orgId, technicalStart);
+    expect(technicalReplay.status, JSON.stringify(technicalReplay.body)).toBe(201);
+    expect((technicalReplay.body.execution as { id: string }).id).toBe(startedExecution.id);
+    const technicalDetail = await call(
+        owner,
+        `/technical-executions/${startedExecution.id}`,
+        "GET",
+        orgId,
+    );
+    expect(technicalDetail.status, JSON.stringify(technicalDetail.body)).toBe(200);
+    expect((technicalDetail.body.revisions as Array<unknown>).length).toBe(1);
+    const editedTechnicalDraft = await call(
+        owner,
+        `/technical-executions/${startedExecution.id}/revisions/${initialTechnicalRevision.id}`,
+        "PATCH",
+        orgId,
+        { expectedVersion: initialTechnicalRevision.version, methodName: "Visual inspection" },
+    );
+    expect(editedTechnicalDraft.status, JSON.stringify(editedTechnicalDraft.body)).toBe(200);
+    const blockedOrderChange = await call(owner, `/work-orders/${orderId}/planned`, "POST", orgId, {
+        expectedVersion: readyOrder.body.version,
+        reason: "Cannot change consumed work",
+    });
+    expect(blockedOrderChange.status).toBe(409);
+    const executionAfterEdit = await call(
+        owner,
+        `/technical-executions/${startedExecution.id}`,
+        "GET",
+        orgId,
+    );
+    const abandonedExecution = await call(
+        owner,
+        `/technical-executions/${startedExecution.id}/abandon`,
+        "POST",
+        orgId,
+        {
+            expectedVersion: (executionAfterEdit.body.execution as { version: number }).version,
+            reason: "Inspection attempt stopped",
+        },
+    );
+    expect(abandonedExecution.status, JSON.stringify(abandonedExecution.body)).toBe(200);
     const orderBackToPlanned = await call(owner, `/work-orders/${orderId}/planned`, "POST", orgId, {
         expectedVersion: readyOrder.body.version,
         reason: "Recheck preparation",
