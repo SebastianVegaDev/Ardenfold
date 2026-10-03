@@ -41,6 +41,11 @@ export const environmentSchema = z
         DATABASE_IDLE_TIMEOUT_MS: z.coerce.number().int().min(1_000).default(30_000),
 
         DATABASE_CONNECTION_TIMEOUT_MS: z.coerce.number().int().min(1_000).default(5_000),
+        FILE_STORAGE_ENDPOINT: environmentUrl.optional(),
+        FILE_STORAGE_REGION: z.string().trim().min(1).optional(),
+        FILE_STORAGE_BUCKET: z.string().trim().min(3).optional(),
+        FILE_STORAGE_ACCESS_KEY_ID: z.string().trim().min(1).optional(),
+        FILE_STORAGE_SECRET_ACCESS_KEY: z.string().trim().min(1).optional(),
 
         WORKOS_CLIENT_ID: z.string().trim().min(1),
 
@@ -59,7 +64,39 @@ export const environmentSchema = z
         AUTH_JWT_CLOCK_TOLERANCE_SECONDS: z.coerce.number().int().min(0).max(60).default(5),
     })
     .superRefine((environment, context) => {
+        const storageFields = [
+            "FILE_STORAGE_REGION",
+            "FILE_STORAGE_BUCKET",
+            "FILE_STORAGE_ACCESS_KEY_ID",
+            "FILE_STORAGE_SECRET_ACCESS_KEY",
+        ] as const;
+        if (
+            environment.NODE_ENV === "production" ||
+            storageFields.some((field) => environment[field] !== undefined) ||
+            environment.FILE_STORAGE_ENDPOINT !== undefined
+        ) {
+            for (const field of storageFields) {
+                if (!environment[field])
+                    context.addIssue({
+                        code: "custom",
+                        path: [field],
+                        message: "Required when private file storage is configured.",
+                    });
+            }
+        }
         if (environment.NODE_ENV === "test") return;
+
+        if (
+            environment.NODE_ENV === "production" &&
+            environment.FILE_STORAGE_ENDPOINT &&
+            new URL(environment.FILE_STORAGE_ENDPOINT).protocol !== "https:"
+        ) {
+            context.addIssue({
+                code: "custom",
+                path: ["FILE_STORAGE_ENDPOINT"],
+                message: "Must use HTTPS in production.",
+            });
+        }
 
         for (const field of ["WORKOS_ISSUER", "WORKOS_JWKS_URL"] as const) {
             if (new URL(environment[field]).protocol !== "https:") {

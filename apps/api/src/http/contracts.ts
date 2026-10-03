@@ -181,7 +181,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
 }
 
 export function createHttpAdapter(): FastifyAdapter {
-    return new FastifyAdapter({
+    const adapter = new FastifyAdapter({
         loggerInstance: logger,
         logController: new LogController({
             disableRequestLogging: true,
@@ -191,6 +191,14 @@ export function createHttpAdapter(): FastifyAdapter {
         genReqId: (request: IncomingMessage) =>
             resolveCorrelationId(request.headers[correlationHeader]),
     });
+    adapter
+        .getInstance()
+        .addContentTypeParser(
+            "application/octet-stream",
+            { parseAs: "buffer", bodyLimit: 10_485_760 },
+            (_request, body, done) => done(null, body),
+        );
+    return adapter;
 }
 
 export function configureHttp(app: NestFastifyApplication): void {

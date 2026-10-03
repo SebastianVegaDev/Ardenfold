@@ -971,7 +971,10 @@
             "receiptRecorded": "Receipt recorded",
             "receiptCorrected": "Receipt corrected",
             "receiptReconciled": "Receipt reconciled",
-            "receiptVoided": "Receipt voided"
+            "receiptVoided": "Receipt voided",
+            "fileUploadRequested": "File upload requested",
+            "fileUploaded": "File uploaded",
+            "fileFinalized": "File finalized"
         }
     },
     "states": {

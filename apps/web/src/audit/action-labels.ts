@@ -58,4 +58,7 @@ export const auditActionMessageKeys: Readonly<Record<AuditAction, string>> = {
     "receipt.corrected": "audit.actions.receiptCorrected",
     "receipt.reconciled": "audit.actions.receiptReconciled",
     "receipt.voided": "audit.actions.receiptVoided",
+    "file.upload_requested": "audit.actions.fileUploadRequested",
+    "file.uploaded": "audit.actions.fileUploaded",
+    "file.finalized": "audit.actions.fileFinalized",
 };

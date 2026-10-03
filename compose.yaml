@@ -1,6 +1,19 @@
 name: ardenfold
 
 services:
+    object-storage:
+        image: ghcr.io/versity/versitygw@sha256:30292fc2eeacc67a36993b01f7a7a5e3361a19cced0e80c1d71cfa2a4b0a2499
+        environment:
+            ROOT_ACCESS_KEY: ${FILE_STORAGE_ACCESS_KEY_ID:?FILE_STORAGE_ACCESS_KEY_ID is required}
+            ROOT_SECRET_KEY: ${FILE_STORAGE_SECRET_ACCESS_KEY:?FILE_STORAGE_SECRET_ACCESS_KEY is required}
+            VGW_BACKEND: posix
+            VGW_BACKEND_ARGS: /data/s3
+            VGW_PORT: ":7070"
+        ports:
+            - "7070:7070"
+        volumes:
+            - object_storage_data:/data/s3
+
     postgres:
         image: postgres:18.6-bookworm
         environment:
@@ -25,5 +38,7 @@ services:
         stop_grace_period: 10s
 
 volumes:
+    object_storage_data:
+        name: ardenfold-object-storage-data
     postgres_data:
         name: ardenfold-postgres-data

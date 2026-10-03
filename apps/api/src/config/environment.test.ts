@@ -47,6 +47,20 @@ describe("environment configuration", () => {
         }).toThrow(/DATABASE_URL/);
     });
 
+    it("rejects incomplete file storage settings", () => {
+        expect(() =>
+            validateEnvironment({
+                NODE_ENV: "test",
+                DATABASE_URL: "postgresql://ardenfold_app:password@localhost:5432/ardenfold",
+                WORKOS_CLIENT_ID: "client_test",
+                WORKOS_API_KEY: "test-only-api-key",
+                WORKOS_ISSUER: "https://api.workos.com/",
+                WORKOS_JWKS_URL: "https://api.workos.com/sso/jwks/client_test",
+                FILE_STORAGE_BUCKET: "private-files",
+            }),
+        ).toThrow(/FILE_STORAGE_REGION/);
+    });
+
     it("rejects insecure WorkOS endpoints outside tests", () => {
         expect(() => {
             validateEnvironment({

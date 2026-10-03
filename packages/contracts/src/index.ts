@@ -21,6 +21,7 @@ import {
     startAssetRelationshipRequestSchema,
 } from "./assets/history";
 import { auditEventListResponseSchema, auditEventSchema } from "./audit/audit";
+import { requestFileUploadSchema, storedObjectSchema } from "./files/stored-objects";
 import { authenticatedUserResponseSchema } from "./auth/session";
 import {
     organizationInvitationListResponseSchema,
@@ -131,6 +132,7 @@ import {
 export * from "./assets/assets";
 export * from "./assets/history";
 export * from "./audit/audit";
+export * from "./files/stored-objects";
 export * from "./auth/session";
 export * from "./authorization/permissions";
 export * from "./organizations/invitations";
@@ -172,6 +174,8 @@ export const contractSchemas = {
     OrganizationInvitationListResponse: organizationInvitationListResponseSchema,
     AuditEvent: auditEventSchema,
     AuditEventListResponse: auditEventListResponseSchema,
+    RequestFileUpload: requestFileUploadSchema,
+    StoredObject: storedObjectSchema,
     PartyIdentifier: partyIdentifierSchema,
     PartyContact: partyContactSchema,
     PartyAddress: partyAddressSchema,

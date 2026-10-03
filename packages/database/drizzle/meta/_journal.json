@@ -148,6 +148,20 @@
       "when": 1791036446676,
       "tag": "0020_technical_execution_security",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791054268086,
+      "tag": "0021_stored_objects",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791054268087,
+      "tag": "0022_stored_objects_security",
+      "breakpoints": true
     }
   ]
 }
