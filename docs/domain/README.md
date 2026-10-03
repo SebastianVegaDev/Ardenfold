@@ -47,6 +47,7 @@ M1 does not implement the complete commercial or technical lifecycle.
 3. [Workflow and invariants](./workflow-and-invariants.md)
 4. [Parties and Asset Registry implementation model](./parties-and-asset-registry.md)
 5. [Service Management implementation model](./service-management.md)
+6. [Technical Operations implementation model](./technical-operations.md)
 
 ## M4 scope
 
@@ -56,6 +57,14 @@ work orders, work items and optional physical intake. M4 ends at readiness for
 technical execution. The model is documentation for subsequent implementation;
 M5 execution, results, evidence, review and approval remain Technical Operations
 responsibilities.
+
+## M5 scope
+
+The Technical Operations model defines the handoff from an eligible Work Item
+through revisioned technical work, structured results, private contextual
+evidence, review and exact-revision approval. M5 ends with an approved technical
+package ready for future certificate preparation. Certificate issuance and
+public verification remain Certificates & Trust responsibilities.
 
 ## Modeling principles
 
