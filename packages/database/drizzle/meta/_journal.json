@@ -162,6 +162,27 @@
       "when": 1791054268087,
       "tag": "0022_stored_objects_security",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791056529820,
+      "tag": "0023_technical_content_decisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791056529821,
+      "tag": "0024_technical_content_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791057447619,
+      "tag": "0025_technical_result_constraints",
+      "breakpoints": true
     }
   ]
 }
