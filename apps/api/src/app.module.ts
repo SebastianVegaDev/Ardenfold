@@ -6,6 +6,7 @@ import { AssetsModule } from "./assets/assets.module";
 import { AuthModule } from "./auth/auth.module";
 import { AuditModule } from "./audit/audit.module";
 import { validateEnvironment } from "./config/environment";
+import { FilesModule } from "./files/files.module";
 import { DatabaseModule } from "./infrastructure/database/database.module";
 import { ObservabilityModule } from "./observability/observability.module";
 import { PartiesModule } from "./parties/parties.module";
@@ -29,6 +30,7 @@ import { ServiceManagementModule } from "./service-management/service-management
         AssetsModule,
         RegistryImportsModule,
         ServiceManagementModule,
+        FilesModule,
     ],
     controllers: [AppController],
 })

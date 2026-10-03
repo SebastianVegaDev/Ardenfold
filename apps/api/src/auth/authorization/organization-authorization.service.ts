@@ -185,6 +185,16 @@ export class OrganizationAuthorizationService {
                             'ardenfold.permission.technical_executions.write',
                             ${String(context.permissions.includes("technical_executions.write"))},
                             true
+                        ),
+                        set_config(
+                            'ardenfold.permission.files.upload',
+                            ${String(context.permissions.includes("files.upload"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.files.read',
+                            ${String(context.permissions.includes("files.read"))},
+                            true
                         )
                 `);
 

@@ -10,3 +10,4 @@ export * from "./service-management/quotations";
 export * from "./service-management/work-orders";
 export * from "./service-management/receipts";
 export * from "./technical-operations/executions";
+export * from "./files/stored-objects";

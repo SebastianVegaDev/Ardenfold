@@ -28,6 +28,8 @@ export const permissionCodeSchema = z.enum([
     "receipts.write",
     "technical_executions.read",
     "technical_executions.write",
+    "files.upload",
+    "files.read",
 ]);
 
 export type OrganizationRole = z.infer<typeof organizationRoleSchema>;

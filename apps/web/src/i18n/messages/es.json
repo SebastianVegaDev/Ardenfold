@@ -971,7 +971,10 @@
             "receiptRecorded": "Recepción registrada",
             "receiptCorrected": "Recepción corregida",
             "receiptReconciled": "Recepción conciliada",
-            "receiptVoided": "Recepción anulada"
+            "receiptVoided": "Recepción anulada",
+            "fileUploadRequested": "Carga de archivo solicitada",
+            "fileUploaded": "Archivo cargado",
+            "fileFinalized": "Archivo finalizado"
         }
     },
     "states": {
