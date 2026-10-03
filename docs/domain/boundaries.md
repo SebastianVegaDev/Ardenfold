@@ -13,7 +13,7 @@ services or create a package for every module immediately.
 | Parties | Organization-scoped counterparts, contacts, addresses, and commercial relationships. | Authentication identities or platform memberships. |
 | Asset Registry | Asset identity records, identifiers, ownership, custody, location, and references used to assemble asset history. | Commercial terms, technical measurements, or certificate snapshots. |
 | Service Management | Requests, pre-execution requested scope, quotes/revisions, acceptance/rejection/expiry, accepted commercial scope, work orders/items, receipts and operational readiness. | Counterpart identity, asset identity/ownership/custody/location authority, technical execution/results/evidence/review/approval, or certificate preparation/issuance. |
-| Technical Operations | Executions, technical results, contextual evidence, reviews, and approval decisions. | Commercial acceptance or issued certificate versions. |
+| Technical Operations | Executions and immutable submitted revisions, structured technical results, contextual evidence, reviews, approval decisions and approved-package read projections. | Work Item readiness, commercial acceptance, Asset Registry authority or issued certificate versions. |
 | Certificates & Trust | Certificate preparation, issuance, immutable issued versions, replacement, revocation, and verification views. | Editing the source execution or granting organization membership. |
 | Audit | Protected records of relevant actions across the platform. | Business authorization decisions or the primary state of other modules. |
 
@@ -34,8 +34,12 @@ defines immutable issued revisions, explicit acceptance, operational allocation
 and the M4 boundary at readiness for Technical Operations. Customer agreement
 does not grant an Ardenfold user permission to authorize work.
 
-Technical Operations references work items and assets, and exposes approved
-technical results through explicit contracts.
+Technical Operations starts work only after an eligible Work Item handoff
+coordinated with Service Management in one transaction. It references assets
+without owning their identity or relationships, and exposes the
+[approved technical package](technical-operations.md) through explicit read
+contracts. An approval always identifies one immutable execution revision;
+later corrections cannot inherit it.
 
 Certificates & Trust consumes the approved results and identifying information
 needed to prepare an issued snapshot.

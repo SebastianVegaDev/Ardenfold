@@ -182,6 +182,13 @@ behavior under `apps/web/src/features/service-management`, and contracts and
 persistence under their existing package owners. Its boundary ends at readiness
 for future Technical Operations.
 
+The [Technical Operations implementation model](../domain/technical-operations.md)
+is the canonical M5 design for the eligible Work Item handoff, execution
+attempts and immutable submitted revisions, typed results, private evidence,
+review, approval and the exact approved-package read boundary. Its intended
+API, web, contract and persistence placement is documented there. These M5
+capabilities are design targets until their scoped implementation issues land.
+
 Do not create folders or contracts for unimplemented technical execution,
 certificates, documents, notifications, integrations, or
 mobile/offline workflows merely to mirror the product vision. Add a bounded

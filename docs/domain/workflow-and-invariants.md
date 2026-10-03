@@ -9,7 +9,9 @@ lifecycles.
 The [Service Management implementation model](service-management.md) defines
 the detailed M4 states, transition guards, decimal rules and transaction
 boundaries for steps 1 through 3. M4 ends when work is ready for technical
-execution; steps 4 onward describe later capabilities.
+execution. The [Technical Operations model](technical-operations.md) defines
+the detailed M5 states, correction path and approval rules for steps 4 and 5;
+later steps describe future capabilities.
 
 ## Reference workflow
 
@@ -56,21 +58,29 @@ custody with the customer.
 
 ### 4. Perform technical work
 
-Authorized personnel execute the work items and record results and evidence.
+Authorized personnel start an execution only after Service Management
+revalidates the Work Item's readiness in the same transaction. They record
+method, conditions, typed results and contextual private evidence in a draft
+execution revision.
 
 Technical records retain the context needed to interpret them, including units,
 methods, and relevant conditions.
 
-Changes remain traceable according to the applicable workflow.
+Submitting a revision freezes its reviewable technical content. Corrections
+create a successor revision; abandonment preserves historical content.
 
 ### 5. Review and approve
 
-An authorized reviewer assesses the applicable execution revision and evidence.
+An authorized reviewer assesses one exact submitted execution revision and its
+evidence. Changes requested or rejection preserve that reviewed revision.
 
-Approval identifies what was reviewed and by whom.
+An explicit approval identifies the exact accepted review and immutable
+revision, plus who approved it. The approved technical package is a read
+projection of that source, not a certificate.
 
-Changes to approved technical content require a new review before certificate
-issuance.
+Changes to approved technical content require a successor revision and its
+own review and approval before future certificate preparation. A historical
+approval remains readable but does not apply to newer content.
 
 Any required separation between performer and reviewer is enforced by explicit
 policy rather than assumed from a role name.
@@ -161,6 +171,8 @@ certificate.
 - A work order references its accepted basis; operational edits cannot change
   the agreement. Item allocation does not force one item per commercial line.
 - Work items stop at operational readiness and contain no execution results.
+- Starting technical work revalidates readiness and serializes with operational
+  cancellation/preparation; an execution cannot consume a stale ready state.
 - Monetary values carry an explicit currency.
 - M4 quotes use exact decimal strings/arithmetic, frozen currency scale,
   round-half-up line bases and explicit fixed adjustments as defined in the
@@ -180,6 +192,10 @@ certificate.
 - File access follows the authorization of the associated domain record.
 - An approval refers to a specific reviewed revision.
 - Editing reviewed content cannot silently preserve an approval for the old content.
+- Submitted revisions and their results/evidence are immutable; a successor
+  records corrections without changing its predecessor.
+- A later unapproved revision cannot inherit a prior approval. Historical
+  approved packages remain readable with current applicability stated clearly.
 - Authorized corrections retain the history required to explain the change.
 
 ### Certificate integrity

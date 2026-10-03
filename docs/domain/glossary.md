@@ -73,10 +73,12 @@ global deduplication.
 | Work order | The distinct operational authorization and coordination record derived from an explicit commercial basis; in M4, one accepted quote revision. | Service Management |
 | Work item | An independently tracked allocation of agreed scope within a work order, forming the readiness boundary for future technical execution. | Service Management |
 | Receipt | A historical physical-intake record with observed condition, accessories, time and actor; it neither establishes asset identity nor owns custody/location. | Service Management |
-| Technical execution | The performance and recording of technical work for a work item. | Technical Operations |
-| Technical result | Structured output from an execution, with the units, precision, and context required to interpret it. | Technical Operations |
-| Technical review | A recorded assessment of an execution and its results by an authorized reviewer. | Technical Operations |
-| Approval | An explicit decision permitting the reviewed result to advance, subject to the applicable policy. | Technical Operations |
+| Technical execution | A stable attempt to perform and record technical work for one ready Work Item. | Technical Operations |
+| Execution revision | A numbered technical-content version of one execution; submission makes its context, results and evidence immutable. | Technical Operations |
+| Technical result | A typed, ordered output of one exact execution revision, with the units, precision and context required to interpret it. | Technical Operations |
+| Technical review | An immutable assessment of one submitted execution revision by an authorized reviewer. | Technical Operations |
+| Approval | An explicit decision permitting one exactly reviewed execution revision to advance, subject to the applicable policy. | Technical Operations |
+| Approved technical package | A read projection of the exact approved revision and its historical technical context, with current applicability stated separately. | Technical Operations |
 
 A service request is not a draft quote. A quote is not its revision, and neither
 is a work order. Acceptance permanently identifies its revision even after
@@ -89,6 +91,8 @@ Detailed lifecycles and commercial-history rules belong in the
 A work order is not a certificate.
 
 A technical execution is not itself an approval.
+The [Technical Operations model](technical-operations.md) defines attempt,
+revision, result, review and approval semantics.
 
 ## Evidence and certificates
 

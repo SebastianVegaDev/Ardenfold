@@ -337,14 +337,18 @@ item outcomes via Technical Operations, keep cancellation distinct from success,
 and preserve commercial history. Cancellation never returns an asset or undoes
 intake/custody automatically.
 
-Ready items are the future Technical Operations handoff: item/order identity,
+Ready items are the Technical Operations handoff: item/order identity,
 organization/site, accepted revision and line, operational scope, resolved
-asset where required, current version and readiness prerequisites. The future
-start operation must revalidate readiness and serialize against cancellation,
+asset where required, current version and readiness prerequisites. The M5
+[Technical Operations model](technical-operations.md) requires the start
+operation to revalidate readiness and serialize against cancellation,
 correction and preparation changes; a stale ready badge is insufficient.
 External archival or changed asset relationships can invalidate eligibility
 even if stored state still says `ready`. No technical measurements, results,
 evidence, review or approval fields belong on the item.
+Once execution starts, preparation and cancellation must consult the explicit
+Technical Operations handoff guard in the same transaction; they cannot
+silently withdraw authorization already consumed by an active execution.
 
 ## Receipt and Asset Registry coordination
 
