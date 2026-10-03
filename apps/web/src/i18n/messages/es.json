@@ -980,7 +980,10 @@
             "technicalRevisionEdited": "Revisión técnica editada",
             "technicalRevisionSubmitted": "Revisión técnica enviada",
             "technicalRevisionSuccessorCreated": "Corrección técnica iniciada",
-            "technicalRevisionDiscarded": "Revisión técnica descartada"
+            "technicalRevisionDiscarded": "Revisión técnica descartada",
+            "technicalEvidenceCreated": "Evidencia técnica agregada",
+            "technicalEvidenceUpdated": "Evidencia técnica actualizada",
+            "technicalEvidenceRemoved": "Evidencia técnica retirada"
         }
     },
     "states": {

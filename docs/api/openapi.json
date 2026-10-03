@@ -1634,6 +1634,9 @@
               "technical_revision.submitted",
               "technical_revision.successor_created",
               "technical_revision.discarded",
+              "technical_evidence.created",
+              "technical_evidence.updated",
+              "technical_evidence.removed",
               "file.upload_requested",
               "file.uploaded",
               "file.finalized"
@@ -1803,6 +1806,9 @@
                     "technical_revision.submitted",
                     "technical_revision.successor_created",
                     "technical_revision.discarded",
+                    "technical_evidence.created",
+                    "technical_evidence.updated",
+                    "technical_evidence.removed",
                     "file.upload_requested",
                     "file.uploaded",
                     "file.finalized"
@@ -2963,6 +2969,499 @@
           "predecessorRevisionId",
           "reason",
           "idempotencyKey"
+        ],
+        "type": "object"
+      },
+      "CreateTechnicalEvidence": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "evidenceType": {
+                "pattern": "^[a-z][a-z0-9_]{0,79}$",
+                "type": "string"
+              },
+              "expectedRevisionVersion": {
+                "exclusiveMinimum": true,
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "kind": {
+                "enum": [
+                  "file"
+                ],
+                "type": "string"
+              },
+              "resultId": {
+                "format": "uuid",
+                "nullable": true,
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                "type": "string"
+              },
+              "storedObjectId": {
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                "type": "string"
+              },
+              "target": {
+                "enum": [
+                  "revision",
+                  "result"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "expectedRevisionVersion",
+              "target",
+              "resultId",
+              "evidenceType",
+              "description",
+              "kind",
+              "storedObjectId"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "evidenceType": {
+                "pattern": "^[a-z][a-z0-9_]{0,79}$",
+                "type": "string"
+              },
+              "expectedRevisionVersion": {
+                "exclusiveMinimum": true,
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "kind": {
+                "enum": [
+                  "observation"
+                ],
+                "type": "string"
+              },
+              "observationText": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "resultId": {
+                "format": "uuid",
+                "nullable": true,
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                "type": "string"
+              },
+              "target": {
+                "enum": [
+                  "revision",
+                  "result"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "expectedRevisionVersion",
+              "target",
+              "resultId",
+              "evidenceType",
+              "description",
+              "kind",
+              "observationText"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "CreateTechnicalResult": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "value": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "conformity": {
+                    "enum": [
+                      "conforms",
+                      "does_not_conform",
+                      "undetermined"
+                    ],
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "conformityRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "decimalValueText": {
+                    "pattern": "^-?[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "quantitative"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "resolutionText": {
+                    "nullable": true,
+                    "pattern": "^[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "significantDigits": {
+                    "maximum": 28,
+                    "minimum": 1,
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "toleranceLowerText": {
+                    "nullable": true,
+                    "pattern": "^-?[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "toleranceRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "toleranceUnitCode": {
+                    "nullable": true,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9./*^%_-]{0,39}$",
+                    "type": "string"
+                  },
+                  "toleranceUpperText": {
+                    "nullable": true,
+                    "pattern": "^-?[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "uncertaintyCoverage": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "uncertaintyText": {
+                    "nullable": true,
+                    "pattern": "^[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "uncertaintyUnitCode": {
+                    "nullable": true,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9./*^%_-]{0,39}$",
+                    "type": "string"
+                  },
+                  "unitCode": {
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9./*^%_-]{0,39}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "conformity",
+                  "conformityRule",
+                  "kind",
+                  "decimalValueText",
+                  "unitCode",
+                  "resolutionText",
+                  "significantDigits",
+                  "uncertaintyText",
+                  "uncertaintyUnitCode",
+                  "uncertaintyCoverage",
+                  "toleranceLowerText",
+                  "toleranceUpperText",
+                  "toleranceUnitCode",
+                  "toleranceRule"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "categoryCode": {
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "categoryLabel": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "categoryMeaningSnapshot": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "conformity": {
+                    "enum": [
+                      "conforms",
+                      "does_not_conform",
+                      "undetermined"
+                    ],
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "conformityRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "categorical"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "conformity",
+                  "conformityRule",
+                  "kind",
+                  "categoryCode",
+                  "categoryLabel",
+                  "categoryMeaningSnapshot"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "conformity": {
+                    "enum": [
+                      "conforms",
+                      "does_not_conform",
+                      "undetermined"
+                    ],
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "conformityRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "textual"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "textLanguage": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "textValue": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "conformity",
+                  "conformityRule",
+                  "kind",
+                  "textValue",
+                  "textLanguage"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "missing"
+                    ],
+                    "type": "string"
+                  },
+                  "missingExplanation": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "missingReason": {
+                    "enum": [
+                      "not_observed",
+                      "not_applicable",
+                      "unavailable"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "kind",
+                  "missingReason",
+                  "missingExplanation"
+                ],
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "value"
+        ],
+        "type": "object"
+      },
+      "CreateTechnicalResultGroup": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "label": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "position": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "position",
+          "label"
         ],
         "type": "object"
       },
@@ -7489,6 +7988,131 @@
         ],
         "type": "object"
       },
+      "RemoveTechnicalEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedEvidenceVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "expectedEvidenceVersion"
+        ],
+        "type": "object"
+      },
+      "RemoveTechnicalResult": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedResultVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "expectedResultVersion"
+        ],
+        "type": "object"
+      },
+      "RemoveTechnicalResultGroup": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedGroupVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "expectedGroupVersion"
+        ],
+        "type": "object"
+      },
+      "ReorderTechnicalResultGroups": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "orderedIds": {
+            "items": {
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "orderedIds"
+        ],
+        "type": "object"
+      },
+      "ReorderTechnicalResults": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "groupId": {
+            "format": "uuid",
+            "nullable": true,
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "orderedIds": {
+            "items": {
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "type": "string"
+            },
+            "maxItems": 500,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "groupId",
+          "orderedIds"
+        ],
+        "type": "object"
+      },
       "RequestFileUpload": {
         "additionalProperties": false,
         "properties": {
@@ -8831,6 +9455,439 @@
         "required": [
           "expectedVersion",
           "reason"
+        ],
+        "type": "object"
+      },
+      "UpdateTechnicalEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "evidenceType": {
+            "pattern": "^[a-z][a-z0-9_]{0,79}$",
+            "type": "string"
+          },
+          "expectedEvidenceVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "observationText": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "expectedEvidenceVersion",
+          "description",
+          "evidenceType"
+        ],
+        "type": "object"
+      },
+      "UpdateTechnicalResult": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedResultVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "value": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "conformity": {
+                    "enum": [
+                      "conforms",
+                      "does_not_conform",
+                      "undetermined"
+                    ],
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "conformityRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "decimalValueText": {
+                    "pattern": "^-?[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "quantitative"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "resolutionText": {
+                    "nullable": true,
+                    "pattern": "^[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "significantDigits": {
+                    "maximum": 28,
+                    "minimum": 1,
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "toleranceLowerText": {
+                    "nullable": true,
+                    "pattern": "^-?[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "toleranceRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "toleranceUnitCode": {
+                    "nullable": true,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9./*^%_-]{0,39}$",
+                    "type": "string"
+                  },
+                  "toleranceUpperText": {
+                    "nullable": true,
+                    "pattern": "^-?[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "uncertaintyCoverage": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "uncertaintyText": {
+                    "nullable": true,
+                    "pattern": "^[0-9]{1,16}(?:\\.[0-9]{1,12})?$",
+                    "type": "string"
+                  },
+                  "uncertaintyUnitCode": {
+                    "nullable": true,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9./*^%_-]{0,39}$",
+                    "type": "string"
+                  },
+                  "unitCode": {
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9./*^%_-]{0,39}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "conformity",
+                  "conformityRule",
+                  "kind",
+                  "decimalValueText",
+                  "unitCode",
+                  "resolutionText",
+                  "significantDigits",
+                  "uncertaintyText",
+                  "uncertaintyUnitCode",
+                  "uncertaintyCoverage",
+                  "toleranceLowerText",
+                  "toleranceUpperText",
+                  "toleranceUnitCode",
+                  "toleranceRule"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "categoryCode": {
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "categoryLabel": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "categoryMeaningSnapshot": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "conformity": {
+                    "enum": [
+                      "conforms",
+                      "does_not_conform",
+                      "undetermined"
+                    ],
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "conformityRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "categorical"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "conformity",
+                  "conformityRule",
+                  "kind",
+                  "categoryCode",
+                  "categoryLabel",
+                  "categoryMeaningSnapshot"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "conformity": {
+                    "enum": [
+                      "conforms",
+                      "does_not_conform",
+                      "undetermined"
+                    ],
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "conformityRule": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "textual"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "textLanguage": {
+                    "maxLength": 35,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "textValue": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "conformity",
+                  "conformityRule",
+                  "kind",
+                  "textValue",
+                  "textLanguage"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "characteristic": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "contextNote": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "format": "uuid",
+                    "nullable": true,
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "missing"
+                    ],
+                    "type": "string"
+                  },
+                  "missingExplanation": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "missingReason": {
+                    "enum": [
+                      "not_observed",
+                      "not_applicable",
+                      "unavailable"
+                    ],
+                    "type": "string"
+                  },
+                  "position": {
+                    "exclusiveMinimum": true,
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "groupId",
+                  "position",
+                  "characteristic",
+                  "contextNote",
+                  "kind",
+                  "missingReason",
+                  "missingExplanation"
+                ],
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "expectedResultVersion",
+          "value"
+        ],
+        "type": "object"
+      },
+      "UpdateTechnicalResultGroup": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedGroupVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expectedRevisionVersion": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "label": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "position": {
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedRevisionVersion",
+          "expectedGroupVersion",
+          "position",
+          "label"
         ],
         "type": "object"
       },
@@ -17191,6 +18248,1198 @@
         "summary": "",
         "tags": [
           "technical-operations-executions"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/evidence": {
+      "get": {
+        "operationId": "listTechnicalEvidence",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-evidence"
+        ]
+      },
+      "post": {
+        "operationId": "createTechnicalEvidence",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTechnicalEvidence"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-evidence"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/evidence/{evidenceId}": {
+      "patch": {
+        "operationId": "updateTechnicalEvidence",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "evidenceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTechnicalEvidence"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-evidence"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/evidence/{evidenceId}/content": {
+      "get": {
+        "operationId": "downloadTechnicalEvidence",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "evidenceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-evidence"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/evidence/{evidenceId}/remove": {
+      "post": {
+        "operationId": "removeTechnicalEvidence",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "evidenceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveTechnicalEvidence"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-evidence"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/result-groups": {
+      "post": {
+        "operationId": "createTechnicalResultGroup",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTechnicalResultGroup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/result-groups/reorder": {
+      "post": {
+        "operationId": "reorderTechnicalResultGroups",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderTechnicalResultGroups"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/result-groups/{groupId}": {
+      "patch": {
+        "operationId": "updateTechnicalResultGroup",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTechnicalResultGroup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/result-groups/{groupId}/remove": {
+      "post": {
+        "operationId": "removeTechnicalResultGroup",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveTechnicalResultGroup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/results": {
+      "get": {
+        "operationId": "listTechnicalResults",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      },
+      "post": {
+        "operationId": "createTechnicalResult",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTechnicalResult"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/results/reorder": {
+      "post": {
+        "operationId": "reorderTechnicalResults",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderTechnicalResults"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/results/{resultId}": {
+      "patch": {
+        "operationId": "updateTechnicalResult",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "resultId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTechnicalResult"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
+        ]
+      }
+    },
+    "/api/v1/technical-executions/{executionId}/revisions/{revisionId}/results/{resultId}/remove": {
+      "post": {
+        "operationId": "removeTechnicalResult",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-ardenfold-organization-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "executionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revisionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "resultId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveTechnicalResult"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Machine-readable error; clients localize the error code.",
+            "headers": {
+              "x-request-id": {
+                "description": "Request correlation identifier.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "technical-operations-results"
         ]
       }
     },
