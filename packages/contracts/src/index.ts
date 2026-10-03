@@ -128,6 +128,14 @@ import {
     identifierSchema,
     instantSchema,
 } from "./shared/primitives";
+import {
+    abandonTechnicalExecutionSchema,
+    createSuccessorRevisionSchema,
+    discardExecutionDraftSchema,
+    editExecutionDraftSchema,
+    startTechnicalExecutionSchema,
+    submitExecutionRevisionSchema,
+} from "./technical-operations/executions/executions";
 
 export * from "./assets/assets";
 export * from "./assets/history";
@@ -148,6 +156,7 @@ export * from "./service-management/quotations/quotations";
 export * from "./service-management/queries/operational";
 export * from "./service-management/receipts/receipts";
 export * from "./service-management/work-orders/work-orders";
+export * from "./technical-operations/executions/executions";
 
 // This is the only package-level composition point. Contract definitions stay
 // in their owning domain modules; OpenAPI consumes this stable public registry.
@@ -261,4 +270,10 @@ export const contractSchemas = {
     ReceiptListResponse: receiptListResponseSchema,
     CreateReceipt: createReceiptSchema,
     CorrectReceipt: correctReceiptSchema,
+    StartTechnicalExecution: startTechnicalExecutionSchema,
+    EditExecutionDraft: editExecutionDraftSchema,
+    SubmitExecutionRevision: submitExecutionRevisionSchema,
+    CreateSuccessorRevision: createSuccessorRevisionSchema,
+    DiscardExecutionDraft: discardExecutionDraftSchema,
+    AbandonTechnicalExecution: abandonTechnicalExecutionSchema,
 };

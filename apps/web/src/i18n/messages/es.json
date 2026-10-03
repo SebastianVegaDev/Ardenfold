@@ -974,7 +974,13 @@
             "receiptVoided": "Recepción anulada",
             "fileUploadRequested": "Carga de archivo solicitada",
             "fileUploaded": "Archivo cargado",
-            "fileFinalized": "Archivo finalizado"
+            "fileFinalized": "Archivo finalizado",
+            "technicalExecutionStarted": "Ejecución técnica iniciada",
+            "technicalExecutionAbandoned": "Ejecución técnica abandonada",
+            "technicalRevisionEdited": "Revisión técnica editada",
+            "technicalRevisionSubmitted": "Revisión técnica enviada",
+            "technicalRevisionSuccessorCreated": "Corrección técnica iniciada",
+            "technicalRevisionDiscarded": "Revisión técnica descartada"
         }
     },
     "states": {

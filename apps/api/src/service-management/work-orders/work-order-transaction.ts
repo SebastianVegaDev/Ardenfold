@@ -3,6 +3,7 @@ import { workOrders, type WorkOrder } from "@ardenfold/database/schema";
 import { and, eq, sql } from "drizzle-orm";
 
 import { ContractException } from "../../http/contracts";
+import { requireTechnicalWorkUnconsumed } from "../../technical-operations/executions/queries/execution-handoff";
 
 export async function lockWorkOrder(
     tx: ArdenfoldTransaction,
@@ -42,6 +43,7 @@ export async function advanceWorkOrder(
         >
     >,
 ): Promise<WorkOrder> {
+    await requireTechnicalWorkUnconsumed(tx, order.organizationId, order.id);
     const [updated] = await tx
         .update(workOrders)
         .set({

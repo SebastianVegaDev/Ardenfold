@@ -183,6 +183,20 @@
       "when": 1791057447619,
       "tag": "0025_technical_result_constraints",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791057447620,
+      "tag": "0026_technical_draft_context_edit",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791057447621,
+      "tag": "0027_technical_revision_sequence_commit",
+      "breakpoints": true
     }
   ]
 }

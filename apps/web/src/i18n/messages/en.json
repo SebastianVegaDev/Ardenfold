@@ -974,7 +974,13 @@
             "receiptVoided": "Receipt voided",
             "fileUploadRequested": "File upload requested",
             "fileUploaded": "File uploaded",
-            "fileFinalized": "File finalized"
+            "fileFinalized": "File finalized",
+            "technicalExecutionStarted": "Technical execution started",
+            "technicalExecutionAbandoned": "Technical execution abandoned",
+            "technicalRevisionEdited": "Technical revision edited",
+            "technicalRevisionSubmitted": "Technical revision submitted",
+            "technicalRevisionSuccessorCreated": "Technical correction started",
+            "technicalRevisionDiscarded": "Technical revision discarded"
         }
     },
     "states": {
