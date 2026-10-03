@@ -136,6 +136,21 @@ import {
     startTechnicalExecutionSchema,
     submitExecutionRevisionSchema,
 } from "./technical-operations/executions/executions";
+import {
+    createTechnicalResultSchema,
+    updateTechnicalResultSchema,
+    removeTechnicalResultSchema,
+    createTechnicalResultGroupSchema,
+    updateTechnicalResultGroupSchema,
+    removeTechnicalResultGroupSchema,
+    reorderTechnicalResultsSchema,
+    reorderTechnicalResultGroupsSchema,
+} from "./technical-operations/results/results";
+import {
+    createTechnicalEvidenceSchema,
+    updateTechnicalEvidenceSchema,
+    removeTechnicalEvidenceSchema,
+} from "./technical-operations/evidence/evidence";
 
 export * from "./assets/assets";
 export * from "./assets/history";
@@ -157,6 +172,8 @@ export * from "./service-management/queries/operational";
 export * from "./service-management/receipts/receipts";
 export * from "./service-management/work-orders/work-orders";
 export * from "./technical-operations/executions/executions";
+export * from "./technical-operations/results/results";
+export * from "./technical-operations/evidence/evidence";
 
 // This is the only package-level composition point. Contract definitions stay
 // in their owning domain modules; OpenAPI consumes this stable public registry.
@@ -276,4 +293,15 @@ export const contractSchemas = {
     CreateSuccessorRevision: createSuccessorRevisionSchema,
     DiscardExecutionDraft: discardExecutionDraftSchema,
     AbandonTechnicalExecution: abandonTechnicalExecutionSchema,
+    CreateTechnicalResult: createTechnicalResultSchema,
+    UpdateTechnicalResult: updateTechnicalResultSchema,
+    RemoveTechnicalResult: removeTechnicalResultSchema,
+    CreateTechnicalResultGroup: createTechnicalResultGroupSchema,
+    UpdateTechnicalResultGroup: updateTechnicalResultGroupSchema,
+    RemoveTechnicalResultGroup: removeTechnicalResultGroupSchema,
+    ReorderTechnicalResults: reorderTechnicalResultsSchema,
+    ReorderTechnicalResultGroups: reorderTechnicalResultGroupsSchema,
+    CreateTechnicalEvidence: createTechnicalEvidenceSchema,
+    UpdateTechnicalEvidence: updateTechnicalEvidenceSchema,
+    RemoveTechnicalEvidence: removeTechnicalEvidenceSchema,
 };

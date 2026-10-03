@@ -980,7 +980,10 @@
             "technicalRevisionEdited": "Technical revision edited",
             "technicalRevisionSubmitted": "Technical revision submitted",
             "technicalRevisionSuccessorCreated": "Technical correction started",
-            "technicalRevisionDiscarded": "Technical revision discarded"
+            "technicalRevisionDiscarded": "Technical revision discarded",
+            "technicalEvidenceCreated": "Technical evidence added",
+            "technicalEvidenceUpdated": "Technical evidence updated",
+            "technicalEvidenceRemoved": "Technical evidence removed"
         }
     },
     "states": {

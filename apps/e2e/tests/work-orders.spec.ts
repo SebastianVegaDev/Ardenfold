@@ -599,7 +599,13 @@ test("work authorization preserves the accepted revision and prepares independen
         id: string;
         version: number;
     };
-    const technicalReplay = await call(owner, "/technical-executions", "POST", orgId, technicalStart);
+    const technicalReplay = await call(
+        owner,
+        "/technical-executions",
+        "POST",
+        orgId,
+        technicalStart,
+    );
     expect(technicalReplay.status, JSON.stringify(technicalReplay.body)).toBe(201);
     expect((technicalReplay.body.execution as { id: string }).id).toBe(startedExecution.id);
     const technicalDetail = await call(
@@ -618,6 +624,113 @@ test("work authorization preserves the accepted revision and prepares independen
         { expectedVersion: initialTechnicalRevision.version, methodName: "Visual inspection" },
     );
     expect(editedTechnicalDraft.status, JSON.stringify(editedTechnicalDraft.body)).toBe(200);
+    const contentPath = `/technical-executions/${startedExecution.id}/revisions/${initialTechnicalRevision.id}`;
+    const resultGroup = await call(owner, `${contentPath}/result-groups`, "POST", orgId, {
+        expectedRevisionVersion: editedTechnicalDraft.body.version,
+        position: 1,
+        label: "Inspection measurements",
+    });
+    expect(resultGroup.status, JSON.stringify(resultGroup.body)).toBe(201);
+    const quantitative = await call(owner, `${contentPath}/results`, "POST", orgId, {
+        expectedRevisionVersion: (editedTechnicalDraft.body.version as number) + 1,
+        value: {
+            kind: "quantitative",
+            groupId: resultGroup.body.id,
+            position: 1,
+            characteristic: "Diameter",
+            contextNote: "At ambient temperature",
+            decimalValueText: "12.3400",
+            unitCode: "mm",
+            resolutionText: "0.0001",
+            significantDigits: 6,
+            uncertaintyText: null,
+            uncertaintyUnitCode: null,
+            uncertaintyCoverage: null,
+            toleranceLowerText: "12.0000",
+            toleranceUpperText: "13.0000",
+            toleranceUnitCode: "mm",
+            toleranceRule: "Customer specification",
+            conformity: "conforms",
+            conformityRule: "Within stated bounds",
+        },
+    });
+    expect(quantitative.status, JSON.stringify(quantitative.body)).toBe(201);
+    expect(quantitative.body.decimalValueText).toBe("12.3400");
+    const missing = await call(owner, `${contentPath}/results`, "POST", orgId, {
+        expectedRevisionVersion: (editedTechnicalDraft.body.version as number) + 2,
+        value: {
+            kind: "missing",
+            groupId: resultGroup.body.id,
+            position: 2,
+            characteristic: "Surface temperature",
+            contextNote: null,
+            missingReason: "not_observed",
+            missingExplanation: "Sensor unavailable",
+        },
+    });
+    expect(missing.status, JSON.stringify(missing.body)).toBe(201);
+    expect(missing.body.decimalValueText).toBeNull();
+    const reordered = await call(owner, `${contentPath}/results/reorder`, "POST", orgId, {
+        expectedRevisionVersion: (editedTechnicalDraft.body.version as number) + 3,
+        groupId: resultGroup.body.id,
+        orderedIds: [missing.body.id, quantitative.body.id],
+    });
+    expect(reordered.status, JSON.stringify(reordered.body)).toBe(200);
+    const evidence = await call(owner, `${contentPath}/evidence`, "POST", orgId, {
+        expectedRevisionVersion: (editedTechnicalDraft.body.version as number) + 4,
+        target: "result",
+        resultId: quantitative.body.id,
+        kind: "observation",
+        evidenceType: "inspection_note",
+        description: "Caliper reading",
+        observationText: "Reading confirmed by second operator",
+    });
+    expect(evidence.status, JSON.stringify(evidence.body)).toBe(201);
+    const reservedFile = await call(owner, "/files", "POST", orgId, {
+        idempotencyKey: randomUUID(),
+        filename: "inspection.txt",
+        mediaType: "text/plain",
+        byteLength: 4,
+        sha256: "0".repeat(64),
+    });
+    expect(reservedFile.status, JSON.stringify(reservedFile.body)).toBe(201);
+    const pendingEvidence = await call(owner, `${contentPath}/evidence`, "POST", orgId, {
+        expectedRevisionVersion: (editedTechnicalDraft.body.version as number) + 5,
+        target: "revision",
+        resultId: null,
+        kind: "file",
+        evidenceType: "inspection_file",
+        description: "Inspection notes",
+        storedObjectId: reservedFile.body.id,
+    });
+    expect(pendingEvidence.status).toBe(404);
+    const staleResult = await call(
+        owner,
+        `${contentPath}/results/${quantitative.body.id as string}`,
+        "PATCH",
+        orgId,
+        {
+            expectedRevisionVersion: (editedTechnicalDraft.body.version as number) + 4,
+            expectedResultVersion: quantitative.body.version,
+            value: {
+                kind: "missing",
+                groupId: resultGroup.body.id,
+                position: 2,
+                characteristic: "Diameter",
+                contextNote: null,
+                missingReason: "unavailable",
+                missingExplanation: null,
+            },
+        },
+    );
+    expect(staleResult.status).toBe(409);
+    const captured = await call(owner, `${contentPath}/results`, "GET", orgId);
+    expect(captured.status, JSON.stringify(captured.body)).toBe(200);
+    expect(
+        (captured.body.results as Array<{ id: string; position: number }>).find(
+            (result) => result.id === missing.body.id,
+        )?.position,
+    ).toBe(1);
     const blockedOrderChange = await call(owner, `/work-orders/${orderId}/planned`, "POST", orgId, {
         expectedVersion: readyOrder.body.version,
         reason: "Cannot change consumed work",
