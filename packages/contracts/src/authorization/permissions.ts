@@ -28,6 +28,9 @@ export const permissionCodeSchema = z.enum([
     "receipts.write",
     "technical_executions.read",
     "technical_executions.write",
+    "technical_evidence.read",
+    "technical_reviews.decide",
+    "technical_approvals.decide",
     "files.upload",
     "files.read",
 ]);

@@ -187,6 +187,21 @@ export class OrganizationAuthorizationService {
                             true
                         ),
                         set_config(
+                            'ardenfold.permission.technical_evidence.read',
+                            ${String(context.permissions.includes("technical_evidence.read"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.technical_reviews.decide',
+                            ${String(context.permissions.includes("technical_reviews.decide"))},
+                            true
+                        ),
+                        set_config(
+                            'ardenfold.permission.technical_approvals.decide',
+                            ${String(context.permissions.includes("technical_approvals.decide"))},
+                            true
+                        ),
+                        set_config(
                             'ardenfold.permission.files.upload',
                             ${String(context.permissions.includes("files.upload"))},
                             true

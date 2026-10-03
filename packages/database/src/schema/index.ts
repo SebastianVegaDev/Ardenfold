@@ -10,4 +10,7 @@ export * from "./service-management/quotations";
 export * from "./service-management/work-orders";
 export * from "./service-management/receipts";
 export * from "./technical-operations/executions";
+export * from "./technical-operations/results";
+export * from "./technical-operations/reviews";
+export * from "./technical-operations/evidence";
 export * from "./files/stored-objects";
