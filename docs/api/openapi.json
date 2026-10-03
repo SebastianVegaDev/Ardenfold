@@ -109,7 +109,9 @@
                 "work_orders.read",
                 "work_orders.write",
                 "receipts.read",
-                "receipts.write"
+                "receipts.write",
+                "technical_executions.read",
+                "technical_executions.write"
               ],
               "type": "string"
             },
