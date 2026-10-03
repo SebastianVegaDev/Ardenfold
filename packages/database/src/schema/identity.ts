@@ -38,6 +38,12 @@ export const organizations = pgTable(
         status: organizationStatus("status").default("active").notNull(),
         defaultLocale: varchar("default_locale", { length: 35 }).default("en").notNull(),
         defaultTimeZone: varchar("default_time_zone", { length: 255 }).default("UTC").notNull(),
+        requirePerformerReviewerSeparation: boolean("require_performer_reviewer_separation")
+            .default(true)
+            .notNull(),
+        requireReviewerApproverSeparation: boolean("require_reviewer_approver_separation")
+            .default(false)
+            .notNull(),
         ...auditTimestamps(),
     },
     (table) => [

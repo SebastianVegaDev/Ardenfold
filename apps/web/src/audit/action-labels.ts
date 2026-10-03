@@ -70,4 +70,6 @@ export const auditActionMessageKeys: Readonly<Record<AuditAction, string>> = {
     "technical_evidence.created": "audit.actions.technicalEvidenceCreated",
     "technical_evidence.updated": "audit.actions.technicalEvidenceUpdated",
     "technical_evidence.removed": "audit.actions.technicalEvidenceRemoved",
+    "technical_review.decided": "audit.actions.technicalReviewDecided",
+    "technical_approval.decided": "audit.actions.technicalApprovalDecided",
 };

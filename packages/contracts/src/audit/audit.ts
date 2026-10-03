@@ -69,6 +69,8 @@ export const auditActionSchema = z.enum([
     "technical_evidence.created",
     "technical_evidence.updated",
     "technical_evidence.removed",
+    "technical_review.decided",
+    "technical_approval.decided",
     "file.upload_requested",
     "file.uploaded",
     "file.finalized",

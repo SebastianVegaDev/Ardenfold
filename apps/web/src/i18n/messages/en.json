@@ -983,7 +983,9 @@
             "technicalRevisionDiscarded": "Technical revision discarded",
             "technicalEvidenceCreated": "Technical evidence added",
             "technicalEvidenceUpdated": "Technical evidence updated",
-            "technicalEvidenceRemoved": "Technical evidence removed"
+            "technicalEvidenceRemoved": "Technical evidence removed",
+            "technicalReviewDecided": "Technical review decided",
+            "technicalApprovalDecided": "Technical approval decided"
         }
     },
     "states": {
