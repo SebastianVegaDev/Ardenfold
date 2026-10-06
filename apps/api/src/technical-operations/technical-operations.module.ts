@@ -16,6 +16,12 @@ import {
 } from "./http/decisions.controller";
 import { TechnicalExecutionsController } from "./http/executions.controller";
 import { TechnicalResultsController } from "./http/results.controller";
+import { TechnicalQueuesController } from "./http/technical-queues.controller";
+import { TechnicalHistoryController } from "./http/technical-history.controller";
+import { TechnicalRevisionsController } from "./http/technical-revisions.controller";
+import { TechnicalHistoryService } from "./queries/technical-history.service";
+import { TechnicalRevisionSearchService } from "./queries/technical-revision-search.service";
+import { TechnicalQueuesService } from "./queries/technical-queues.service";
 import { TechnicalResultsService } from "./results/management/technical-results.service";
 import { TechnicalDecisionPolicyService } from "./reviews/decision-policy.service";
 import { TechnicalReviewService } from "./reviews/technical-review.service";
@@ -29,6 +35,9 @@ import { TechnicalReviewService } from "./reviews/technical-review.service";
         TechnicalDecisionPolicyController,
         TechnicalDecisionsController,
         TechnicalPackagesController,
+        TechnicalQueuesController,
+        TechnicalHistoryController,
+        TechnicalRevisionsController,
     ],
     providers: [
         ExecutionStartService,
@@ -40,6 +49,9 @@ import { TechnicalReviewService } from "./reviews/technical-review.service";
         TechnicalReviewService,
         TechnicalApprovalService,
         TechnicalPackageService,
+        TechnicalQueuesService,
+        TechnicalHistoryService,
+        TechnicalRevisionSearchService,
     ],
 })
 export class TechnicalOperationsModule {}

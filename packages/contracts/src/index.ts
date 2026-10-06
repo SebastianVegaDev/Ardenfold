@@ -135,6 +135,7 @@ import {
     editExecutionDraftSchema,
     startTechnicalExecutionSchema,
     submitExecutionRevisionSchema,
+    technicalExecutionListQuerySchema,
 } from "./technical-operations/executions/executions";
 import {
     createTechnicalResultSchema,
@@ -156,6 +157,14 @@ import {
     decideTechnicalReviewSchema,
     decideTechnicalApprovalSchema,
 } from "./technical-operations/reviews/decisions";
+import {
+    technicalQueueKindSchema,
+    technicalQueueQuerySchema,
+    technicalQueueEntrySchema,
+    technicalQueueResponseSchema,
+    technicalHistoryQuerySchema,
+    technicalRevisionSearchQuerySchema,
+} from "./technical-operations/queries/queries";
 
 export * from "./assets/assets";
 export * from "./assets/history";
@@ -181,6 +190,7 @@ export * from "./technical-operations/results/results";
 export * from "./technical-operations/evidence/evidence";
 export * from "./technical-operations/reviews/decision-policy";
 export * from "./technical-operations/reviews/decisions";
+export * from "./technical-operations/queries/queries";
 
 // This is the only package-level composition point. Contract definitions stay
 // in their owning domain modules; OpenAPI consumes this stable public registry.
@@ -314,4 +324,11 @@ export const contractSchemas = {
     TechnicalDecisionPolicy: technicalDecisionPolicySchema,
     DecideTechnicalReview: decideTechnicalReviewSchema,
     DecideTechnicalApproval: decideTechnicalApprovalSchema,
+    TechnicalQueueKind: technicalQueueKindSchema,
+    TechnicalQueueQuery: technicalQueueQuerySchema,
+    TechnicalQueueEntry: technicalQueueEntrySchema,
+    TechnicalQueueResponse: technicalQueueResponseSchema,
+    TechnicalHistoryQuery: technicalHistoryQuerySchema,
+    TechnicalRevisionSearchQuery: technicalRevisionSearchQuerySchema,
+    TechnicalExecutionListQuery: technicalExecutionListQuerySchema,
 };

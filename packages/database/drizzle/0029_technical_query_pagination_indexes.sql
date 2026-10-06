@@ -1,0 +1,2 @@
+CREATE INDEX "execution_revisions_org_created_page_idx" ON "execution_revisions" USING btree ("organization_id","created_at" DESC NULLS LAST,"id" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "technical_executions_org_started_page_idx" ON "technical_executions" USING btree ("organization_id","started_at" DESC NULLS LAST,"id" DESC NULLS LAST);

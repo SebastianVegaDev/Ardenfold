@@ -174,6 +174,18 @@ test("review and approval bind one submitted revision and lose applicability aft
     );
     expect(readyOrder.status, JSON.stringify(readyOrder.body)).toBe(200);
     const readyWorkItem = (readyOrder.body.items as Array<{ id: string; version: number }>)[0]!;
+    const readyQueue = await call(
+        owner,
+        `/technical-operations/queues?kind=ready_to_execute&assetId=${asset.body.id as string}`,
+        "GET",
+        orgId,
+    );
+    expect(readyQueue.status, JSON.stringify(readyQueue.body)).toBe(200);
+    expect(
+        (readyQueue.body.data as Array<{ workItemId: string }>).some(
+            (row) => row.workItemId === readyWorkItem.id,
+        ),
+    ).toBe(true);
     const started = await call(owner, "/technical-executions", "POST", orgId, {
         workOrderId: order.body.id,
         workItemId: readyWorkItem.id,
@@ -184,6 +196,26 @@ test("review and approval bind one submitted revision and lose applicability aft
     expect(started.status, JSON.stringify(started.body)).toBe(201);
     const execution = started.body.execution as { id: string; version: number };
     const revision = started.body.initialRevision as { id: string; version: number };
+    const inProgress = await call(
+        owner,
+        "/technical-operations/queues?kind=in_progress",
+        "GET",
+        orgId,
+    );
+    expect(inProgress.status, JSON.stringify(inProgress.body)).toBe(200);
+    expect(
+        (inProgress.body.data as Array<{ executionId: string }>).some(
+            (row) => row.executionId === execution.id,
+        ),
+    ).toBe(true);
+    const search = await call(
+        owner,
+        `/technical-executions?assetId=${asset.body.id as string}&performerUserId=${ownerId}`,
+        "GET",
+        orgId,
+    );
+    expect(search.status, JSON.stringify(search.body)).toBe(200);
+    expect(search.body.data).toEqual([]);
     const path = `/technical-executions/${execution.id}/revisions/${revision.id}`;
     const edited = await call(owner, path, "PATCH", orgId, {
         expectedVersion: revision.version,
@@ -209,6 +241,41 @@ test("review and approval bind one submitted revision and lose applicability aft
         idempotencyKey: randomUUID(),
     });
     expect(submitted.status, JSON.stringify(submitted.body)).toBe(200);
+    const awaitingReview = await call(
+        owner,
+        "/technical-operations/queues?kind=awaiting_review",
+        "GET",
+        orgId,
+    );
+    expect(awaitingReview.status, JSON.stringify(awaitingReview.body)).toBe(200);
+    expect(
+        (awaitingReview.body.data as Array<{ revisionId: string }>).some(
+            (row) => row.revisionId === revision.id,
+        ),
+    ).toBe(true);
+    const filteredExecutions = await call(
+        owner,
+        `/technical-executions?assetId=${asset.body.id as string}&performerUserId=${ownerId}&revisionStatus=submitted`,
+        "GET",
+        orgId,
+    );
+    expect(filteredExecutions.status, JSON.stringify(filteredExecutions.body)).toBe(200);
+    expect(
+        (filteredExecutions.body.data as Array<{ latestRevision: { id: string } }>)[0]
+            ?.latestRevision.id,
+    ).toBe(revision.id);
+    const submittedRevisions = await call(
+        owner,
+        `/technical-revisions?status=submitted&customerPartyId=${customer.body.id as string}`,
+        "GET",
+        orgId,
+    );
+    expect(submittedRevisions.status, JSON.stringify(submittedRevisions.body)).toBe(200);
+    expect(
+        (submittedRevisions.body.data as Array<{ id: string }>).some(
+            (row) => row.id === revision.id,
+        ),
+    ).toBe(true);
     const beforeReview = await call(owner, `/technical-executions/${execution.id}`, "GET", orgId);
     const reviewCommand = {
         idempotencyKey: randomUUID(),
@@ -221,6 +288,18 @@ test("review and approval bind one submitted revision and lose applicability aft
     expect((await call(owner, `${path}/review`, "POST", orgId, reviewCommand)).status).toBe(403);
     const review = await call(reviewer, `${path}/review`, "POST", orgId, reviewCommand);
     expect(review.status, JSON.stringify(review.body)).toBe(201);
+    const awaitingApproval = await call(
+        owner,
+        "/technical-operations/queues?kind=awaiting_approval",
+        "GET",
+        orgId,
+    );
+    expect(awaitingApproval.status, JSON.stringify(awaitingApproval.body)).toBe(200);
+    expect(
+        (awaitingApproval.body.data as Array<{ revisionId: string }>).some(
+            (row) => row.revisionId === revision.id,
+        ),
+    ).toBe(true);
     const replayReview = await call(reviewer, `${path}/review`, "POST", orgId, reviewCommand);
     expect(replayReview.body.id).toBe(review.body.id);
     const beforeApproval = await call(owner, `/technical-executions/${execution.id}`, "GET", orgId);
@@ -235,6 +314,35 @@ test("review and approval bind one submitted revision and lose applicability aft
     };
     const approval = await call(owner, `${path}/approval`, "POST", orgId, approvalCommand);
     expect(approval.status, JSON.stringify(approval.body)).toBe(201);
+    const approvedQueue = await call(
+        owner,
+        "/technical-operations/queues?kind=approved",
+        "GET",
+        orgId,
+    );
+    expect(approvedQueue.status, JSON.stringify(approvedQueue.body)).toBe(200);
+    expect(
+        (approvedQueue.body.data as Array<{ subjectId: string }>).some(
+            (row) => row.subjectId === approval.body.id,
+        ),
+    ).toBe(true);
+    const historyPage = await call(
+        owner,
+        `/technical-executions/${execution.id}/history?limit=2`,
+        "GET",
+        orgId,
+    );
+    expect(historyPage.status, JSON.stringify(historyPage.body)).toBe(200);
+    expect((historyPage.body.events as Array<unknown>).length).toBe(2);
+    expect(historyPage.body.nextAfterVersion).toBeTruthy();
+    const nextHistoryPage = await call(
+        owner,
+        `/technical-executions/${execution.id}/history?limit=2&afterVersion=${historyPage.body.nextAfterVersion as number}`,
+        "GET",
+        orgId,
+    );
+    expect(nextHistoryPage.status, JSON.stringify(nextHistoryPage.body)).toBe(200);
+    expect((nextHistoryPage.body.events as Array<unknown>).length).toBeGreaterThan(0);
     const packagePath = `/technical-approvals/${approval.body.id as string}/package`;
     const approvedPackage = await call(owner, packagePath, "GET", orgId);
     expect(approvedPackage.status, JSON.stringify(approvedPackage.body)).toBe(200);
@@ -262,8 +370,37 @@ test("review and approval bind one submitted revision and lose applicability aft
         },
     );
     expect(successor.status, JSON.stringify(successor.body)).toBe(201);
+    const firstRevisionPage = await call(
+        owner,
+        "/technical-revisions?sort=oldest&limit=1",
+        "GET",
+        orgId,
+    );
+    expect(firstRevisionPage.status, JSON.stringify(firstRevisionPage.body)).toBe(200);
+    expect(firstRevisionPage.body.nextCursor).toBeTruthy();
+    const secondRevisionPage = await call(
+        owner,
+        `/technical-revisions?sort=oldest&limit=1&cursor=${encodeURIComponent(firstRevisionPage.body.nextCursor as string)}`,
+        "GET",
+        orgId,
+    );
+    expect(secondRevisionPage.status, JSON.stringify(secondRevisionPage.body)).toBe(200);
+    expect((secondRevisionPage.body.data as Array<{ id: string }>)[0]?.id).not.toBe(
+        (firstRevisionPage.body.data as Array<{ id: string }>)[0]?.id,
+    );
     const historicalPackage = await call(owner, packagePath, "GET", orgId);
     expect(historicalPackage.body.applicable).toBe(false);
+    const noLongerApproved = await call(
+        owner,
+        "/technical-operations/queues?kind=approved",
+        "GET",
+        orgId,
+    );
+    expect(
+        (noLongerApproved.body.data as Array<{ subjectId: string }>).some(
+            (row) => row.subjectId === approval.body.id,
+        ),
+    ).toBe(false);
     const frozenResult = await call(
         owner,
         `${path}/results/${result.body.id as string}`,
@@ -319,4 +456,16 @@ test("review and approval bind one submitted revision and lose applicability aft
     });
     expect(requested.status, JSON.stringify(requested.body)).toBe(201);
     expect(requested.body.outcome).toBe("changes_requested");
+    const correctionQueue = await call(
+        owner,
+        "/technical-operations/queues?kind=changes_requested",
+        "GET",
+        orgId,
+    );
+    expect(correctionQueue.status, JSON.stringify(correctionQueue.body)).toBe(200);
+    expect(
+        (correctionQueue.body.data as Array<{ revisionId: string }>).some(
+            (row) => row.revisionId === successor.body.id,
+        ),
+    ).toBe(true);
 });

@@ -81,8 +81,26 @@ export const abandonTechnicalExecutionSchema = z.strictObject({ expectedVersion:
 export type AbandonTechnicalExecution = z.infer<typeof abandonTechnicalExecutionSchema>;
 
 export const technicalExecutionListQuerySchema = z.strictObject({
-    limit: z.coerce.number().int().min(1).max(100).default(25),
+    limit: z.coerce.number().int().min(1).max(50).default(25),
+    cursor: z.string().min(1).max(2048).optional(),
+    sort: z.enum(["newest", "oldest"]).default("newest"),
     workItemId: id.optional(),
+    workOrderId: id.optional(),
+    customerPartyId: id.optional(),
+    assetId: id.optional(),
+    siteId: id.optional(),
+    performerUserId: id.optional(),
+    reviewerUserId: id.optional(),
+    approverUserId: id.optional(),
     status: z.enum(["active", "abandoned"]).optional(),
+    revisionStatus: z.enum(["draft", "submitted", "discarded"]).optional(),
+    startedFrom: instantSchema.optional(),
+    startedTo: instantSchema.optional(),
+    submittedFrom: instantSchema.optional(),
+    submittedTo: instantSchema.optional(),
+    reviewedFrom: instantSchema.optional(),
+    reviewedTo: instantSchema.optional(),
+    approvedFrom: instantSchema.optional(),
+    approvedTo: instantSchema.optional(),
 });
 export type TechnicalExecutionListQuery = z.infer<typeof technicalExecutionListQuerySchema>;
