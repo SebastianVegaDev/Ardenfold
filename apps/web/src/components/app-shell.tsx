@@ -12,6 +12,7 @@ import {
     FileText,
     BriefcaseBusiness,
     ListChecks,
+    FlaskConical,
     UserRound,
     UsersRound,
     X,
@@ -36,6 +37,7 @@ export type AppShellCopy = Readonly<{
     quotations: string;
     workOrders: string;
     operations: string;
+    technicalOperations: string;
     settings: string;
     organization: string;
     organizationPlaceholder: string;
@@ -67,6 +69,8 @@ type AppShellProps = Readonly<{
     canReadWorkOrders?: boolean;
     operationsHref?: string;
     canReadOperations?: boolean;
+    technicalOperationsHref?: string;
+    canReadTechnicalOperations?: boolean;
 }>;
 
 export function AppShell({
@@ -87,6 +91,8 @@ export function AppShell({
     canReadWorkOrders = false,
     operationsHref,
     canReadOperations = false,
+    technicalOperationsHref,
+    canReadTechnicalOperations = false,
     locale,
     onboardingHref,
     organizations,
@@ -163,6 +169,16 @@ export function AppShell({
                 >
                     <ListChecks aria-hidden="true" className="size-5 shrink-0" />
                     <span className="md:hidden lg:inline">{copy.operations}</span>
+                </Link>
+            ) : null}
+            {canReadTechnicalOperations && technicalOperationsHref ? (
+                <Link
+                    className="flex h-11 items-center gap-3 rounded-control px-3 font-medium outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    href={technicalOperationsHref}
+                    onClick={() => setMobileNavigationOpen(false)}
+                >
+                    <FlaskConical aria-hidden="true" className="size-5 shrink-0" />
+                    <span className="md:hidden lg:inline">{copy.technicalOperations}</span>
                 </Link>
             ) : null}
             {organizations.length > 0 ? (
