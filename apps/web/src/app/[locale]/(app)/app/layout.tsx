@@ -53,6 +53,7 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 quotations: translate("quotations"),
                 workOrders: translate("workOrders"),
                 operations: translate("operations"),
+                technicalOperations: translate("technicalOperations"),
                 settings: translate("settings"),
                 organization: translate("organization"),
                 organizationPlaceholder: translate("organizationPlaceholder"),
@@ -78,6 +79,10 @@ export default async function AuthenticatedLayout({ children, params }: Authenti
                 activeOrganization?.permissions.includes("work_orders.read") ?? false
             }
             operationsHref={`/${locale}/app/operations`}
+            technicalOperationsHref={`/${locale}/app/technical-operations`}
+            canReadTechnicalOperations={
+                activeOrganization?.permissions.includes("technical_executions.read") ?? false
+            }
             canReadOperations={(
                 [
                     "service_requests.read",
