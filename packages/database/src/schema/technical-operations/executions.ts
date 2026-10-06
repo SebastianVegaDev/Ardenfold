@@ -103,6 +103,11 @@ export const technicalExecutions = pgTable(
             table.workItemId,
             table.attemptNumber.desc(),
         ),
+        index("technical_executions_org_started_page_idx").on(
+            table.organizationId,
+            table.startedAt.desc(),
+            table.id.desc(),
+        ),
         index("technical_executions_org_asset_started_idx").on(
             table.organizationId,
             table.targetAssetIdAtStart,
@@ -224,6 +229,11 @@ export const executionRevisions = pgTable(
             table.organizationId,
             table.status,
             table.createdAt.desc(),
+        ),
+        index("execution_revisions_org_created_page_idx").on(
+            table.organizationId,
+            table.createdAt.desc(),
+            table.id.desc(),
         ),
         check("execution_revisions_number_positive", sql`${table.revisionNumber} > 0`),
         check("execution_revisions_version_positive", sql`${table.version} > 0`),

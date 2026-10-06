@@ -204,6 +204,13 @@
       "when": 1791061884634,
       "tag": "0028_technical_decision_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791290017446,
+      "tag": "0029_technical_query_pagination_indexes",
+      "breakpoints": true
     }
   ]
 }
